@@ -2135,12 +2135,13 @@ int X_Y_to_Number(const float Nx,const float Ny)
 
 float Forward_Curve(float point_FC, int number_mat, int Joint_num)
 {
-  SERIAL_ECHOPAIR("point_FC:", point_FC);
-  SERIAL_ECHOPAIR(" number_mat:", number_mat);
-  SERIAL_ECHOPAIR(" Joint_num:", Joint_num);
-  float temp_return = c_m[number_mat][Joint_num];//a_m[number_mat][Joint_num]*point_FC*point_FC+b_m[number_mat][Joint_num]*point_FC+c_m[number_mat][Joint_num];// + b_m[0][Joint_num]*point_FC + c_m[0][Joint_num];
-  SERIAL_ECHOPAIR(" return data:", temp_return);
-  SERIAL_ECHOLNPAIR(" c_m[0][0]:", c_m[0][Joint_num]);  
+  // SERIAL_ECHOPAIR("point_FC:", point_FC);
+  // SERIAL_ECHOPAIR(" number_mat:", number_mat);
+  // SERIAL_ECHOPAIR(" Joint_num:", Joint_num);
+  // float temp_return = c_m[number_mat][Joint_num];
+  float temp_return = a_m[number_mat][Joint_num]*point_FC*point_FC+b_m[number_mat][Joint_num]*point_FC+c_m[number_mat][Joint_num];// + b_m[0][Joint_num]*point_FC + c_m[0][Joint_num];
+  // SERIAL_ECHOPAIR(" return data:", temp_return);
+  // SERIAL_ECHOLNPAIR(" c_m[0][0]:", c_m[0][Joint_num]);  
 
   return temp_return;
 }
@@ -2148,7 +2149,7 @@ float Forward_Curve(float point_FC, int number_mat, int Joint_num)
 void Set_current_Joint_Curve_More(float numberx,float numbery,float numberz){
   int number = X_Y_to_Number(numberx, numbery);
   //int number = 0;
-  SERIAL_ECHOLNPAIR("number:", number);
+  // SERIAL_ECHOLNPAIR("number:", number);
   
   DEBUG_POS_Joint("(Before)Set_current_Joint_Curve_More", current_position_Joint); 
   float point1=numberz*100;
@@ -5791,12 +5792,20 @@ inline void gcode_G28(const bool always_home_all) {
   //*
   // if(axis_homed==31){
   if(Joint_homed==1){
-    //buffer_line_to_destination_Constant(HOME_position, HOME_position_Joint, homing_feedrate_Joint(0));
-    buffer_line_to_destination_Constant(HOME_position_Z20, HOME_position_Z20_Joint, homing_feedrate_Joint(0));
+    buffer_line_to_destination_Constant(HOME_position, HOME_position_Joint, homing_feedrate_Joint(0));
+
+    // Set_current_Joint_Curve_More(0, 0, 0);
+    // feedrate_mm_s=homing_feedrate_Joint(0);
+    // buffer_line_to_current_position();  
+
+    HOME_position_Z20_Joint[0]=Forward_Curve(2000, 0, 0);
+    HOME_position_Z20_Joint[1]=Forward_Curve(2000, 0, 1);
+    HOME_position_Z20_Joint[2]=Forward_Curve(2000, 0, 2);
+    HOME_position_Z20_Joint[3]=Forward_Curve(2000, 0, 3);
+    HOME_position_Z20_Joint[4]=Forward_Curve(2000, 0, 4);
     
     //delay(2000);
-    //buffer_line_to_destination_Constant(ZERO_position, ZERO_position_Joint, homing_feedrate_Joint(0));
-    
+    buffer_line_to_destination_Constant(HOME_position_Z20, HOME_position_Z20_Joint, homing_feedrate_Joint(0));    
   }
   //*/
   // buffer_line_to_destination_Constant(HOME_position_Z20, HOME_position_Z20_Joint, homing_feedrate_Joint(0));
