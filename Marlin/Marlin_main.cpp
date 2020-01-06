@@ -4956,12 +4956,17 @@ static void homeJoint(const JointEnum axis) {
     planner.buffer_line_joint(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
                               current_position_Joint[Joint1_AXIS], current_position_Joint[Joint2_AXIS], current_position_Joint[Joint3_AXIS], 
                               current_position_Joint[Joint4_AXIS], current_position_Joint[Joint5_AXIS], 
-                              current_position[E_CART], manual_feedrate_mm_m_joint[axis], active_extruder);
+                              current_position[E_CART], manual_feedrate_mm_m_joint[Joint2_AXIS], active_extruder);
     planner.synchronize();
-    /*planner.buffer_line_kinematic( current_position, current_position_Joint, 
-                                  MMM_TO_MMS(manual_feedrate_mm_m_joint[manual_move_joint]), 0);*/
   } 
-  do_homing_move_Joint(axis, 1.5f * max_length_Joint(axis) * Joint_home_dir, manual_feedrate_mm_m_joint[axis]);
+  float MIN_POS_step[] = {J_MIN_POS_step,A_MIN_POS_step,B_MIN_POS_step,C_MIN_POS_step,D_MIN_POS_step};
+  current_position_Joint[axis] = ABS(current_position_Joint[axis]-MIN_POS_step[axis])*0.7; 
+  planner.buffer_line_joint(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
+                              current_position_Joint[Joint1_AXIS], current_position_Joint[Joint2_AXIS], current_position_Joint[Joint3_AXIS], 
+                              current_position_Joint[Joint4_AXIS], current_position_Joint[Joint5_AXIS], 
+                              current_position[E_CART], manual_feedrate_mm_m_joint[axis], active_extruder);
+  planner.synchronize();
+  do_homing_move_Joint(axis, 1.5f * max_length_Joint(axis) * Joint_home_dir, manual_feedrate_mm_m_joint[axis]/1.6);
 
   //do_homing_move_Joint(axis, 1.5f * (base_max_pos_Joint(axis)-base_min_pos_Joint(axis)) * Joint_home_dir);
 
