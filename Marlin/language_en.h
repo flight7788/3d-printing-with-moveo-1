@@ -604,6 +604,24 @@
   #ifndef MSG_VC_JERK
     #define MSG_VC_JERK                       _UxGT("Vz-jerk")
   #endif
+
+  #ifndef MSG_Joint_VJ_JERK
+    #define MSG_Joint_VJ_JERK                 _UxGT("VJ-jerk")
+  #endif
+  #ifndef MSG_Joint_VA_JERK
+    #define MSG_Joint_VA_JERK                 _UxGT("VA-jerk")
+  #endif
+  #ifndef MSG_Joint_VB_JERK
+    #define  MSG_Joint_VB_JERK                _UxGT("VB-jerk")
+  #endif
+  #ifndef MSG_Joint_VC_JERK
+    #define MSG_Joint_VC_JERK                 _UxGT("VC-jerk")
+  #endif
+  #ifndef MSG_Joint_VD_JERK
+    #define MSG_Joint_VD_JERK                 _UxGT("VD-jerk")
+  #endif
+  
+
 #endif
 #ifndef MSG_VE_JERK
   #define MSG_VE_JERK                         _UxGT("Ve-jerk")
@@ -658,6 +676,24 @@
   #ifndef MSG_CSTEPS
     #define MSG_CSTEPS                        _UxGT("Zsteps/mm")
   #endif
+
+  #ifndef MSG_Joint_JSTEPS
+    #define MSG_Joint_JSTEPS                  _UxGT("Jsteps/mm")
+  #endif
+  #ifndef MSG_Joint_ASTEPS
+    #define MSG_Joint_ASTEPS                  _UxGT("Asteps/mm")
+  #endif
+  #ifndef MSG_Joint_BSTEPS
+    #define MSG_Joint_BSTEPS                  _UxGT("Bsteps/mm")
+  #endif
+  #ifndef MSG_Joint_CSTEPS
+    #define MSG_Joint_CSTEPS                  _UxGT("Csteps/mm")
+  #endif
+  #ifndef MSG_Joint_DSTEPS
+    #define MSG_Joint_DSTEPS                  _UxGT("Dsteps/mm")
+  #endif
+  
+
 #endif
 #ifndef MSG_ESTEPS
   #define MSG_ESTEPS                          _UxGT("Esteps/mm")

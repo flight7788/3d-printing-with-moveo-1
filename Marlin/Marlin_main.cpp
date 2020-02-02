@@ -685,6 +685,7 @@ const char Joint_codes[Joint_All] = { 'J', 'A', 'B', 'C', 'D'};
   #define RAW_AXIS_CODES(I) axis_codes_hangprinter[I]
 #else
   #define RAW_AXIS_CODES(I) axis_codes[I]
+  #define RAW_JOINT_CODES(I) Joint_codes[I]
 #endif
 
 // Number of characters read in the current line of serial input
@@ -4953,21 +4954,21 @@ static void homeJoint(const JointEnum axis) {
   //LOOP_NUM_JOINT(i) planner.axis_steps_per_mm_joint[i] +=80; 
   
   if(axis==Joint2_AXIS){
-    current_position_Joint[Joint3_AXIS]=70000;
+    current_position_Joint[Joint3_AXIS]=80000;
     planner.buffer_line_joint(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
                               current_position_Joint[Joint1_AXIS], current_position_Joint[Joint2_AXIS], current_position_Joint[Joint3_AXIS], 
                               current_position_Joint[Joint4_AXIS], current_position_Joint[Joint5_AXIS], 
-                              current_position[E_CART], manual_feedrate_mm_m_joint[Joint2_AXIS], active_extruder);
+                              current_position[E_CART], manual_feedrate_mm_m_joint[Joint3_AXIS], active_extruder);
     planner.synchronize();
   } 
   float MIN_POS_step[] = {J_MIN_POS_step,A_MIN_POS_step,B_MIN_POS_step,C_MIN_POS_step,D_MIN_POS_step};
-  current_position_Joint[axis] = ABS(current_position_Joint[axis]-MIN_POS_step[axis])*0.7; 
+  current_position_Joint[axis] = -ABS(current_position_Joint[axis]-MIN_POS_step[axis])*0.98; 
   planner.buffer_line_joint(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
                               current_position_Joint[Joint1_AXIS], current_position_Joint[Joint2_AXIS], current_position_Joint[Joint3_AXIS], 
                               current_position_Joint[Joint4_AXIS], current_position_Joint[Joint5_AXIS], 
                               current_position[E_CART], manual_feedrate_mm_m_joint[axis], active_extruder);
   planner.synchronize();
-  do_homing_move_Joint(axis, 1.5f * max_length_Joint(axis) * Joint_home_dir, manual_feedrate_mm_m_joint[axis]/1.6);
+  do_homing_move_Joint(axis, 1.5f * max_length_Joint(axis) * Joint_home_dir, manual_feedrate_mm_m_joint[axis]/5);
 
   //do_homing_move_Joint(axis, 1.5f * (base_max_pos_Joint(axis)-base_min_pos_Joint(axis)) * Joint_home_dir);
 
@@ -10999,6 +11000,12 @@ inline void gcode_M92() {
       }
     }
   }
+
+  LOOP_NUM_JOINT(i){
+    if (parser.seen(RAW_JOINT_CODES(i))) {
+      planner.axis_steps_per_mm_joint[i] = parser.value_per_joint_unit((JointEnum)i);
+    }
+  }
   planner.refresh_positioning();
 }
 
@@ -11435,6 +11442,13 @@ inline void gcode_M201() {
       planner.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
     }
   }
+  LOOP_NUM_JOINT(i){
+    if (parser.seen(RAW_JOINT_CODES(i))) {
+      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
+      planner.max_acceleration_mm_per_s2_joint[a] = parser.value_joint_units((JointEnum)a);
+    }
+  }
+    
   // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
   planner.reset_acceleration_rates();
 }
@@ -11457,11 +11471,20 @@ inline void gcode_M203() {
 
   GET_TARGET_EXTRUDER(203);
 
-  LOOP_NUM_AXIS(i)
+  LOOP_NUM_AXIS(i){
     if (parser.seen(RAW_AXIS_CODES(i))) {
       const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
       planner.max_feedrate_mm_s[a] = parser.value_axis_units((AxisEnum)a);
     }
+  }
+    
+  LOOP_NUM_JOINT(i){
+    if (parser.seen(RAW_JOINT_CODES(i))) {
+      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
+      planner.max_feedrate_mm_s_joint[a] = parser.value_joint_units((JointEnum)a);
+    }
+  }
+    
 }
 
 /**
@@ -11540,6 +11563,12 @@ inline void gcode_M205() {
             SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
         #endif
       }
+      if (parser.seen('J')) planner.max_jerk_joint[Joint1_AXIS] = parser.value_linear_units();
+      if (parser.seen('A')) planner.max_jerk_joint[Joint2_AXIS] = parser.value_linear_units();
+      if (parser.seen('B')) planner.max_jerk_joint[Joint3_AXIS] = parser.value_linear_units();
+      if (parser.seen('C')) planner.max_jerk_joint[Joint4_AXIS] = parser.value_linear_units();
+      if (parser.seen('D')) planner.max_jerk_joint[Joint5_AXIS] = parser.value_linear_units();
+
     #endif
     if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
   #endif
@@ -17327,6 +17356,15 @@ void loop() {
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop
       print_job_timer.init();   // Initial setup of print job timer
+      float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
+      float max_feedrate_mm_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
+      float axis_steps_per_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_UNIT;
+
+      LOOP_NUM_JOINT(i){
+        planner.max_acceleration_mm_per_s2_joint[i] = max_acceleration_joint_init[i];
+        planner.max_feedrate_mm_s_joint[i] = max_feedrate_mm_joint_init[i];
+        planner.axis_steps_per_mm_joint[i] = axis_steps_per_joint_init[i];
+      }
     }
 
   #endif // SDSUPPORT

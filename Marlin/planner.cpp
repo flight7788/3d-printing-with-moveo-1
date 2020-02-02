@@ -130,8 +130,10 @@ float Planner::max_feedrate_mm_s[NUM_AXIS_N], // (mm/s) M203 XYZE - Max speeds
   #endif
 #else
   float Planner::max_jerk[NUM_AXIS];          // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
-  float Planner::max_jerk_joint[NUM_JOINT];
+  float Planner::max_jerk_joint[NUM_JOINT]={ DEFAULT_JJERK ,DEFAULT_AJERK ,DEFAULT_BJERK ,DEFAULT_CJERK ,DEFAULT_DJERK};
+  
 #endif
+ 
 
 #if ENABLED(LINE_BUILDUP_COMPENSATION_FEATURE)
   float Planner::k0[MOV_AXIS],
@@ -1698,11 +1700,13 @@ bool Planner::_buffer_steps_joint(const int32_t (&target)[NUM_AXIS], const int32
 
   // Recalculate and optimize trapezoidal speed profiles
   recalculate();
-  //SERIAL_ECHOLNPAIR_F("accelerate_until : ", block->accelerate_until);
-  //SERIAL_ECHOLNPAIR_F("decelerate_after : ", block->decelerate_after);
-  //SERIAL_ECHOLNPAIR_F("initial_rate : ", block->initial_rate);
-  //SERIAL_ECHOLNPAIR_F("nominal_rate : ", block->nominal_rate);
-  //SERIAL_ECHOLNPAIR_F("final_rate : ", block->final_rate);
+  //*
+  SERIAL_ECHOLNPAIR_F("accelerate_until : ", block->accelerate_until);
+  SERIAL_ECHOLNPAIR_F("decelerate_after : ", block->decelerate_after);
+  SERIAL_ECHOLNPAIR_F("initial_rate : ", block->initial_rate);
+  SERIAL_ECHOLNPAIR_F("nominal_rate : ", block->nominal_rate);
+  SERIAL_ECHOLNPAIR_F("final_rate : ", block->final_rate);
+  //*/
   // Movement successfully queued!
   return true;
 }
@@ -3613,7 +3617,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   else
     NOLESS(fr_mm_s, min_travel_feedrate_mm_s);
 
-    //  SERIAL_ECHOPAIR("feedrate_mm_s:",feedrate_mm_s);
+  //SERIAL_ECHOPAIR("feedrate_mm_s:",feedrate_mm_s);
     
 
   /**
@@ -3632,11 +3636,11 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N];
   
   float delta_joint_mm[Joint_All];
-  delta_joint_mm[Joint1_AXIS] = (float) d0  * steps_to_mm_joint[Joint1_AXIS];   //  / 100.23;
-  delta_joint_mm[Joint2_AXIS] = (float) d1  * steps_to_mm_joint[Joint2_AXIS];   //  / 100.23;
-  delta_joint_mm[Joint3_AXIS] = (float) d2  * steps_to_mm_joint[Joint3_AXIS];   //  / 100.23;
-  delta_joint_mm[Joint4_AXIS] = (float) d3  * steps_to_mm_joint[Joint4_AXIS];   //  / 100.23;
-  delta_joint_mm[Joint5_AXIS] = (float) d4  * steps_to_mm_joint[Joint5_AXIS];   //  / 100.23;
+  delta_joint_mm[Joint1_AXIS] = (float) d0  * steps_to_mm_joint[Joint1_AXIS];   
+  delta_joint_mm[Joint2_AXIS] = (float) d1  * steps_to_mm_joint[Joint2_AXIS];   
+  delta_joint_mm[Joint3_AXIS] = (float) d2  * steps_to_mm_joint[Joint3_AXIS];   
+  delta_joint_mm[Joint4_AXIS] = (float) d3  * steps_to_mm_joint[Joint4_AXIS];   
+  delta_joint_mm[Joint5_AXIS] = (float) d4  * steps_to_mm_joint[Joint5_AXIS];   
 
   //if (block->steps[A_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[B_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[C_AXIS] < MIN_STEPS_PER_SEGMENT) {
   if (abs(block->step_Joint[Joint1_AXIS]) < 30 && (block->step_Joint[Joint2_AXIS] < 1 && block->step_Joint[Joint3_AXIS] < 1
@@ -3657,6 +3661,13 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
 
   const float inverse_millimeters = (float)1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
 
+  const float feedrate_rate_joint[Joint_All] = DEFAULT_FEEDRATE_RATE_JOINT;
+  LOOP_NUM_JOINT(i){
+    if(block->step_event_count == block->step_Joint[i]){
+      fr_mm_s *= (float)feedrate_rate_joint[i];
+      break;
+    }
+  }
   // Calculate inverse time for this move. No divide by zero due to previous checks.
   // Example: At 120mm/s a 60mm move takes 0.5s. So this will give 2.0.
   float inverse_secs = (float)fr_mm_s * inverse_millimeters;
@@ -3682,8 +3693,10 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
       }
     }
   #endif
-  //SERIAL_ECHOLNPAIR_F("inverse_millimeters : ", inverse_millimeters);
-  //SERIAL_ECHOLNPAIR_F("inverse_secs : ",inverse_secs);
+
+  SERIAL_ECHOLNPAIR_F("feedrate : ", fr_mm_s);
+  SERIAL_ECHOLNPAIR_F("inverse_millimeters : ", inverse_millimeters);
+  SERIAL_ECHOLNPAIR_F("inverse_secs : ",inverse_secs);
   #if ENABLED(ULTRA_LCD)
     // Protect the access to the position.
     const bool was_enabled = STEPPER_ISR_ENABLED();
@@ -3696,7 +3709,8 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
 
   block->nominal_speed_sqr = sq((float)block->millimeters * inverse_secs);   //   (mm/sec)^2 Always > 0
   block->nominal_rate = CEIL((float)block->step_event_count * inverse_secs); // (step/sec) Always > 0
-  
+  //SERIAL_ECHOLNPAIR_F("Origin nominal_speed_sqr : ",block->nominal_speed_sqr);
+  //SERIAL_ECHOLNPAIR_F("Origin nominal_rate : ",block->nominal_rate);
   /*
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[NUM_AXIS], speed_factor = 1.0f; // factor <1 decreases speed
@@ -3720,7 +3734,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
     #endif
     if (cs > max_feedrate_mm_s_joint[i]) NOMORE(speed_factor, (float)max_feedrate_mm_s_joint[i] / cs);
   }
-  //SERIAL_ECHOLNPAIR_F("speed_factor : ",speed_factor);
+  SERIAL_ECHOLNPAIR_F("speed_factor : ",speed_factor);
   /*
   // Correct the speed
   if (speed_factor < 1.0f) {
@@ -3734,12 +3748,15 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
     block->nominal_rate *= speed_factor;
     block->nominal_speed_sqr = block->nominal_speed_sqr * sq(speed_factor);
   }
-  //SERIAL_ECHOLNPAIR_F("current_joint_speed[1] : ",current_joint_speed[Joint1_AXIS]);
-  //SERIAL_ECHOLNPAIR_F("current_joint_speed[2] : ",current_joint_speed[Joint2_AXIS]);
-  //SERIAL_ECHOLNPAIR_F("current_joint_speed[3] : ",current_joint_speed[Joint3_AXIS]);
-  //SERIAL_ECHOLNPAIR_F("current_joint_speed[4] : ",current_joint_speed[Joint4_AXIS]);
-  //SERIAL_ECHOLNPAIR_F("current_joint_speed[5] : ",current_joint_speed[Joint5_AXIS]);
-
+  //*
+  SERIAL_ECHOLNPAIR_F("nominal_speed_sqr : ",block->nominal_speed_sqr);
+  SERIAL_ECHOLNPAIR_F("nominal_rate : ",block->nominal_rate);
+  SERIAL_ECHOLNPAIR_F("current_joint_speed[1] : ",current_joint_speed[Joint1_AXIS]);
+  SERIAL_ECHOLNPAIR_F("current_joint_speed[2] : ",current_joint_speed[Joint2_AXIS]);
+  SERIAL_ECHOLNPAIR_F("current_joint_speed[3] : ",current_joint_speed[Joint3_AXIS]);
+  SERIAL_ECHOLNPAIR_F("current_joint_speed[4] : ",current_joint_speed[Joint4_AXIS]);
+  SERIAL_ECHOLNPAIR_F("current_joint_speed[5] : ",current_joint_speed[Joint5_AXIS]);
+  //*/
 
   // Compute and limit the acceleration rate for the trapezoid generator.
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
@@ -3875,7 +3892,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   }
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
-  /*
+  //*
   SERIAL_ECHOLNPAIR_F("accel : ",accel);
   SERIAL_ECHOLNPAIR_F("steps_per_mm : ",steps_per_mm);
   SERIAL_ECHOLNPAIR_F("acceleration_steps_per_s2 : ",block->acceleration_steps_per_s2);
@@ -4027,11 +4044,6 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
       }
     }
     //*/
-    max_jerk_joint[Joint1_AXIS] = DEFAULT_JJERK;
-    max_jerk_joint[Joint2_AXIS] = DEFAULT_AJERK;
-    max_jerk_joint[Joint3_AXIS] = DEFAULT_BJERK;
-    max_jerk_joint[Joint4_AXIS] = DEFAULT_CJERK;
-    max_jerk_joint[Joint5_AXIS] = DEFAULT_DJERK;
     LOOP_NUM_JOINT(i) {
       const float jerk = ABS(current_joint_speed[i]),   // cs : Starting from zero, change in speed for this axis
                   maxj = max_jerk_joint[i];             // mj : The max jerk setting for this axis
@@ -4142,16 +4154,18 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   // the reverse and forward planners, the corresponding block junction speed will always be at the
   // the maximum junction speed and may always be ignored for any speed reduction checks.
   block->flag |= block->nominal_speed_sqr <= v_allowable_sqr ? BLOCK_FLAG_RECALCULATE | BLOCK_FLAG_NOMINAL_LENGTH : BLOCK_FLAG_RECALCULATE;
-  //SERIAL_ECHOLNPAIR_F("millimeters : ", block->millimeters);
-  //SERIAL_ECHOLNPAIR_F("nominal_speed_sqr : ", block->nominal_speed_sqr);
-  //SERIAL_ECHOLNPAIR_F("acceleration_rate : ", block->acceleration_rate);
-  //SERIAL_ECHOLNPAIR("flag : ", block->flag);
-  //SERIAL_ECHOLNPAIR("step_event_count : ", block->step_event_count);
-  //SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint1_AXIS] : ", delta_joint_mm[Joint1_AXIS]);
-  //SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint2_AXIS] : ", delta_joint_mm[Joint2_AXIS]);
-  //SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint3_AXIS] : ", delta_joint_mm[Joint3_AXIS]);
-  //SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint4_AXIS] : ", delta_joint_mm[Joint4_AXIS]);
-  //SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint5_AXIS] : ", delta_joint_mm[Joint5_AXIS]);
+  /*
+  SERIAL_ECHOLNPAIR_F("millimeters : ", block->millimeters);
+  SERIAL_ECHOLNPAIR_F("nominal_speed_sqr : ", block->nominal_speed_sqr);
+  SERIAL_ECHOLNPAIR_F("acceleration_rate : ", block->acceleration_rate);
+  SERIAL_ECHOLNPAIR("flag : ", block->flag);
+  SERIAL_ECHOLNPAIR("step_event_count : ", block->step_event_count);
+  SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint1_AXIS] : ", delta_joint_mm[Joint1_AXIS]);
+  SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint2_AXIS] : ", delta_joint_mm[Joint2_AXIS]);
+  SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint3_AXIS] : ", delta_joint_mm[Joint3_AXIS]);
+  SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint4_AXIS] : ", delta_joint_mm[Joint4_AXIS]);
+  SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint5_AXIS] : ", delta_joint_mm[Joint5_AXIS]);
+  //*/
   //SERIAL_ECHOLNPAIR("position : ", block->position);
   //SERIAL_ECHOLNPAIR("steps : ", block->steps);
   //SERIAL_ECHOLNPAIR("position_joint : ", block->position_Joint);

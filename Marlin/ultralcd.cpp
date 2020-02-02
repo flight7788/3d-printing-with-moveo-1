@@ -136,6 +136,8 @@ uint16_t max_display_update_time = 0;
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float52sign, ftostr52sign);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float62, ftostr62rj);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint32_t, long5, ftostr5rj);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint32_t, long5_1, ftostr5rj);
+
   #define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data)                    DRAW_BOOL_SETTING(sel, row, pstr, data)
   #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) DRAW_BOOL_SETTING(sel, row, pstr, data)
   #define lcd_implementation_drawmenu_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset)     DRAW_BOOL_SETTING(sel, row, pstr, data)
@@ -261,6 +263,7 @@ uint16_t max_display_update_time = 0;
   DECLARE_MENU_EDIT_TYPE(float, float52sign);
   DECLARE_MENU_EDIT_TYPE(float, float62);
   DECLARE_MENU_EDIT_TYPE(uint32_t, long5);
+  DECLARE_MENU_EDIT_TYPE(uint32_t, long5_1);
 
   void menu_action_setting_edit_bool(const char* pstr, bool* ptr);
   void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callbackFunc);
@@ -3944,9 +3947,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_BACK(MSG_MOTION);
 
       // M203 Max Feedrate
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_A, &planner.max_feedrate_mm_s[A_AXIS], 1, 999);
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_B, &planner.max_feedrate_mm_s[B_AXIS], 1, 999);
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_C, &planner.max_feedrate_mm_s[C_AXIS], 1, 999);
+      //MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_A, &planner.max_feedrate_mm_s[A_AXIS], 1, 999);
+      //MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_B, &planner.max_feedrate_mm_s[B_AXIS], 1, 999);
+      //MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_C, &planner.max_feedrate_mm_s[C_AXIS], 1, 999);
+      MENU_MULTIPLIER_ITEM_EDIT(float62, MSG_VMAX MSG_Joint1, &planner.max_feedrate_mm_s_joint[Joint1_AXIS], 1, 999);
+      MENU_MULTIPLIER_ITEM_EDIT(float62, MSG_VMAX MSG_Joint2, &planner.max_feedrate_mm_s_joint[Joint2_AXIS], 1, 999);
+      MENU_MULTIPLIER_ITEM_EDIT(float62, MSG_VMAX MSG_Joint3, &planner.max_feedrate_mm_s_joint[Joint3_AXIS], 1, 999);
+      MENU_MULTIPLIER_ITEM_EDIT(float62, MSG_VMAX MSG_Joint4, &planner.max_feedrate_mm_s_joint[Joint4_AXIS], 1, 999);
+      MENU_MULTIPLIER_ITEM_EDIT(float62, MSG_VMAX MSG_Joint5, &planner.max_feedrate_mm_s_joint[Joint5_AXIS], 1, 999);
 
       #if ENABLED(DISTINCT_E_FACTORS)
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.max_feedrate_mm_s[E_AXIS + active_extruder], 1, 999);
@@ -3989,9 +3997,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_A_TRAVEL, &planner.travel_acceleration, 100, 99000);
 
       // M201 settings
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_A, &planner.max_acceleration_mm_per_s2[A_AXIS], 100, 99000, _reset_acceleration_rates);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_B, &planner.max_acceleration_mm_per_s2[B_AXIS], 100, 99000, _reset_acceleration_rates);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_C, &planner.max_acceleration_mm_per_s2[C_AXIS], 10, 99000, _reset_acceleration_rates);
+      //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_A, &planner.max_acceleration_mm_per_s2[A_AXIS], 100, 99000, _reset_acceleration_rates);
+      //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_B, &planner.max_acceleration_mm_per_s2[B_AXIS], 100, 99000, _reset_acceleration_rates);
+      //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_C, &planner.max_acceleration_mm_per_s2[C_AXIS], 10, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint1, &planner.max_acceleration_mm_per_s2_joint[Joint1_AXIS], 1, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint2, &planner.max_acceleration_mm_per_s2_joint[Joint2_AXIS], 1, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint3, &planner.max_acceleration_mm_per_s2_joint[Joint3_AXIS], 1, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint4, &planner.max_acceleration_mm_per_s2_joint[Joint4_AXIS], 1, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint5, &planner.max_acceleration_mm_per_s2_joint[Joint5_AXIS], 1, 99000, _reset_acceleration_rates);
 
       #if ENABLED(DISTINCT_E_FACTORS)
         MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS + active_extruder], 100, 99000, _reset_acceleration_rates);
@@ -4021,8 +4034,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
       #if ENABLED(JUNCTION_DEVIATION)
         MENU_ITEM_EDIT_CALLBACK(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f, planner.recalculate_max_e_jerk);
       #else
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk[A_AXIS], 1, 990);
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk[B_AXIS], 1, 990);
+        //MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk[A_AXIS], 1, 990);
+        //MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk[B_AXIS], 1, 990);
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_Joint_VJ_JERK, &planner.max_jerk_joint[Joint1_AXIS], 1, 990);
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_Joint_VA_JERK, &planner.max_jerk_joint[Joint2_AXIS], 1, 990);
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_Joint_VB_JERK, &planner.max_jerk_joint[Joint3_AXIS], 1, 990);
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_Joint_VC_JERK, &planner.max_jerk_joint[Joint4_AXIS], 1, 990);
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_Joint_VD_JERK, &planner.max_jerk_joint[Joint5_AXIS], 1, 990);
+
         #if ENABLED(DELTA)
           MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 1, 990);
         #else
@@ -4039,9 +4058,15 @@ void lcd_quick_feedback(const bool clear_buttons) {
       START_MENU();
       MENU_BACK(MSG_MOTION);
 
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ASTEPS, &planner.axis_steps_per_mm[A_AXIS], 5, 9999, _planner_refresh_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_BSTEPS, &planner.axis_steps_per_mm[B_AXIS], 5, 9999, _planner_refresh_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_CSTEPS, &planner.axis_steps_per_mm[C_AXIS], 5, 9999, _planner_refresh_positioning);
+      //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ASTEPS, &planner.axis_steps_per_mm[A_AXIS], 5, 9999, _planner_refresh_positioning);
+      //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_BSTEPS, &planner.axis_steps_per_mm[B_AXIS], 5, 9999, _planner_refresh_positioning);
+      //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_CSTEPS, &planner.axis_steps_per_mm[C_AXIS], 5, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_JSTEPS, &planner.axis_steps_per_mm_joint[Joint1_AXIS], 1, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_ASTEPS, &planner.axis_steps_per_mm_joint[Joint2_AXIS], 1, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_BSTEPS, &planner.axis_steps_per_mm_joint[Joint3_AXIS], 1, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_CSTEPS, &planner.axis_steps_per_mm_joint[Joint4_AXIS], 1, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_DSTEPS, &planner.axis_steps_per_mm_joint[Joint5_AXIS], 1, 9999, _planner_refresh_positioning);
+
 
       #if ENABLED(DISTINCT_E_FACTORS)
         MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS + active_extruder], 5, 9999, _planner_refresh_positioning);
@@ -5120,6 +5145,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
   DEFINE_MENU_EDIT_TYPE(float, float52sign, ftostr52sign, 100);
   DEFINE_MENU_EDIT_TYPE(float, float62, ftostr62rj, 100);
   DEFINE_MENU_EDIT_TYPE(uint32_t, long5, ftostr5rj, 0.01f);
+  DEFINE_MENU_EDIT_TYPE(uint32_t, long5_1, ftostr5rj, 1);
+  
 
   /**
    *
