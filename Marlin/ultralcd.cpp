@@ -462,7 +462,7 @@ uint16_t max_display_update_time = 0;
 
   // Manual Moves
   const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
-  const float manual_feedrate_mm_m_joint[] = MANUAL1_FEEDRATE;
+  const float manual_feedrate_mm_m_joint[] = MANUAL_FEEDRATE_JOINT_LCD;
   millis_t manual_move_start_time = 0;
   int8_t manual_move_axis = (int8_t)NO_AXIS;
   int8_t manual_move_joint = (int8_t)NO_AXIS;
@@ -3036,13 +3036,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       #else
         static float old_E0_position = 0;
-        float max_feedrate_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
-        planner.max_feedrate_mm_s_joint[Joint1_AXIS] = 50;
         //planner.buffer_line_kinematic(current_position, current_position_Joint, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
         planner.buffer_line_kinematic( current_position, current_position_Joint, 
                                       (current_position[E_AXIS] != old_E0_position) ? MMM_TO_MMS(manual_feedrate_mm_m[E_AXIS]):MMM_TO_MMS(manual_feedrate_mm_m_joint[manual_move_joint])
                                       , manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
-        planner.max_feedrate_mm_s_joint[Joint1_AXIS] = max_feedrate_joint_init[Joint1_AXIS];
         //SERIAL_ECHOLNPAIR("E_AXIS",current_position[E_AXIS]);
         //SERIAL_ECHOLNPAIR("current_position",current_position);
         //SERIAL_ECHOLNPAIR("current_position_Joint : ",current_position_Joint);
@@ -4000,11 +3997,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
       //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_A, &planner.max_acceleration_mm_per_s2[A_AXIS], 100, 99000, _reset_acceleration_rates);
       //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_B, &planner.max_acceleration_mm_per_s2[B_AXIS], 100, 99000, _reset_acceleration_rates);
       //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_C, &planner.max_acceleration_mm_per_s2[C_AXIS], 10, 99000, _reset_acceleration_rates);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint1, &planner.max_acceleration_mm_per_s2_joint[Joint1_AXIS], 1, 99000, _reset_acceleration_rates);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint2, &planner.max_acceleration_mm_per_s2_joint[Joint2_AXIS], 1, 99000, _reset_acceleration_rates);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint3, &planner.max_acceleration_mm_per_s2_joint[Joint3_AXIS], 1, 99000, _reset_acceleration_rates);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint4, &planner.max_acceleration_mm_per_s2_joint[Joint4_AXIS], 1, 99000, _reset_acceleration_rates);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint5, &planner.max_acceleration_mm_per_s2_joint[Joint5_AXIS], 1, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint1, &planner.max_acceleration_degree_per_s2_joint[Joint1_AXIS], 1, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint2, &planner.max_acceleration_degree_per_s2_joint[Joint2_AXIS], 1, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint3, &planner.max_acceleration_degree_per_s2_joint[Joint3_AXIS], 1, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint4, &planner.max_acceleration_degree_per_s2_joint[Joint4_AXIS], 1, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5_1, MSG_AMAX MSG_Joint5, &planner.max_acceleration_degree_per_s2_joint[Joint5_AXIS], 1, 99000, _reset_acceleration_rates);
 
       #if ENABLED(DISTINCT_E_FACTORS)
         MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS + active_extruder], 100, 99000, _reset_acceleration_rates);
@@ -4061,11 +4058,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
       //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ASTEPS, &planner.axis_steps_per_mm[A_AXIS], 5, 9999, _planner_refresh_positioning);
       //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_BSTEPS, &planner.axis_steps_per_mm[B_AXIS], 5, 9999, _planner_refresh_positioning);
       //MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_CSTEPS, &planner.axis_steps_per_mm[C_AXIS], 5, 9999, _planner_refresh_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_JSTEPS, &planner.axis_steps_per_mm_joint[Joint1_AXIS], 1, 9999, _planner_refresh_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_ASTEPS, &planner.axis_steps_per_mm_joint[Joint2_AXIS], 1, 9999, _planner_refresh_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_BSTEPS, &planner.axis_steps_per_mm_joint[Joint3_AXIS], 1, 9999, _planner_refresh_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_CSTEPS, &planner.axis_steps_per_mm_joint[Joint4_AXIS], 1, 9999, _planner_refresh_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_DSTEPS, &planner.axis_steps_per_mm_joint[Joint5_AXIS], 1, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_JSTEPS, &planner.axis_steps_per_degree_joint[Joint1_AXIS], 1, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_ASTEPS, &planner.axis_steps_per_degree_joint[Joint2_AXIS], 1, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_BSTEPS, &planner.axis_steps_per_degree_joint[Joint3_AXIS], 1, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_CSTEPS, &planner.axis_steps_per_degree_joint[Joint4_AXIS], 1, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Joint_DSTEPS, &planner.axis_steps_per_degree_joint[Joint5_AXIS], 1, 9999, _planner_refresh_positioning);
 
 
       #if ENABLED(DISTINCT_E_FACTORS)

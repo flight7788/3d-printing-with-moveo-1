@@ -104,15 +104,15 @@ uint32_t Planner::max_acceleration_mm_per_s2[NUM_AXIS_N],    // (mm/s^2) M201 XY
          Planner::max_acceleration_steps_per_s2[NUM_AXIS_N], // (steps/s^2) Derived from mm_per_s2
          Planner::min_segment_time_us;                       // (µs) M205 Q
 
-uint32_t Planner::max_acceleration_mm_per_s2_joint[NUM_JOINT]=DEFAULT_MAX_ACCELERATION_joint,    // (mm/s^2) M201 joint
+uint32_t Planner::max_acceleration_degree_per_s2_joint[NUM_JOINT]=DEFAULT_MAX_ACCELERATION_joint,    // (mm/s^2) M201 joint
          Planner::max_acceleration_steps_per_s2_joint[NUM_JOINT]; // (steps/s^2) Derived from mm_per_s2
 
 float Planner::max_feedrate_mm_s[NUM_AXIS_N], // (mm/s) M203 XYZE - Max speeds
       Planner::max_feedrate_mm_s_joint[NUM_JOINT]=DEFAULT_MAX_FEEDRATE_JOINT,
       Planner::axis_steps_per_mm[NUM_AXIS_N], // (steps) M92 XYZE - Steps per millimeter
       Planner::steps_to_mm[NUM_AXIS_N],       // (mm) Millimeters per step
-      Planner::axis_steps_per_mm_joint[NUM_JOINT]=DEFAULT_JOINT_STEPS_PER_UNIT, // (steps) M92 joint - Steps per millimeter
-      Planner::steps_to_mm_joint[NUM_JOINT],       // (mm) Millimeters per step (joint)
+      Planner::axis_steps_per_degree_joint[NUM_JOINT]=DEFAULT_JOINT_STEPS_PER_DEGEE, // (steps) M92 joint - Steps per millimeter
+      Planner::steps_to_degree_joint[NUM_JOINT],       // (mm) Millimeters per step (joint)
       Planner::min_feedrate_mm_s,             // (mm/s) M205 S - Minimum linear feedrate
       Planner::acceleration,                  // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
       Planner::retract_acceleration,          // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
@@ -3635,12 +3635,12 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   delta_mm[C_AXIS] = dc * steps_to_mm[C_AXIS];
   delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N];
   
-  float delta_joint_mm[Joint_All];
-  delta_joint_mm[Joint1_AXIS] = (float) d0  * steps_to_mm_joint[Joint1_AXIS];   
-  delta_joint_mm[Joint2_AXIS] = (float) d1  * steps_to_mm_joint[Joint2_AXIS];   
-  delta_joint_mm[Joint3_AXIS] = (float) d2  * steps_to_mm_joint[Joint3_AXIS];   
-  delta_joint_mm[Joint4_AXIS] = (float) d3  * steps_to_mm_joint[Joint4_AXIS];   
-  delta_joint_mm[Joint5_AXIS] = (float) d4  * steps_to_mm_joint[Joint5_AXIS];   
+  float delta_joint_degree[Joint_All];
+  delta_joint_degree[Joint1_AXIS] = (float) d0  * steps_to_degree_joint[Joint1_AXIS] * 10;   
+  delta_joint_degree[Joint2_AXIS] = (float) d1  * steps_to_degree_joint[Joint2_AXIS] * 10;   
+  delta_joint_degree[Joint3_AXIS] = (float) d2  * steps_to_degree_joint[Joint3_AXIS] * 10;   
+  delta_joint_degree[Joint4_AXIS] = (float) d3  * steps_to_degree_joint[Joint4_AXIS] * 10;   
+  delta_joint_degree[Joint5_AXIS] = (float) d4  * steps_to_degree_joint[Joint5_AXIS] * 10;   
 
   //if (block->steps[A_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[B_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[C_AXIS] < MIN_STEPS_PER_SEGMENT) {
   if (abs(block->step_Joint[Joint1_AXIS]) < 30 && (block->step_Joint[Joint2_AXIS] < 1 && block->step_Joint[Joint3_AXIS] < 1
@@ -3650,8 +3650,8 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   else if (!millimeters) {
     block->millimeters = SQRT(
       //sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS])
-      sq(delta_joint_mm[Joint1_AXIS])+sq(delta_joint_mm[Joint2_AXIS])+sq(delta_joint_mm[Joint3_AXIS])+sq(delta_joint_mm[Joint4_AXIS])
-      +sq(delta_joint_mm[Joint5_AXIS])
+      sq(delta_joint_degree[Joint1_AXIS])+sq(delta_joint_degree[Joint2_AXIS])+sq(delta_joint_degree[Joint3_AXIS])
+      +sq(delta_joint_degree[Joint4_AXIS])+sq(delta_joint_degree[Joint5_AXIS])
     );
   }
   else {
@@ -3660,7 +3660,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
     
 
   const float inverse_millimeters = (float)1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
-
+  /*
   const float feedrate_rate_joint[Joint_All] = DEFAULT_FEEDRATE_RATE_JOINT;
   LOOP_NUM_JOINT(i){
     if(block->step_event_count == block->step_Joint[i]){
@@ -3668,6 +3668,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
       break;
     }
   }
+  */
   // Calculate inverse time for this move. No divide by zero due to previous checks.
   // Example: At 120mm/s a 60mm move takes 0.5s. So this will give 2.0.
   float inverse_secs = (float)fr_mm_s * inverse_millimeters;
@@ -3728,7 +3729,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   
   float current_joint_speed[Joint_All], speed_factor = 1.0f; // factor <1 decreases speed
   LOOP_NUM_JOINT(i) {
-    const float cs = ABS((current_joint_speed[i] = delta_joint_mm[i] * inverse_secs));
+    const float cs = ABS((current_joint_speed[i] = delta_joint_degree[i] * inverse_secs));
     #if ENABLED(DISTINCT_E_FACTORS)
       if (i == E_AXIS) i += extruder;
     #endif
@@ -4160,11 +4161,11 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   SERIAL_ECHOLNPAIR_F("acceleration_rate : ", block->acceleration_rate);
   SERIAL_ECHOLNPAIR("flag : ", block->flag);
   SERIAL_ECHOLNPAIR("step_event_count : ", block->step_event_count);
-  SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint1_AXIS] : ", delta_joint_mm[Joint1_AXIS]);
-  SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint2_AXIS] : ", delta_joint_mm[Joint2_AXIS]);
-  SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint3_AXIS] : ", delta_joint_mm[Joint3_AXIS]);
-  SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint4_AXIS] : ", delta_joint_mm[Joint4_AXIS]);
-  SERIAL_ECHOLNPAIR_F("delta_joint_mm[Joint5_AXIS] : ", delta_joint_mm[Joint5_AXIS]);
+  SERIAL_ECHOLNPAIR_F("delta_joint_degree[Joint1_AXIS] : ", delta_joint_degree[Joint1_AXIS]);
+  SERIAL_ECHOLNPAIR_F("delta_joint_degree[Joint2_AXIS] : ", delta_joint_degree[Joint2_AXIS]);
+  SERIAL_ECHOLNPAIR_F("delta_joint_degree[Joint3_AXIS] : ", delta_joint_degree[Joint3_AXIS]);
+  SERIAL_ECHOLNPAIR_F("delta_joint_degree[Joint4_AXIS] : ", delta_joint_degree[Joint4_AXIS]);
+  SERIAL_ECHOLNPAIR_F("delta_joint_degree[Joint5_AXIS] : ", delta_joint_degree[Joint5_AXIS]);
   //*/
   //SERIAL_ECHOLNPAIR("position : ", block->position);
   //SERIAL_ECHOLNPAIR("steps : ", block->steps);
@@ -4437,9 +4438,7 @@ bool Planner::buffer_segment_joint(const float &a, const float &b, const float &
   //   LROUND(j5)
   // };
 
-  const int32_t joint[5] = {
-    j1, j2, j3, j4, j5
-  };
+  const int32_t joint[Joint_All] = {j1, j2, j3, j4, j5};
 
   #if HAS_POSITION_FLOAT
     const float target_float[NUM_AXIS] = { a, b, c
@@ -4688,7 +4687,7 @@ void Planner::reset_acceleration_rates() {
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
   LOOP_NUM_JOINT(i) {
-    max_acceleration_steps_per_s2_joint[i] = max_acceleration_mm_per_s2_joint[i] * axis_steps_per_mm_joint[i];
+    max_acceleration_steps_per_s2_joint[i] = max_acceleration_degree_per_s2_joint[i] * axis_steps_per_degree_joint[i];
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2_joint[i]);
   }
   cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
@@ -4700,7 +4699,7 @@ void Planner::reset_acceleration_rates() {
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!
 void Planner::refresh_positioning() {
   LOOP_NUM_AXIS_N(i) steps_to_mm[i] = 1.0f / axis_steps_per_mm[i];
-  LOOP_NUM_JOINT(i) steps_to_mm_joint[i] = 1.0f / axis_steps_per_mm_joint[i];
+  LOOP_NUM_JOINT(i) steps_to_degree_joint[i] = 1.0f / axis_steps_per_degree_joint[i];
   //set_position_mm_kinematic(current_position);
   reset_acceleration_rates();
 }
