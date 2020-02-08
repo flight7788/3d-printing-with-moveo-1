@@ -17351,12 +17351,12 @@ void loop() {
       print_job_timer.init();   // Initial setup of print job timer
       float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
       float max_feedrate_mm_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
-      float axis_steps_per_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_UNIT;
+      float axis_steps_per_degree_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_DEGEE;
 
       LOOP_NUM_JOINT(i){
         planner.max_acceleration_degree_per_s2_joint[i] = max_acceleration_joint_init[i];
         planner.max_feedrate_mm_s_joint[i] = max_feedrate_mm_joint_init[i];
-        planner.axis_steps_per_degree_joint[i] = axis_steps_per_joint_init[i];
+        planner.axis_steps_per_degree_joint[i] = axis_steps_per_degree_joint_init[i];
       }
     }
 

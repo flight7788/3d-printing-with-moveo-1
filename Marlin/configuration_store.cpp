@@ -1806,7 +1806,7 @@ void MarlinSettings::postprocess() {
 void MarlinSettings::reset() {
   static const float tmp1[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] PROGMEM = DEFAULT_MAX_FEEDRATE;
   static const uint32_t tmp3[] PROGMEM = DEFAULT_MAX_ACCELERATION;
-  static const float tmp4[] PROGMEM = DEFAULT_JOINT_STEPS_PER_UNIT, tmp5[] PROGMEM = DEFAULT_MAX_FEEDRATE_JOINT;
+  //static const float tmp4[] PROGMEM = DEFAULT_JOINT_STEPS_PER_UNIT, tmp5[] PROGMEM = DEFAULT_MAX_FEEDRATE_JOINT;
 
   LOOP_NUM_AXIS_N(i) {
     planner.axis_steps_per_mm[i]          = pgm_read_float(&tmp1[i < COUNT(tmp1) ? i : COUNT(tmp1) - 1]);

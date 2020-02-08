@@ -693,8 +693,7 @@
  */
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT {100.23, 99.86, 7999.52, 418.5}
-#define DEFAULT_JOINT_STEPS_PER_UNIT {120, 60, 100, 60, 60}
-#define DEFAULT_JOINT_STEPS_PER_DEGEE {88.8888, 391.1111, 959.0610, 477.3553, 207.2727}
+#define DEFAULT_JOINT_STEPS_PER_DEGEE {71.1111, 391.1111, 959.0610, 477.3553, 207.2727}
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -703,7 +702,6 @@
  */
 #define DEFAULT_MAX_FEEDRATE {300, 300, 3, 25}
 #define DEFAULT_MAX_FEEDRATE_JOINT {500, 500, 500, 500, 500}
-#define DEFAULT_FEEDRATE_RATE_JOINT {0.22,1,1,1,1}
 /**
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
