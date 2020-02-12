@@ -1700,7 +1700,7 @@ bool Planner::_buffer_steps_joint(const int32_t (&target)[NUM_AXIS], const int32
 
   // Recalculate and optimize trapezoidal speed profiles
   recalculate();
-  //*
+  /*
   SERIAL_ECHOLNPAIR_F("accelerate_until : ", block->accelerate_until);
   SERIAL_ECHOLNPAIR_F("decelerate_after : ", block->decelerate_after);
   SERIAL_ECHOLNPAIR_F("initial_rate : ", block->initial_rate);
@@ -3343,22 +3343,6 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
                 d3 = joint[Joint4_AXIS] - position_joint[Joint4_AXIS],
                 d4 = joint[Joint5_AXIS] - position_joint[Joint5_AXIS];
 
-  /*
-  const int32_t joint_d[] = {d0,d1,d2,d3,d4};
-  int32_t dj = 0;
-
-  LOOP_NUM_JOINT(i){
-    if(MAX5(abs(d0),abs(d1),abs(d2),abs(d3),abs(d4))==abs(joint_d[i])){
-      dj = joint_d[i];
-    }
-  }
-  //*/
-
-
-  /*const int32_t da = dj,//target[A_AXIS] - position[A_AXIS],
-                db = 0,//target[B_AXIS] - position[B_AXIS],
-                dc = 0;//target[C_AXIS] - position[C_AXIS]
-  //*/
 
   int32_t de = target[E_AXIS] - position[E_AXIS];
 
@@ -3398,8 +3382,6 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
     SERIAL_ECHOLNPAIR(", djm",djm);
 //*/
     
-  
-
 
   #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
     if (de) {
@@ -3695,9 +3677,10 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
     }
   #endif
 
-  SERIAL_ECHOLNPAIR_F("feedrate : ", fr_mm_s);
-  SERIAL_ECHOLNPAIR_F("inverse_millimeters : ", inverse_millimeters);
-  SERIAL_ECHOLNPAIR_F("inverse_secs : ",inverse_secs);
+  //SERIAL_ECHOLNPAIR_F("feedrate : ", fr_mm_s);
+  //SERIAL_ECHOLNPAIR_F("inverse_millimeters : ", inverse_millimeters);
+  //SERIAL_ECHOLNPAIR_F("inverse_secs : ",inverse_secs);
+
   #if ENABLED(ULTRA_LCD)
     // Protect the access to the position.
     const bool was_enabled = STEPPER_ISR_ENABLED();
@@ -3735,7 +3718,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
     #endif
     if (cs > max_feedrate_mm_s_joint[i]) NOMORE(speed_factor, (float)max_feedrate_mm_s_joint[i] / cs);
   }
-  SERIAL_ECHOLNPAIR_F("speed_factor : ",speed_factor);
+  //SERIAL_ECHOLNPAIR_F("speed_factor : ",speed_factor);
   /*
   // Correct the speed
   if (speed_factor < 1.0f) {
@@ -3749,7 +3732,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
     block->nominal_rate *= speed_factor;
     block->nominal_speed_sqr = block->nominal_speed_sqr * sq(speed_factor);
   }
-  //*
+  /*
   SERIAL_ECHOLNPAIR_F("nominal_speed_sqr : ",block->nominal_speed_sqr);
   SERIAL_ECHOLNPAIR_F("nominal_rate : ",block->nominal_rate);
   SERIAL_ECHOLNPAIR_F("current_joint_speed[1] : ",current_joint_speed[Joint1_AXIS]);
@@ -3893,7 +3876,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   }
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
-  //*
+  /*
   SERIAL_ECHOLNPAIR_F("accel : ",accel);
   SERIAL_ECHOLNPAIR_F("steps_per_mm : ",steps_per_mm);
   SERIAL_ECHOLNPAIR_F("acceleration_steps_per_s2 : ",block->acceleration_steps_per_s2);
