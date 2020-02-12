@@ -701,7 +701,7 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #define DEFAULT_MAX_FEEDRATE {300, 300, 3, 25}
-#define DEFAULT_MAX_FEEDRATE_JOINT {500, 500, 500, 500, 500}
+#define DEFAULT_MAX_FEEDRATE_JOINT {700, 700, 700, 700, 700}
 /**
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)

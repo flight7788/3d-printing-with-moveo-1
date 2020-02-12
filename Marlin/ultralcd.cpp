@@ -178,6 +178,7 @@ uint16_t max_display_update_time = 0;
   void lcd_tune_menu();
   void lcd_prepare_menu();
   void lcd_move_menu();
+  void lcd_move_joint_per_degree_menu();
   void lcd_home_menu();
   void lcd_control_menu();
   void lcd_control_temperature_menu();
@@ -2721,8 +2722,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #if ENABLED(DELTA)
       if (all_axes_homed())
     #endif
-        MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
 
+    MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+    MENU_ITEM(submenu, MSG_MOVE_AXIS_DEGREE, lcd_move_joint_per_degree_menu);
     //
     // Auto Home
     //
@@ -3038,7 +3040,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         static float old_E0_position = 0;
         //planner.buffer_line_kinematic(current_position, current_position_Joint, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
         planner.buffer_line_kinematic( current_position, current_position_Joint, 
-                                      (current_position[E_AXIS] != old_E0_position) ? MMM_TO_MMS(manual_feedrate_mm_m[E_AXIS]):MMM_TO_MMS(manual_feedrate_mm_m_joint[manual_move_joint])
+                                      MMS_SCALED((current_position[E_AXIS] != old_E0_position) ? MMM_TO_MMS(manual_feedrate_mm_m[E_AXIS]):MMM_TO_MMS(manual_feedrate_mm_m_joint[manual_move_joint]))
                                       , manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
         //SERIAL_ECHOLNPAIR("E_AXIS",current_position[E_AXIS]);
         //SERIAL_ECHOLNPAIR("current_position",current_position);
@@ -3242,7 +3244,83 @@ void lcd_quick_feedback(const bool clear_buttons) {
   }
 
 
+  void _lcd_move_joint_degree(const char* name, JointEnum axis) {
+    if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
+    ENCODER_DIRECTION_NORMAL();
+    if (encoderPosition && !processing_manual_move) {      
+      // Start with no limits to movement
+      float min = current_position[axis] - 100,
+            max = current_position[axis] + 100;
 
+      // Limit to software endstops, if enabled
+      #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+        if (soft_endstops_enabled) switch (axis) {
+          case Joint1_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_J)
+              min = soft_endstop_joint_min[Joint1_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_J)
+              max = soft_endstop_joint_max[Joint1_AXIS];
+            #endif
+            break;
+          case Joint2_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_A)
+              min = soft_endstop_joint_min[Joint2_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_A)
+              max = soft_endstop_joint_max[Joint2_AXIS];
+            #endif
+            break;
+          case Joint3_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_B)
+              min = soft_endstop_joint_min[Joint3_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_B)
+              max = soft_endstop_joint_max[Joint3_AXIS];
+            #endif
+            break;
+          case Joint4_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_C)
+              min = soft_endstop_joint_min[Joint4_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_C)
+              max = soft_endstop_joint_max[Joint4_AXIS];
+            #endif
+            break;
+          case Joint5_AXIS:
+            #if ENABLED(MIN_SOFTWARE_ENDSTOP_D)
+              min = soft_endstop_joint_min[Joint5_AXIS];
+            #endif
+            #if ENABLED(MAX_SOFTWARE_ENDSTOP_D)
+              max = soft_endstop_joint_max[Joint5_AXIS];
+            #endif
+            break;
+          default: break;
+        }
+      #endif // MIN_SOFTWARE_ENDSTOPS || MAX_SOFTWARE_ENDSTOPS
+      
+
+      // Get the new position
+      const float diff = round(float((int32_t)encoderPosition * move_menu_scale * planner.axis_steps_per_degree_joint[axis]/100));
+      current_position_Joint[axis] += diff;
+      if ((int32_t)encoderPosition < 0)
+        NOLESS(current_position_Joint[axis], min);
+      else
+        NOMORE(current_position_Joint[axis], max);
+
+      manual_move_to_current_Joint(axis);
+      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+    }
+    encoderPosition = 0;
+    if (lcdDrawUpdate) {
+      const float pos = NATIVE_TO_LOGICAL(processing_manual_move ? destination_Joint[axis] : current_position_Joint[axis]
+        #if IS_KINEMATIC
+          + manual_move_offset
+        #endif
+      , axis) * planner.steps_to_degree_joint[axis];
+      lcd_implementation_drawedit(name, ftostr42sign(pos));
+    }
+  }
 
 
 
@@ -3256,6 +3334,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
   void lcd_move_B() { _lcd_move_joint(PSTR(MSG_MOVE_B), Joint3_AXIS); }
   void lcd_move_C() { _lcd_move_joint(PSTR(MSG_MOVE_C), Joint4_AXIS); }
   void lcd_move_D() { _lcd_move_joint(PSTR(MSG_MOVE_D), Joint5_AXIS); }
+
+  //joint per degree
+  void lcd_move_degree_J() { _lcd_move_joint_degree(PSTR(MSG_MOVE_J), Joint1_AXIS); }
+  void lcd_move_degree_A() { _lcd_move_joint_degree(PSTR(MSG_MOVE_A), Joint2_AXIS); }
+  void lcd_move_degree_B() { _lcd_move_joint_degree(PSTR(MSG_MOVE_B), Joint3_AXIS); }
+  void lcd_move_degree_C() { _lcd_move_joint_degree(PSTR(MSG_MOVE_C), Joint4_AXIS); }
+  void lcd_move_degree_D() { _lcd_move_joint_degree(PSTR(MSG_MOVE_D), Joint5_AXIS); }
  
   void _lcd_move_e(
     #if E_MANUAL > 1
@@ -3346,6 +3431,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
   void lcd_move_menu_10step()   { _goto_manual_move(10); }
   void lcd_move_menu_1step()    { _goto_manual_move(1); }
 
+  void lcd_move_menu_10degree()   { _goto_manual_move(1000); }
+  void lcd_move_menu_1degree()    { _goto_manual_move(100); }
+  void lcd_move_menu_0o1degree()  { _goto_manual_move(10); }
+  void lcd_move_menu_0o01degree() { _goto_manual_move(1); }
+
   void _lcd_move_distance_menu(const AxisEnum axis, const screenFunc_t func) {
     _manual_move_func_ptr = func;
     START_MENU();
@@ -3401,6 +3491,31 @@ void lcd_quick_feedback(const bool clear_buttons) {
     END_MENU();
   }
 
+  void _lcd_move_distance_menu_Joint_per_degree(const JointEnum axis, const screenFunc_t func) {
+    _manual_move_func_ptr = func;
+    START_MENU();
+    if (LCD_HEIGHT >= 4) {
+      switch (axis) {
+        case Joint1_AXIS:
+          STATIC_ITEM(MSG_MOVE_J, true, true); break;
+        case Joint2_AXIS:
+          STATIC_ITEM(MSG_MOVE_A, true, true); break;
+        case Joint3_AXIS:
+          STATIC_ITEM(MSG_MOVE_B, true, true); break;
+        case Joint4_AXIS:
+          STATIC_ITEM(MSG_MOVE_C, true, true); break;
+        case Joint5_AXIS:
+          STATIC_ITEM(MSG_MOVE_D, true, true); break;
+      }
+    }
+    MENU_BACK(MSG_MOVE_AXIS);
+    MENU_ITEM(submenu, MSG_MOVE_10degree  , lcd_move_menu_10degree); 
+    MENU_ITEM(submenu, MSG_MOVE_1degree   , lcd_move_menu_1degree);
+    MENU_ITEM(submenu, MSG_MOVE_0o1degree , lcd_move_menu_0o1degree);
+    MENU_ITEM(submenu, MSG_MOVE_0o01degree, lcd_move_menu_0o01degree);
+    END_MENU();
+  }
+
   void lcd_move_get_x_amount()        { _lcd_move_distance_menu(X_AXIS, lcd_move_x); }
   void lcd_move_get_y_amount()        { _lcd_move_distance_menu(Y_AXIS, lcd_move_y); }
   void lcd_move_get_z_amount()        { _lcd_move_distance_menu(Z_AXIS, lcd_move_z); }
@@ -3412,6 +3527,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
   void lcd_move_get_B_amount()        { _lcd_move_distance_menu_Joint(Joint3_AXIS, lcd_move_B); }
   void lcd_move_get_C_amount()        { _lcd_move_distance_menu_Joint(Joint4_AXIS, lcd_move_C); }
   void lcd_move_get_D_amount()        { _lcd_move_distance_menu_Joint(Joint5_AXIS, lcd_move_D); }
+
+  //joint (Degree)
+  void lcd_move_Degree_get_J_amount()    { _lcd_move_distance_menu_Joint_per_degree(Joint1_AXIS, lcd_move_degree_J); }
+  void lcd_move_Degree_get_A_amount()    { _lcd_move_distance_menu_Joint_per_degree(Joint2_AXIS, lcd_move_degree_A); }
+  void lcd_move_Degree_get_B_amount()    { _lcd_move_distance_menu_Joint_per_degree(Joint3_AXIS, lcd_move_degree_B); }
+  void lcd_move_Degree_get_C_amount()    { _lcd_move_distance_menu_Joint_per_degree(Joint4_AXIS, lcd_move_degree_C); }
+  void lcd_move_Degree_get_D_amount()    { _lcd_move_distance_menu_Joint_per_degree(Joint5_AXIS, lcd_move_degree_D); }
+
   #if E_MANUAL > 1
     void lcd_move_get_e0_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }
     void lcd_move_get_e1_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e1); }
@@ -3541,6 +3664,27 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     #endif
 
+    END_MENU();
+  }
+
+  void lcd_move_joint_per_degree_menu() {
+    START_MENU();
+    MENU_BACK(MSG_PREPARE);
+
+    #if HAS_SOFTWARE_ENDSTOPS && ENABLED(SOFT_ENDSTOPS_MENU_ITEM)
+      MENU_ITEM_EDIT(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstops_enabled);
+    #endif
+
+    if (_MOVE_XYZ_ALLOWED) {
+      //joint
+      MENU_ITEM(submenu, MSG_MOVE_J, lcd_move_Degree_get_J_amount);
+      MENU_ITEM(submenu, MSG_MOVE_A, lcd_move_Degree_get_A_amount);
+      MENU_ITEM(submenu, MSG_MOVE_B, lcd_move_Degree_get_B_amount);
+      MENU_ITEM(submenu, MSG_MOVE_C, lcd_move_Degree_get_C_amount);
+      MENU_ITEM(submenu, MSG_MOVE_D, lcd_move_Degree_get_D_amount);
+    }
+    else
+    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
     END_MENU();
   }
 

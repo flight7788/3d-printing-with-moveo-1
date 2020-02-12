@@ -178,6 +178,9 @@
 #ifndef MSG_MOVE_AXIS
   #define MSG_MOVE_AXIS                       _UxGT("Move axis")
 #endif
+#ifndef MSG_MOVE_AXIS_DEGREE
+  #define MSG_MOVE_AXIS_DEGREE                _UxGT("Move axis (degree)")
+#endif
 #ifndef MSG_BED_LEVELING
   #define MSG_BED_LEVELING                    _UxGT("Bed Leveling")
 #endif
@@ -518,6 +521,20 @@
 #endif
 #ifndef MSG_MOVE_1000step
   #define MSG_MOVE_1000step                   _UxGT("Move 1000step")
+#endif
+
+
+#ifndef MSG_MOVE_0o01degree
+  #define MSG_MOVE_0o01degree                 _UxGT("Move 0.01 \x01")
+#endif
+#ifndef MSG_MOVE_0o1degree
+  #define MSG_MOVE_0o1degree                  _UxGT("Move  0.1 \x01")
+#endif
+#ifndef MSG_MOVE_1degree
+  #define MSG_MOVE_1degree                    _UxGT("Move    1 \x01")
+#endif
+#ifndef MSG_MOVE_10degree
+  #define MSG_MOVE_10degree                   _UxGT("Move   10 \x01")
 #endif
 
 
