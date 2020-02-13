@@ -3476,14 +3476,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
       }
     }
     MENU_BACK(MSG_MOVE_AXIS);
-    if(axis==Joint2_AXIS || axis==Joint3_AXIS || axis==Joint4_AXIS) {
+    if(axis==Joint1_AXIS || axis==Joint2_AXIS || axis==Joint3_AXIS || axis==Joint4_AXIS) {
       MENU_ITEM(submenu, MSG_MOVE_1000step, lcd_move_menu_1000step);
     }
     else if(axis==Joint5_AXIS) {
       MENU_ITEM(submenu, MSG_MOVE_500step, lcd_move_menu_500step);
-    }
-    else{
-      MENU_ITEM(submenu, MSG_MOVE_100step, lcd_move_menu_100step);
     }
       
     MENU_ITEM(submenu, MSG_MOVE_10step, lcd_move_menu_10step);
