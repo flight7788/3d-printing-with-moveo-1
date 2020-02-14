@@ -693,7 +693,7 @@
  */
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT {100.23, 99.86, 7999.52, 418.5}
-#define DEFAULT_JOINT_STEPS_PER_DEGEE {394.34 , 391.1111, 959.0610, 477.3553, 207.2727}
+#define DEFAULT_JOINT_STEPS_PER_DEGEE {197.1717 , 391.1111, 959.0610, 477.3553, 207.2727}
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1014,27 +1014,27 @@
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 200
 
-#define J_MIN_POS_step -12400
+#define J_MIN_POS_step -35491
 #define A_MIN_POS_step -40350
 #define B_MIN_POS_step -98280
 #define C_MIN_POS_step -37990
 #define D_MIN_POS_step -19160
 
-#define J_MAX_POS_step 12400
+#define J_MAX_POS_step 35491
 #define A_MAX_POS_step 42000
 #define B_MAX_POS_step 100000
 #define C_MAX_POS_step 111810
 #define D_MAX_POS_step 20500
 
 // joint
-#define Joint1_MIN_POS -12400
+#define Joint1_MIN_POS -35491
 #define Joint2_MIN_POS -40350
 #define Joint3_MIN_POS -98280
 #define Joint4_MIN_POS -37990
 #define Joint5_MIN_POS -19160
 
 // joint
-#define Joint1_MAX_POS 12400
+#define Joint1_MAX_POS 35491
 #define Joint2_MAX_POS 42000
 #define Joint3_MAX_POS 110000
 #define Joint4_MAX_POS 118110
