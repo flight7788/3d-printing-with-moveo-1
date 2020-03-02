@@ -3347,7 +3347,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   int32_t de = target[E_AXIS] - position[E_AXIS];
 
 
-
+  fr_mm_s = fr_mm_s*2;
   /* <-- add a slash to enable
     SERIAL_ECHOPAIR("  _populate_block_Joint FR:", fr_mm_s);
     SERIAL_ECHOPAIR(" A:", target[A_AXIS]);
@@ -3625,7 +3625,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   delta_joint_degree[Joint5_AXIS] = (float) d4  * steps_to_degree_joint[Joint5_AXIS] * 10;   
 
   //if (block->steps[A_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[B_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[C_AXIS] < MIN_STEPS_PER_SEGMENT) {
-  if (abs(block->step_Joint[Joint1_AXIS]) < 30 && (block->step_Joint[Joint2_AXIS] < 1 && block->step_Joint[Joint3_AXIS] < 1
+  if ((block->step_Joint[Joint1_AXIS] < 5) && (block->step_Joint[Joint2_AXIS] < 1 && block->step_Joint[Joint3_AXIS] < 1
       && block->step_Joint[Joint4_AXIS] < 1 && block->step_Joint[Joint5_AXIS] < 1)) {//*/
     block->millimeters = ABS(delta_mm[E_AXIS]);
   }

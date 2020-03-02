@@ -693,7 +693,7 @@
  */
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT {100.23, 99.86, 7999.52, 418.5}
-#define DEFAULT_JOINT_STEPS_PER_DEGEE {197.1717 , 391.1111, 959.0610, 477.3553, 207.2727}
+#define DEFAULT_JOINT_STEPS_PER_DEGEE {355.55 , 391.1111, 959.0610, 477.3553, 207.2727}
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -709,7 +709,7 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #define DEFAULT_MAX_ACCELERATION {100, 100, 30, 10000}
-#define DEFAULT_MAX_ACCELERATION_joint {13, 90, 70, 90, 90}
+#define DEFAULT_MAX_ACCELERATION_joint {50, 70, 70, 90, 90}
 /**
  * Default Acceleration (change/s) change = mm/s
  * Override with M204
@@ -750,7 +750,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-//#define S_CURVE_ACCELERATION
+#define S_CURVE_ACCELERATION
 
 //===========================================================================
 //============================= Z Probe Options =============================
