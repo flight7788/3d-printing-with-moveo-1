@@ -199,15 +199,15 @@ class Planner {
                     max_acceleration_steps_per_s2[NUM_AXIS_N], // (steps/s^2) Derived from mm_per_s2
                     min_segment_time_us;                       // (µs) M205 Q
 
-    static uint32_t max_acceleration_mm_per_s2_joint[NUM_JOINT],    // (mm/s^2) M201 XYZE
+    static uint32_t max_acceleration_degree_per_s2_joint[NUM_JOINT],    // (mm/s^2) M201 XYZE
                     max_acceleration_steps_per_s2_joint[NUM_JOINT]; // (steps/s^2) Derived from mm_per_s2
                               
     static float max_feedrate_mm_s[NUM_AXIS_N], // (mm/s) M203 XYZE - Max speeds
                  max_feedrate_mm_s_joint[NUM_JOINT],
                  axis_steps_per_mm[NUM_AXIS_N], // (steps) M92 XYZE - Steps per millimeter
-                 axis_steps_per_mm_joint[NUM_JOINT], 
+                 axis_steps_per_degree_joint[NUM_JOINT], 
                  steps_to_mm[NUM_AXIS_N],       // (mm) Millimeters per step
-                 steps_to_mm_joint[NUM_JOINT],      
+                 steps_to_degree_joint[NUM_JOINT],      
                  min_feedrate_mm_s,             // (mm/s) M205 S - Minimum linear feedrate
                  acceleration,                  // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
                  retract_acceleration,          // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes

@@ -178,6 +178,9 @@
 #ifndef MSG_MOVE_AXIS
   #define MSG_MOVE_AXIS                       _UxGT("Move axis")
 #endif
+#ifndef MSG_MOVE_AXIS_DEGREE
+  #define MSG_MOVE_AXIS_DEGREE                _UxGT("Move axis (degree)")
+#endif
 #ifndef MSG_BED_LEVELING
   #define MSG_BED_LEVELING                    _UxGT("Bed Leveling")
 #endif
@@ -521,6 +524,20 @@
 #endif
 
 
+#ifndef MSG_MOVE_0o01degree
+  #define MSG_MOVE_0o01degree                 _UxGT("Move 0.01 \x01")
+#endif
+#ifndef MSG_MOVE_0o1degree
+  #define MSG_MOVE_0o1degree                  _UxGT("Move  0.1 \x01")
+#endif
+#ifndef MSG_MOVE_1degree
+  #define MSG_MOVE_1degree                    _UxGT("Move    1 \x01")
+#endif
+#ifndef MSG_MOVE_10degree
+  #define MSG_MOVE_10degree                   _UxGT("Move   10 \x01")
+#endif
+
+
 #ifndef MSG_SPEED
   #define MSG_SPEED                           _UxGT("Speed")
 #endif
@@ -604,6 +621,24 @@
   #ifndef MSG_VC_JERK
     #define MSG_VC_JERK                       _UxGT("Vz-jerk")
   #endif
+
+  #ifndef MSG_Joint_VJ_JERK
+    #define MSG_Joint_VJ_JERK                 _UxGT("VJ-jerk")
+  #endif
+  #ifndef MSG_Joint_VA_JERK
+    #define MSG_Joint_VA_JERK                 _UxGT("VA-jerk")
+  #endif
+  #ifndef MSG_Joint_VB_JERK
+    #define  MSG_Joint_VB_JERK                _UxGT("VB-jerk")
+  #endif
+  #ifndef MSG_Joint_VC_JERK
+    #define MSG_Joint_VC_JERK                 _UxGT("VC-jerk")
+  #endif
+  #ifndef MSG_Joint_VD_JERK
+    #define MSG_Joint_VD_JERK                 _UxGT("VD-jerk")
+  #endif
+  
+
 #endif
 #ifndef MSG_VE_JERK
   #define MSG_VE_JERK                         _UxGT("Ve-jerk")
@@ -658,6 +693,24 @@
   #ifndef MSG_CSTEPS
     #define MSG_CSTEPS                        _UxGT("Zsteps/mm")
   #endif
+
+  #ifndef MSG_Joint_JSTEPS
+    #define MSG_Joint_JSTEPS                  _UxGT("Jsteps/mm")
+  #endif
+  #ifndef MSG_Joint_ASTEPS
+    #define MSG_Joint_ASTEPS                  _UxGT("Asteps/mm")
+  #endif
+  #ifndef MSG_Joint_BSTEPS
+    #define MSG_Joint_BSTEPS                  _UxGT("Bsteps/mm")
+  #endif
+  #ifndef MSG_Joint_CSTEPS
+    #define MSG_Joint_CSTEPS                  _UxGT("Csteps/mm")
+  #endif
+  #ifndef MSG_Joint_DSTEPS
+    #define MSG_Joint_DSTEPS                  _UxGT("Dsteps/mm")
+  #endif
+  
+
 #endif
 #ifndef MSG_ESTEPS
   #define MSG_ESTEPS                          _UxGT("Esteps/mm")

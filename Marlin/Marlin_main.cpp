@@ -419,7 +419,7 @@ int32_t HOME_position_Joint_Mesh[25][5]={
 };
 
 int32_t HOME_position_Joint[Joint_All]={0, 0, 0, 0, 0};
-float   HOME_position[XYZE]={-45.484, -10, 0, 0};
+float   HOME_position[XYZE]={-45.484, -10, 0, current_position[E_AXIS]-3};
 
 //int32_t HOME_position_Z20_Joint[Joint_All]={-609, 3504, 16908, 0, -2917};
 int32_t HOME_position_Z20_Joint[Joint_All]={4506, 19059, 101482, 85898, -5163};
@@ -603,7 +603,7 @@ FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&ho
 FORCE_INLINE float homing_feedrate_Joint(const JointEnum a) { return pgm_read_float(&homing_feedrate_mm_s_Joint[a]); }
 
 float feedrate_mm_s = MMM_TO_MMS(1500.0f);
-const float manual_feedrate_mm_m_joint[] = MANUAL2_FEEDRATE;
+const float manual_feedrate_mm_m_joint[] = MANUAL_FEEDRATE_JOINT_G28;
 static float saved_feedrate_mm_s;
 int16_t feedrate_percentage = 100, saved_feedrate_percentage;
 
@@ -685,6 +685,7 @@ const char Joint_codes[Joint_All] = { 'J', 'A', 'B', 'C', 'D'};
   #define RAW_AXIS_CODES(I) axis_codes_hangprinter[I]
 #else
   #define RAW_AXIS_CODES(I) axis_codes[I]
+  #define RAW_JOINT_CODES(I) Joint_codes[I]
 #endif
 
 // Number of characters read in the current line of serial input
@@ -5018,22 +5019,23 @@ static void homeJoint(const JointEnum axis) {
   /*/
 
   sync_plan_position();
-  float max_feedrate_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
-  float joint_steps_per_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_UNIT;
-  planner.max_feedrate_mm_s_joint[Joint1_AXIS] = 50;
-  //LOOP_NUM_JOINT(i) planner.axis_steps_per_mm_joint[i] +=80; 
   
   if(axis==Joint2_AXIS){
-    current_position_Joint[Joint3_AXIS]=70000;
+    current_position_Joint[Joint3_AXIS]=80000;
     planner.buffer_line_joint(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
                               current_position_Joint[Joint1_AXIS], current_position_Joint[Joint2_AXIS], current_position_Joint[Joint3_AXIS], 
                               current_position_Joint[Joint4_AXIS], current_position_Joint[Joint5_AXIS], 
-                              current_position[E_CART], manual_feedrate_mm_m_joint[axis+1], active_extruder);
+                              current_position[E_CART], manual_feedrate_mm_m_joint[Joint3_AXIS], active_extruder);
     planner.synchronize();
-    /*planner.buffer_line_kinematic( current_position, current_position_Joint, 
-                                  MMM_TO_MMS(manual_feedrate_mm_m_joint[manual_move_joint]), 0);*/
   } 
-  do_homing_move_Joint(axis, 1.5f * max_length_Joint(axis) * Joint_home_dir, manual_feedrate_mm_m_joint[axis]);
+  float MIN_POS_step[] = {J_MIN_POS_step,A_MIN_POS_step,B_MIN_POS_step,C_MIN_POS_step,D_MIN_POS_step};
+  current_position_Joint[axis] = -ABS(current_position_Joint[axis]-MIN_POS_step[axis])*0.98; 
+  planner.buffer_line_joint(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
+                              current_position_Joint[Joint1_AXIS], current_position_Joint[Joint2_AXIS], current_position_Joint[Joint3_AXIS], 
+                              current_position_Joint[Joint4_AXIS], current_position_Joint[Joint5_AXIS], 
+                              current_position[E_CART], manual_feedrate_mm_m_joint[axis], active_extruder);
+  planner.synchronize();
+  do_homing_move_Joint(axis, 1.5f * max_length_Joint(axis) * Joint_home_dir, manual_feedrate_mm_m_joint[axis]/5);
 
   //do_homing_move_Joint(axis, 1.5f * (base_max_pos_Joint(axis)-base_min_pos_Joint(axis)) * Joint_home_dir);
 
@@ -5153,8 +5155,7 @@ static void homeJoint(const JointEnum axis) {
     set_Joint_is_at_home(axis);
     do_move_Joint(axis, 0, manual_feedrate_mm_m_joint[axis]);
     sync_plan_position();
-    planner.max_feedrate_mm_s_joint[Joint1_AXIS] = max_feedrate_joint_init[Joint1_AXIS];
-    //LOOP_NUM_JOINT(i) planner.axis_steps_per_mm_joint[i] = joint_steps_per_init[i];
+    
     destination_Joint[axis] = current_position_Joint[axis];
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -5247,20 +5248,18 @@ static void homeJoint(const JointEnum axis) {
  *  - Set the feedrate, if included
  */
 void gcode_get_destination() {
-	 char joint[5]={'J','A','B','C','D'};
-  	for(int i1=1;i1<6;i1++) {
-    	if (parser.seen(joint[i1-1])) {
-    		int32_t data = parser.value_axis_units(i1-1);	
-    		destination_Joint[i1-1] = data;
+	 
+  	
+    LOOP_NUM_JOINT(j) {
+      if (parser.seen(Joint_codes[j])) {
+    		int32_t data = parser.value_joint_units((JointEnum)j);	
+    		destination_Joint[j] = data;
     	}
       else{
-        destination_Joint[i1-1] = current_position_Joint[i1-1];
+        destination_Joint[j] = current_position_Joint[j];
       }
-      //SERIAL_ECHOPAIR("J",i1);
-    	//SERIAL_ECHOPAIR(" = ",destination_Joint[i1-1]);
-      //SERIAL_PROTOCOLCHAR(" ");
     }
-   //SERIAL_ECHOLN(" ");
+   
    LOOP_XYZE(i) {
      if (parser.seen(axis_codes[i])) {
        const float v = parser.value_axis_units((AxisEnum)i);
@@ -11065,6 +11064,12 @@ inline void gcode_M92() {
       }
     }
   }
+
+  LOOP_NUM_JOINT(i){
+    if (parser.seen(RAW_JOINT_CODES(i))) {
+      planner.axis_steps_per_degree_joint[i] = parser.value_per_joint_unit((JointEnum)i);
+    }
+  }
   planner.refresh_positioning();
 }
 
@@ -11501,6 +11506,13 @@ inline void gcode_M201() {
       planner.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
     }
   }
+  LOOP_NUM_JOINT(i){
+    if (parser.seen(RAW_JOINT_CODES(i))) {
+      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
+      planner.max_acceleration_degree_per_s2_joint[a] = parser.value_joint_units((JointEnum)a);
+    }
+  }
+    
   // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
   planner.reset_acceleration_rates();
 }
@@ -11523,11 +11535,20 @@ inline void gcode_M203() {
 
   GET_TARGET_EXTRUDER(203);
 
-  LOOP_NUM_AXIS(i)
+  LOOP_NUM_AXIS(i){
     if (parser.seen(RAW_AXIS_CODES(i))) {
       const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
       planner.max_feedrate_mm_s[a] = parser.value_axis_units((AxisEnum)a);
     }
+  }
+    
+  LOOP_NUM_JOINT(i){
+    if (parser.seen(RAW_JOINT_CODES(i))) {
+      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
+      planner.max_feedrate_mm_s_joint[a] = parser.value_joint_units((JointEnum)a);
+    }
+  }
+    
 }
 
 /**
@@ -11606,6 +11627,12 @@ inline void gcode_M205() {
             SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
         #endif
       }
+      if (parser.seen('J')) planner.max_jerk_joint[Joint1_AXIS] = parser.value_linear_units();
+      if (parser.seen('A')) planner.max_jerk_joint[Joint2_AXIS] = parser.value_linear_units();
+      if (parser.seen('B')) planner.max_jerk_joint[Joint3_AXIS] = parser.value_linear_units();
+      if (parser.seen('C')) planner.max_jerk_joint[Joint4_AXIS] = parser.value_linear_units();
+      if (parser.seen('D')) planner.max_jerk_joint[Joint5_AXIS] = parser.value_linear_units();
+
     #endif
     if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
   #endif
@@ -17393,6 +17420,15 @@ void loop() {
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop
       print_job_timer.init();   // Initial setup of print job timer
+      float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
+      float max_feedrate_mm_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
+      float axis_steps_per_degree_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_DEGEE;
+
+      LOOP_NUM_JOINT(i){
+        planner.max_acceleration_degree_per_s2_joint[i] = max_acceleration_joint_init[i];
+        planner.max_feedrate_mm_s_joint[i] = max_feedrate_mm_joint_init[i];
+        planner.axis_steps_per_degree_joint[i] = axis_steps_per_degree_joint_init[i];
+      }
     }
 
   #endif // SDSUPPORT

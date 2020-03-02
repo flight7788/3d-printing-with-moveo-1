@@ -281,6 +281,8 @@ public:
     FORCE_INLINE static float value_axis_units(const AxisEnum a)    { UNUSED(a); return value_float(); }
     FORCE_INLINE static float value_per_axis_unit(const AxisEnum a) { UNUSED(a); return value_float(); }
 
+    FORCE_INLINE static float value_joint_units(const JointEnum a)    { UNUSED(a); return value_float(); }
+    FORCE_INLINE static float value_per_joint_unit(const JointEnum a) { UNUSED(a); return value_float(); }
   #endif
 
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)

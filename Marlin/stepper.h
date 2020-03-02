@@ -435,9 +435,9 @@ public:
 
   // Set the current position in steps
   inline static void set_position(const int32_t &a, const int32_t &b, const int32_t &c,
-#if ENABLED(HANGPRINTER)
+                                  #if ENABLED(HANGPRINTER)
                                   , const int32_t &d
-#endif
+                                  #endif
                                   const int32_t &J1,
                                   const int32_t &J2, const int32_t &J3, const int32_t &J4, const int32_t &J5, const int32_t &e)
   {
@@ -446,10 +446,10 @@ public:
     if (was_enabled)
       DISABLE_STEPPER_DRIVER_INTERRUPT();
     _set_position(a, b, c
-#if ENABLED(HANGPRINTER)
+    #if ENABLED(HANGPRINTER)
                   ,
                   d
-#endif
+    #endif
                   ,
                   e);
     _set_position_Joint(J1, J2, J3, J4, J5);
