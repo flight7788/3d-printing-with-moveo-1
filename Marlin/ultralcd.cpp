@@ -3301,7 +3301,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       
 
       // Get the new position
-      const float diff = round(float((int32_t)encoderPosition * move_menu_scale * planner.axis_steps_per_degree_joint[axis]/100));
+      const float diff = LROUND(float((int32_t)encoderPosition * move_menu_scale * planner.axis_steps_per_degree_joint[axis]/100));
       current_position_Joint[axis] += diff;
       if ((int32_t)encoderPosition < 0)
         NOLESS(current_position_Joint[axis], min);

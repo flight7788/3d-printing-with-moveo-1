@@ -3346,8 +3346,6 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
 
   int32_t de = target[E_AXIS] - position[E_AXIS];
 
-
-  fr_mm_s = fr_mm_s*2;
   /* <-- add a slash to enable
     SERIAL_ECHOPAIR("  _populate_block_Joint FR:", fr_mm_s);
     SERIAL_ECHOPAIR(" A:", target[A_AXIS]);

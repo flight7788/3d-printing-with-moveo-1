@@ -602,7 +602,7 @@ static const float homing_feedrate_mm_s_Joint[] PROGMEM = {
 FORCE_INLINE float homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
 FORCE_INLINE float homing_feedrate_Joint(const JointEnum a) { return pgm_read_float(&homing_feedrate_mm_s_Joint[a]); }
 
-float feedrate_mm_s = MMM_TO_MMS(1500.0f);
+float feedrate_mm_s = MMM_TO_MMS(3000.0f);
 const float manual_feedrate_mm_m_joint[] = MANUAL_FEEDRATE_JOINT_G28;
 static float saved_feedrate_mm_s;
 int16_t feedrate_percentage = 100, saved_feedrate_percentage;
@@ -17345,6 +17345,7 @@ void loop() {
       #if ENABLED(POWER_LOSS_RECOVERY)
         card.removeJobRecoveryFile();
       #endif
+      HOME_position_Joint[E_AXIS] = current_position[E_AXIS]-3;
       buffer_line_to_destination_Constant(HOME_position, HOME_position_Joint, homing_feedrate_Joint(0));
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop

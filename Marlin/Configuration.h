@@ -709,7 +709,7 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #define DEFAULT_MAX_ACCELERATION {100, 100, 30, 10000}
-#define DEFAULT_MAX_ACCELERATION_joint {50, 70, 70, 90, 90}
+#define DEFAULT_MAX_ACCELERATION_joint {50, 70, 70, 70, 70}
 /**
  * Default Acceleration (change/s) change = mm/s
  * Override with M204
@@ -1015,10 +1015,10 @@
 #define Z_MAX_POS 200
 
 #define J_MIN_POS_step -35491
-#define A_MIN_POS_step -40350
-#define B_MIN_POS_step -98280
+#define A_MIN_POS_step -35433
+#define B_MIN_POS_step -92297
 #define C_MIN_POS_step -37990
-#define D_MIN_POS_step -19160
+#define D_MIN_POS_step -19027
 
 #define J_MAX_POS_step 35491
 #define A_MAX_POS_step 42000
@@ -1028,10 +1028,10 @@
 
 // joint
 #define Joint1_MIN_POS -35491
-#define Joint2_MIN_POS -40350
-#define Joint3_MIN_POS -98280
+#define Joint2_MIN_POS -35433
+#define Joint3_MIN_POS -92297
 #define Joint4_MIN_POS -37990
-#define Joint5_MIN_POS -19160
+#define Joint5_MIN_POS -19027
 
 // joint
 #define Joint1_MAX_POS 35491
