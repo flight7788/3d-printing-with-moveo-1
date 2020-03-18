@@ -24,7 +24,7 @@ AllowAllParametersOfDeclarationOnNextLine: true
 # 允許短的塊放在同一行
 AllowShortBlocksOnASingleLine: false
 # 允許短的case標籤放在同一行
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
 # 允許短的函數放在同一行: None, InlineOnly(定義在類中), Empty(空函數), Inline(定義在類中，空函數), All
 AllowShortFunctionsOnASingleLine: All
 AllowShortLambdasOnASingleLine: All
@@ -91,7 +91,7 @@ BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
 # 每行字符的限制，0表示沒有限制
-ColumnLimit:     320
+ColumnLimit:     150
 # 描述具有特殊意義的注釋的正則表達式，它不應該被分割為多行或以其它方式改變
 CommentPragmas:  '^ IWYU pragma:'
 CompactNamespaces: false
@@ -171,7 +171,7 @@ PointerAlignment: Right
 # 允許重新排版注釋
 ReflowComments:  true
 # 允許排序#include
-SortIncludes:    true
+SortIncludes:    false
 SortUsingDeclarations: true
 # 在C風格類型轉換後添加空格
 SpaceAfterCStyleCast: false
@@ -188,7 +188,7 @@ SpaceBeforeRangeBasedForLoopColon: true
 # 在空的圓括號中添加空格
 SpaceInEmptyParentheses: false
 # 在尾隨的評論前添加的空格數(只適用於//)
-SpacesBeforeTrailingComments: 2
+SpacesBeforeTrailingComments: 1
 # 在尖括號的<後和>前添加空格
 SpacesInAngles:  false
 # 在容器(ObjC和JavaScript的數組和字典等)字面量中添加空格

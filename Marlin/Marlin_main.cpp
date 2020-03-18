@@ -2238,8 +2238,11 @@ void do_blocking_move_to_Joint_many(const float rx, const float ry, const float 
     planner.synchronize();
   }
 
-  current_Probe_position = Probe_pointy * 10 + Probe_pointx; 
-  
+  if(In_Rectangle(rx, ry))
+    current_Probe_position = Use_XY_to_Matrix_Index(rx, ry);
+  else
+    current_Probe_position = Probe_pointy * 10 + Probe_pointx;   
+
   endstops.enable_z_probe(false);
   feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
   current_position[X_AXIS] = rx;
@@ -3591,83 +3594,6 @@ void clean_up_after_endstop_or_probe_move() {
     return measured_z;
   }
 
-  static float Reverse_Curve(const int32_t temp_pos, JointEnum Joint)
-  {
-    double temp_return=0;
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(">>> Reverse_Curve");
-    #endif
-    
-    SERIAL_ECHOLNPAIR("  Position Joint: ", temp_pos);
-
-    double ba2 = b[Joint]/a[Joint]/2;
-    double temp1=(temp_pos-c[Joint])/a[Joint]; //
-    double temp2=ba2*ba2; //X
-    double temp3[2]={0};
-    temp3[1]=temp2/100000; 
-    temp3[0]=(int32_t)(temp2)%100000; 
-
-    SERIAL_ECHOLNPAIR("  a: ", a[Joint]);
-    SERIAL_ECHOLNPAIR("  b: ", b[Joint]);
-    SERIAL_ECHOLNPAIR("  c: ", c[Joint]);
-    SERIAL_ECHOLNPAIR("  b/a/2: ", ba2);
-    SERIAL_ECHOLNPAIR("  temp1: ", temp1);
-    SERIAL_ECHOLNPAIR("  temp2: ", temp2);
-    SERIAL_ECHOLNPAIR("  temp3[1]: ", temp3[1]);
-    SERIAL_ECHOLNPAIR("  temp3[0]: ", temp3[0]);
-
-    temp_return=(float)(-sqrt(temp1 + temp2)-ba2);
-    
-    // temp_return=sqrt((temp_pos-c[Joint])/a[Joint]+ pow((b[Joint]/a[Joint])/2,2))-(b[Joint]/a[Joint])/2;
-    SERIAL_ECHOLNPAIR("  temp_return: ", temp_return);
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< Reverse_Curve");
-    #endif
-
-    return temp_return;
-  }
-
-  static float Reverse_Curve_Many(const int num_total, const int32_t temp_pos, JointEnum Joint)
-  {
-    double temp_return=0;
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(">>> Reverse_Curve_Many");
-    #endif
-    
-    SERIAL_ECHOLNPAIR("  Position Joint: ", temp_pos);
-    SERIAL_ECHOLNPAIR("  Num_total: ", num_total);
-
-    double ba2 = pgm_read_float_near(&b_m2[num_total * 5 + Joint])/pgm_read_float_near(&a_m2[num_total * 5 + Joint])/2;
-    double temp1=(temp_pos-pgm_read_float_near(&c_m2[num_total * 5 + Joint]))/pgm_read_float_near(&a_m2[num_total * 5 + Joint]); //
-    double temp2=ba2*ba2; //X
-    double temp3[2]={0};
-    temp3[1]=temp2/100000; 
-    temp3[0]=(int32_t)(temp2)%100000; 
-
-    SERIAL_ECHOLNPAIR("  a: ", pgm_read_float_near(&a_m2[num_total * 5 + Joint]));
-    SERIAL_ECHOLNPAIR("  b: ", pgm_read_float_near(&b_m2[num_total * 5 + Joint]));
-    SERIAL_ECHOLNPAIR("  c: ", pgm_read_float_near(&c_m2[num_total * 5 + Joint]));
-    SERIAL_ECHOLNPAIR("  b/a/2: ", ba2);
-    SERIAL_ECHOLNPAIR("  temp1: ", temp1);
-    SERIAL_ECHOLNPAIR("  temp2: ", temp2);
-    SERIAL_ECHOLNPAIR("  temp3[1]: ", temp3[1]);
-    SERIAL_ECHOLNPAIR("  temp3[0]: ", temp3[0]);
-
-    temp_return=(float)(-sqrt(temp1 + temp2)-ba2);
-    
-    // temp_return=sqrt((temp_pos-c[Joint])/a[Joint]+ pow((b[Joint]/a[Joint])/2,2))-(b[Joint]/a[Joint])/2;
-    SERIAL_ECHOLNPAIR("  temp_return: ", temp_return);
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< Reverse_Curve_Many");
-    #endif
-
-    return temp_return;
-  }
-
   static float run_z_probe_ones() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe_ones", current_position);
@@ -3995,38 +3921,14 @@ void clean_up_after_endstop_or_probe_move() {
     return measured_z;
   }
 
-  bool circle_inside_d(double cir_x, double cir_y)
-  {
-      if (pow((cir_x - Circle_Center_X), 2) + pow((cir_y - Circle_Center_Y), 2) <= pow(Circle_outside_r + 1, 2)) return 1;
-      else
-          return 0;
-  }
-  
-  bool circle_outside_d(double cor_x, double cor_y)
-  {
-      if (pow((cor_x - Circle_Center_X), 2) + pow((cor_y - Circle_Center_Y), 2) >= pow(Circle_inside_r - 1, 2)) return 1;
-      else
-          return 0;
-  }
-
-  bool find_region_in_out_d(double x_fr, double y_fr)
-  {
-    if ((circle_inside_d(x_fr, y_fr) && circle_outside_d(x_fr, y_fr)) == 1) return 1;
-    else
-        return 0;
-  }
-
-  bool In_Rectangle(double IR_X, double IR_Y)
-  {
-    if ((IR_X >= 209.837014 && IR_X <= 670.16299) && ((IR_Y >= 615 && IR_Y <= 815))) return 1;
-    else
-      return 0;
-  }
-
   float probe_pt_many(const int num_x,const int num_y,float &rx, float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/) {
     // rx=pgm_read_float_near(&Probe_position[(int)(num_y*10+(int)num_x)*3+0]);
     // ry=pgm_read_float_near(&Probe_position[(int)(num_y*10+(int)num_x)*3+1]);
-    if(find_region_in_out_d(rx, ry) && In_Rectangle(rx, ry) == 0)
+    if(find_region_in_out_d(rx, ry) == 0)
+    {
+      return 0;
+    }
+    if(In_Rectangle(rx, ry) == 0)
     {
       return 0;
     }

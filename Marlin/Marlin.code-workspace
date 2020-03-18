@@ -6,5 +6,10 @@
 		{
 			"path": "D:\\Users\\admin\\Desktop\\Marlin\\20191127\\.vscode"
 		}
-	]
+	],
+	"settings": {
+		"files.associations": {
+			"*.txt": "cpp"
+		}
+	}
 }
