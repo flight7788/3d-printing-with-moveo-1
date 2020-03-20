@@ -528,7 +528,8 @@ const PROGMEM float c_m1[125]  ={4503.0000000000, 21265.0000000000, 101258.00000
  */
 float destination[XYZE] = { 0 };
 int32_t destination_Joint[Joint_All] = { 0 };
-
+bool Accel_SW = true;
+uint8_t set_home_joint = 0;
 /**
  * axis_homed
  *   Flags that each linear axis was homed.
@@ -2237,10 +2238,12 @@ inline void buffer_line_to_destination(const int32_t &fr_mm_s) {
   #if ENABLED(HANGPRINTER)
     UNUSED(fr_mm_s);
   #else
+  planner.accel_f = Accel_SW;
   planner.buffer_line_joint(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 
                             destination_Joint[Joint1_AXIS], destination_Joint[Joint2_AXIS], destination_Joint[Joint3_AXIS], 
                             destination_Joint[Joint4_AXIS], destination_Joint[Joint5_AXIS],
                             destination[E_CART], fr_mm_s, active_extruder);
+
   //SERIAL_ECHOLNPAIR("feedrate_mm_s:",fr_mm_s);
   #endif
 }
@@ -4950,21 +4953,23 @@ static void homeJoint(const JointEnum axis) {
   sync_plan_position();
   
   if(axis==Joint2_AXIS){
-    current_position_Joint[Joint3_AXIS]=80000;
+    current_position_Joint[Joint3_AXIS]=78000;
     planner.buffer_line_joint(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
                               current_position_Joint[Joint1_AXIS], current_position_Joint[Joint2_AXIS], current_position_Joint[Joint3_AXIS], 
                               current_position_Joint[Joint4_AXIS], current_position_Joint[Joint5_AXIS], 
                               current_position[E_CART], manual_feedrate_mm_m_joint[Joint3_AXIS], active_extruder);
     planner.synchronize();
   } 
+  /*
   float MIN_POS_step[] = {J_MIN_POS_step,A_MIN_POS_step,B_MIN_POS_step,C_MIN_POS_step,D_MIN_POS_step};
-  current_position_Joint[axis] = -ABS(current_position_Joint[axis]-MIN_POS_step[axis])*0.98; 
+  current_position_Joint[axis] = (MIN_POS_step[axis])*0.8;//-ABS(current_position_Joint[axis]-MIN_POS_step[axis])*0.98; 
   planner.buffer_line_joint(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
                               current_position_Joint[Joint1_AXIS], current_position_Joint[Joint2_AXIS], current_position_Joint[Joint3_AXIS], 
                               current_position_Joint[Joint4_AXIS], current_position_Joint[Joint5_AXIS], 
                               current_position[E_CART], manual_feedrate_mm_m_joint[axis], active_extruder);
   planner.synchronize();
-  do_homing_move_Joint(axis, 1.5f * max_length_Joint(axis) * Joint_home_dir, manual_feedrate_mm_m_joint[axis]/5);
+  //*/
+  do_homing_move_Joint(axis, 1.5f * max_length_Joint(axis) * Joint_home_dir, manual_feedrate_mm_m_joint[axis]);
 
   //do_homing_move_Joint(axis, 1.5f * (base_max_pos_Joint(axis)-base_min_pos_Joint(axis)) * Joint_home_dir);
 
@@ -5179,30 +5184,34 @@ static void homeJoint(const JointEnum axis) {
 void gcode_get_destination() {
 	 
   	
-    LOOP_NUM_JOINT(j) {
-      if (parser.seen(Joint_codes[j])) {
-    		int32_t data = parser.value_joint_units((JointEnum)j);	
-    		destination_Joint[j] = data;
-    	}
-      else{
-        destination_Joint[j] = current_position_Joint[j];
-      }
+  LOOP_NUM_JOINT(j) {
+   if (parser.seen(Joint_codes[j])) {
+   		int32_t data = parser.value_joint_units((JointEnum)j);	
+   		destination_Joint[j] = data;
     }
-   
-   LOOP_XYZE(i) {
-     if (parser.seen(axis_codes[i])) {
-       const float v = parser.value_axis_units((AxisEnum)i);
-       destination[i] = (axis_relative_modes[i] || relative_mode)
-         ? current_position[i] + v
-         : (i == E_CART) ? v : LOGICAL_TO_NATIVE(v, i);
-     }
-     else{
-       destination[i] = current_position[i];
-     }
-     //SERIAL_PROTOCOLCHAR(" ");
-     //SERIAL_PROTOCOLCHAR(axis_codes[i]);
-     //SERIAL_ECHOPAIR(" = ",destination[i]);
-   }
+    else{
+      destination_Joint[j] = current_position_Joint[j];
+    }
+  }
+
+  if(parser.seen('K')){
+    Accel_SW = parser.value_linear_units();
+  }
+
+  LOOP_XYZE(i) {
+    if (parser.seen(axis_codes[i])) {
+      const float v = parser.value_axis_units((AxisEnum)i);
+      destination[i] = (axis_relative_modes[i] || relative_mode)
+        ? current_position[i] + v
+        : (i == E_CART) ? v : LOGICAL_TO_NATIVE(v, i);
+    }
+    else{
+      destination[i] = current_position[i];
+    }
+    //SERIAL_PROTOCOLCHAR(" ");
+    //SERIAL_PROTOCOLCHAR(axis_codes[i]);
+    //SERIAL_ECHOPAIR(" = ",destination[i]);
+  }
   //SERIAL_ECHOLN(" ");
   if (parser.linearval('F') > 0)
     feedrate_mm_s = MMM_TO_MMS(parser.value_feedrate());
@@ -16938,7 +16947,13 @@ void idle(
   #endif
 
   lcd_update();
-
+  //*
+  if(set_home_joint!=0){
+    set_Joint_is_at_home(set_home_joint-1);
+    destination_Joint[set_home_joint-1] = current_position_Joint[set_home_joint-1] = 0;
+    set_home_joint = 0;
+  }
+  //*/
   host_keepalive();
 
   manage_inactivity(
@@ -17301,7 +17316,8 @@ void setup() {
     card.beginautostart();
   #endif
 
-
+  axis_homed=7;
+  axis_known_position=7;
   /*
   enable_Joint1();
   enable_Joint2();
@@ -17345,7 +17361,7 @@ void loop() {
       #if ENABLED(POWER_LOSS_RECOVERY)
         card.removeJobRecoveryFile();
       #endif
-      HOME_position_Joint[E_AXIS] = current_position[E_AXIS]-3;
+      HOME_position[E_AXIS] = current_position[E_AXIS]-3;
       buffer_line_to_destination_Constant(HOME_position, HOME_position_Joint, homing_feedrate_Joint(0));
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop

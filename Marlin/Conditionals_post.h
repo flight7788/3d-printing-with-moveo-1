@@ -41,11 +41,11 @@
 
 //joint
 //*
-#define Joint1_MAX_LENGTH (Joint1_MAX_POS - (Joint1_MIN_POS))
-#define Joint2_MAX_LENGTH (Joint2_MAX_POS - (Joint2_MIN_POS))
-#define Joint3_MAX_LENGTH (Joint3_MAX_POS - (Joint3_MIN_POS))
-#define Joint4_MAX_LENGTH (Joint4_MAX_POS - (Joint4_MIN_POS))
-#define Joint5_MAX_LENGTH 38500//(Joint5_MAX_POS - (Joint5_MIN_POS))
+#define Joint1_MAX_LENGTH   -Joint1_MIN_POS*2//(Joint1_MAX_POS - (Joint1_MIN_POS))
+#define Joint2_MAX_LENGTH   -Joint2_MIN_POS*2//(Joint2_MAX_POS - (Joint2_MIN_POS))
+#define Joint3_MAX_LENGTH   -Joint3_MIN_POS*2//(Joint3_MAX_POS - (Joint3_MIN_POS))
+#define Joint4_MAX_LENGTH   -Joint4_MIN_POS*2//(Joint4_MAX_POS - (Joint4_MIN_POS))
+#define Joint5_MAX_LENGTH   -Joint5_MIN_POS*2//38500//(Joint5_MAX_POS - (Joint5_MIN_POS))
 //*/
 
 /*
@@ -74,8 +74,8 @@
   #define X_CENTER 0
   #define Y_CENTER 0
 #else
-  #define X_CENTER ((X_BED_SIZE) / 2)
-  #define Y_CENTER ((Y_BED_SIZE) / 2)
+  #define X_CENTER ((X_MAX_POS + X_MIN_POS) / 2)
+  #define Y_CENTER ((X_MAX_POS + X_MIN_POS) / 2)
 #endif
 #define Z_CENTER ((Z_MIN_POS + Z_MAX_POS) / 2)
 
@@ -693,19 +693,19 @@
 
   //joint
   #if ENABLED(USE_Joint1MIN_PLUG)
-    #define ENDSTOPPULLUP_Joint1MIN
+     #define ENDSTOPPULLUP_Joint1MIN
   #endif
   #if ENABLED(USE_Joint2MIN_PLUG)
-    #define ENDSTOPPULLUP_Joint2MIN
+     #define ENDSTOPPULLUP_Joint2MIN
   #endif
   #if ENABLED(USE_Joint3MIN_PLUG)
-    #define ENDSTOPPULLUP_Joint3MIN
+     #define ENDSTOPPULLUP_Joint3MIN
   #endif
   #if ENABLED(USE_Joint4MIN_PLUG)
-    #define ENDSTOPPULLUP_Joint4MIN
+     #define ENDSTOPPULLUP_Joint4MIN
   #endif
   #if ENABLED(USE_Joint5MIN_PLUG)
-    #define ENDSTOPPULLUP_Joint5MIN
+     #define ENDSTOPPULLUP_Joint5MIN
   #endif  
 #endif
 

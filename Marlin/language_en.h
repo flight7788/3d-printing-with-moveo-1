@@ -181,6 +181,9 @@
 #ifndef MSG_MOVE_AXIS_DEGREE
   #define MSG_MOVE_AXIS_DEGREE                _UxGT("Move axis (degree)")
 #endif
+#ifndef MSG_HOME_CURRENT
+  #define MSG_HOME_CURRENT                    _UxGT("Home Current")
+#endif
 #ifndef MSG_BED_LEVELING
   #define MSG_BED_LEVELING                    _UxGT("Bed Leveling")
 #endif
@@ -475,6 +478,23 @@
 #endif
 #ifndef MSG_MOVE_D
   #define MSG_MOVE_D                          _UxGT("Move D")
+#endif
+
+//joint 
+#ifndef MSG_SET_J
+  #define MSG_SET_J                          _UxGT("Set J")
+#endif
+#ifndef MSG_SET_A
+  #define MSG_SET_A                          _UxGT("Set A")
+#endif
+#ifndef MSG_SET_B
+  #define MSG_SET_B                          _UxGT("Set B")
+#endif
+#ifndef MSG_SET_C
+  #define MSG_SET_C                          _UxGT("Set C")
+#endif
+#ifndef MSG_SET_D
+  #define MSG_SET_D                          _UxGT("Set D")
 #endif
 
 #ifndef MSG_HOME_J

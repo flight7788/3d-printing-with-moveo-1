@@ -197,6 +197,8 @@ float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0f); // The flow perc
   bool Planner::autotemp_enabled = false;
 #endif
 
+bool Planner::accel_f = true;
+
 // private:
 
 int32_t Planner::position[NUM_AXIS] = { 0 };
@@ -3739,6 +3741,21 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   SERIAL_ECHOLNPAIR_F("current_joint_speed[4] : ",current_joint_speed[Joint4_AXIS]);
   SERIAL_ECHOLNPAIR_F("current_joint_speed[5] : ",current_joint_speed[Joint5_AXIS]);
   //*/
+  float limit_degree[Joint_All] = ACCELERATION_SW_Limit_Degree;
+  if((accel_f==false) || ( (delta_joint_degree[Joint1_AXIS]/10)<limit_degree[Joint1_AXIS] && (delta_joint_degree[Joint2_AXIS]/10)<limit_degree[Joint2_AXIS] && 
+    (delta_joint_degree[Joint3_AXIS]/10)<limit_degree[Joint3_AXIS] && (delta_joint_degree[Joint4_AXIS]/10)<limit_degree[Joint4_AXIS] && 
+    (delta_joint_degree[Joint5_AXIS]/10)<limit_degree[Joint5_AXIS]) ){
+      LOOP_NUM_JOINT(i){
+        planner.max_acceleration_degree_per_s2_joint[i] = 10000;
+      }
+  }
+  else{
+    float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
+    LOOP_NUM_JOINT(i){
+      planner.max_acceleration_degree_per_s2_joint[i] = max_acceleration_joint_init[i];
+    }
+  }
+
 
   // Compute and limit the acceleration rate for the trapezoid generator.
   const float steps_per_mm = block->step_event_count * inverse_millimeters;

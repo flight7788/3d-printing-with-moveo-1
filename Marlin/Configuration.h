@@ -584,11 +584,11 @@
 //#define ENDSTOPPULLUP_YMIN
 //#define ENDSTOPPULLUP_ZMIN
 #define ENDSTOPPULLUP_ZMIN_PROBE
-#define ENDSTOPPULLUP_Joint1MIN
-#define ENDSTOPPULLUP_Joint2MIN
-#define ENDSTOPPULLUP_Joint3MIN
-#define ENDSTOPPULLUP_Joint4MIN
-#define ENDSTOPPULLUP_Joint5MIN
+ #define ENDSTOPPULLUP_Joint1MIN
+ #define ENDSTOPPULLUP_Joint2MIN
+ #define ENDSTOPPULLUP_Joint3MIN
+ #define ENDSTOPPULLUP_Joint4MIN
+ #define ENDSTOPPULLUP_Joint5MIN
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here
@@ -693,7 +693,7 @@
  */
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT {100.23, 99.86, 7999.52, 418.5}
-#define DEFAULT_JOINT_STEPS_PER_DEGEE {355.55 , 391.1111, 959.0610, 477.3553, 207.2727}
+#define DEFAULT_JOINT_STEPS_PER_DEGEE {355.55 , 389.7777, 1011.1111, 477.3553, 149.7777}
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -710,7 +710,9 @@
  */
 #define DEFAULT_MAX_ACCELERATION {100, 100, 30, 10000}
 #define DEFAULT_MAX_ACCELERATION_joint {50, 70, 70, 70, 70}
+#define ACCELERATION_SW_Limit_Degree {15, 15, 15, 15, 15}
 /**
+ * 
  * Default Acceleration (change/s) change = mm/s
  * Override with M204
  *
@@ -1003,42 +1005,42 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 200
-#define Y_BED_SIZE 200
+#define X_BED_SIZE 880
+#define Y_BED_SIZE 880
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
+#define X_MIN_POS -440
+#define Y_MIN_POS -440
 #define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE
-#define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 200
+#define X_MAX_POS X_MIN_POS + X_BED_SIZE//X_BED_SIZE/2
+#define Y_MAX_POS Y_MIN_POS + Y_BED_SIZE//Y_BED_SIZE/2
+#define Z_MAX_POS 500
 
 #define J_MIN_POS_step -35491
-#define A_MIN_POS_step -35433
-#define B_MIN_POS_step -92297
+#define A_MIN_POS_step -34460
+#define B_MIN_POS_step -86050
 #define C_MIN_POS_step -37990
-#define D_MIN_POS_step -19027
+#define D_MIN_POS_step -13665
 
 #define J_MAX_POS_step 35491
 #define A_MAX_POS_step 42000
-#define B_MAX_POS_step 100000
+#define B_MAX_POS_step 110000
 #define C_MAX_POS_step 111810
 #define D_MAX_POS_step 20500
 
 // joint
-#define Joint1_MIN_POS -35491
-#define Joint2_MIN_POS -35433
-#define Joint3_MIN_POS -92297
-#define Joint4_MIN_POS -37990
-#define Joint5_MIN_POS -19027
+#define Joint1_MIN_POS  J_MIN_POS_step//-35491
+#define Joint2_MIN_POS  A_MIN_POS_step//-34410
+#define Joint3_MIN_POS  B_MIN_POS_step//-86110
+#define Joint4_MIN_POS  C_MIN_POS_step//-37990
+#define Joint5_MIN_POS  D_MIN_POS_step//-13650
 
 // joint
-#define Joint1_MAX_POS 35491
-#define Joint2_MAX_POS 42000
-#define Joint3_MAX_POS 110000
-#define Joint4_MAX_POS 118110
-#define Joint5_MAX_POS 20500
+#define Joint1_MAX_POS  J_MAX_POS_step//235491
+#define Joint2_MAX_POS  A_MAX_POS_step//42000
+#define Joint3_MAX_POS  B_MAX_POS_step//110000
+#define Joint4_MAX_POS  C_MAX_POS_step//118110
+#define Joint5_MAX_POS  D_MAX_POS_step//20500
 
 /**
  * Software Endstops

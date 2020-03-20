@@ -179,6 +179,7 @@ uint16_t max_display_update_time = 0;
   void lcd_prepare_menu();
   void lcd_move_menu();
   void lcd_move_joint_per_degree_menu();
+  void lcd_home_current_menu();
   void lcd_home_menu();
   void lcd_control_menu();
   void lcd_control_temperature_menu();
@@ -2725,6 +2726,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
     MENU_ITEM(submenu, MSG_MOVE_AXIS_DEGREE, lcd_move_joint_per_degree_menu);
+    MENU_ITEM(submenu, MSG_HOME_CURRENT, lcd_home_current_menu);
     //
     // Auto Home
     //
@@ -3301,7 +3303,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       
 
       // Get the new position
-      const float diff = LROUND(float((int32_t)encoderPosition * move_menu_scale * planner.axis_steps_per_degree_joint[axis]/100));
+      const float diff = float((int32_t)encoderPosition * move_menu_scale * planner.axis_steps_per_degree_joint[axis]/100);
       current_position_Joint[axis] += diff;
       if ((int32_t)encoderPosition < 0)
         NOLESS(current_position_Joint[axis], min);
@@ -3322,7 +3324,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
   }
 
-
+  
 
   void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
   void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS); }
@@ -3532,6 +3534,12 @@ void lcd_quick_feedback(const bool clear_buttons) {
   void lcd_move_Degree_get_C_amount()    { _lcd_move_distance_menu_Joint_per_degree(Joint4_AXIS, lcd_move_degree_C); }
   void lcd_move_Degree_get_D_amount()    { _lcd_move_distance_menu_Joint_per_degree(Joint5_AXIS, lcd_move_degree_D); }
 
+  void lcd_Set_Home_J()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint1_AXIS + 1; }
+  void lcd_Set_Home_A()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint2_AXIS + 1; }
+  void lcd_Set_Home_B()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint3_AXIS + 1; }
+  void lcd_Set_Home_C()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint4_AXIS + 1; }
+  void lcd_Set_Home_D()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint5_AXIS + 1; }
+
   #if E_MANUAL > 1
     void lcd_move_get_e0_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }
     void lcd_move_get_e1_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e1); }
@@ -3681,7 +3689,20 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(submenu, MSG_MOVE_D, lcd_move_Degree_get_D_amount);
     }
     else
-    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+      MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+    END_MENU();
+  }
+
+  void lcd_home_current_menu() {
+    START_MENU();
+    MENU_BACK(MSG_PREPARE);
+
+    MENU_ITEM(function, MSG_SET_J, lcd_Set_Home_J);
+    MENU_ITEM(function, MSG_SET_A, lcd_Set_Home_A);
+    MENU_ITEM(function, MSG_SET_B, lcd_Set_Home_B);
+    MENU_ITEM(function, MSG_SET_C, lcd_Set_Home_C);
+    MENU_ITEM(function, MSG_SET_D, lcd_Set_Home_D);
+    
     END_MENU();
   }
 
