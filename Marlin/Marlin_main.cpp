@@ -419,7 +419,7 @@ int32_t HOME_position_Joint_Mesh[25][5]={
 };
 
 int32_t HOME_position_Joint[Joint_All]={0, 0, 0, 0, 0};
-float   HOME_position[XYZE]={-45.484, -10, 0, current_position[E_AXIS]-3};
+float   HOME_position[XYZE]={-45.484, -10, 0, 0};
 
 //int32_t HOME_position_Z20_Joint[Joint_All]={-609, 3504, 16908, 0, -2917};
 int32_t HOME_position_Z20_Joint[Joint_All]={4506, 19059, 101482, 85898, -5163};
@@ -16949,8 +16949,13 @@ void idle(
   lcd_update();
   //*
   if(set_home_joint!=0){
-    set_Joint_is_at_home(set_home_joint-1);
-    destination_Joint[set_home_joint-1] = current_position_Joint[set_home_joint-1] = 0;
+    destination_Joint[set_home_joint-1] = current_position_Joint[set_home_joint-1]=0;
+    sync_plan_position();
+    SBI(Joint_homed, set_home_joint-1);
+    if(Joint_homed==31){
+      axis_homed=7;
+      axis_known_position=7;
+    }
     set_home_joint = 0;
   }
   //*/

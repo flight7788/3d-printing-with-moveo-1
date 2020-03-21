@@ -693,14 +693,14 @@
  */
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT {100.23, 99.86, 7999.52, 418.5}
-#define DEFAULT_JOINT_STEPS_PER_DEGEE {355.55 , 389.7777, 1011.1111, 477.3553, 149.7777}
+#define DEFAULT_JOINT_STEPS_PER_DEGEE {355.55 , 382.88, 956.11, 477.35, 151.83}
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE {300, 300, 3, 25}
+#define DEFAULT_MAX_FEEDRATE {300, 300, 3, 300}
 #define DEFAULT_MAX_FEEDRATE_JOINT {700, 700, 700, 700, 700}
 /**
  * Default Max Acceleration (change/s) change = mm/s

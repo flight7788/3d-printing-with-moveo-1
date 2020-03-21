@@ -1655,7 +1655,7 @@ bool Planner::_buffer_steps(const int32_t (&target)[NUM_AXIS]
 
 
 
-bool Planner::_buffer_steps_joint(const int32_t (&target)[NUM_AXIS], const int32_t (&joint)[5]
+bool Planner::_buffer_steps_joint(const int32_t (&target)[NUM_AXIS], const int32_t (&joint)[Joint_All]
   #if HAS_POSITION_FLOAT
     , const float (&target_float)[NUM_AXIS]
   #endif
@@ -3417,9 +3417,9 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   // Compute direction bit-mask for this block
   uint8_t dm = 0, djm = 0;
     
-  if (da < 0) SBI(dm, X_AXIS);
-  if (db < 0) SBI(dm, Y_AXIS);
-  if (dc < 0) SBI(dm, Z_AXIS);
+  //if (da < 0) SBI(dm, X_AXIS);
+  //if (db < 0) SBI(dm, Y_AXIS);
+  //if (dc < 0) SBI(dm, Z_AXIS);
   if (d0 < 0) SBI(djm, Joint1_AXIS);
   if (d1 < 0) SBI(djm, Joint2_AXIS);
   if (d2 < 0) SBI(djm, Joint3_AXIS);
@@ -3448,9 +3448,9 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
 
   
   // default non-h-bot planning
-  block->steps[A_AXIS] = ABS(da);
-  block->steps[B_AXIS] = ABS(db);
-  block->steps[C_AXIS] = ABS(dc);
+  //block->steps[A_AXIS] = ABS(da);
+  //block->steps[B_AXIS] = ABS(db);
+  //block->steps[C_AXIS] = ABS(dc);
   block->step_Joint[Joint1_AXIS] = ABS(d0);
   block->step_Joint[Joint2_AXIS] = ABS(d1);
   block->step_Joint[Joint3_AXIS] = ABS(d2);
@@ -3625,7 +3625,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   delta_joint_degree[Joint5_AXIS] = (float) d4  * steps_to_degree_joint[Joint5_AXIS] * 10;   
 
   //if (block->steps[A_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[B_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[C_AXIS] < MIN_STEPS_PER_SEGMENT) {
-  if ((block->step_Joint[Joint1_AXIS] < 5) && (block->step_Joint[Joint2_AXIS] < 1 && block->step_Joint[Joint3_AXIS] < 1
+  if ((block->step_Joint[Joint1_AXIS] < 1) && (block->step_Joint[Joint2_AXIS] < 1 && block->step_Joint[Joint3_AXIS] < 1
       && block->step_Joint[Joint4_AXIS] < 1 && block->step_Joint[Joint5_AXIS] < 1)) {//*/
     block->millimeters = ABS(delta_mm[E_AXIS]);
   }
@@ -3642,15 +3642,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
     
 
   const float inverse_millimeters = (float)1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
-  /*
-  const float feedrate_rate_joint[Joint_All] = DEFAULT_FEEDRATE_RATE_JOINT;
-  LOOP_NUM_JOINT(i){
-    if(block->step_event_count == block->step_Joint[i]){
-      fr_mm_s *= (float)feedrate_rate_joint[i];
-      break;
-    }
-  }
-  */
+ 
   // Calculate inverse time for this move. No divide by zero due to previous checks.
   // Example: At 120mm/s a 60mm move takes 0.5s. So this will give 2.0.
   float inverse_secs = (float)fr_mm_s * inverse_millimeters;
@@ -3713,9 +3705,6 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   float current_joint_speed[Joint_All], speed_factor = 1.0f; // factor <1 decreases speed
   LOOP_NUM_JOINT(i) {
     const float cs = ABS((current_joint_speed[i] = delta_joint_degree[i] * inverse_secs));
-    #if ENABLED(DISTINCT_E_FACTORS)
-      if (i == E_AXIS) i += extruder;
-    #endif
     if (cs > max_feedrate_mm_s_joint[i]) NOMORE(speed_factor, (float)max_feedrate_mm_s_joint[i] / cs);
   }
   //SERIAL_ECHOLNPAIR_F("speed_factor : ",speed_factor);
@@ -4170,6 +4159,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   //SERIAL_ECHOLNPAIR("position_joint : ", block->position_Joint);
   //SERIAL_ECHOLNPAIR("step_Joint : ", block->step_Joint);
   //SERIAL_ECHOLNPAIR("direction_bits_joint : ", block->direction_bits_joint);
+  
   // Update previous path unit_vector and nominal speed
   //COPY(previous_speed, current_speed);
   COPY(previous_speed_joint, current_joint_speed);
