@@ -78,7 +78,7 @@ int32_t HOME_position_Joint_Mesh[25][5] = {
     {-3673, 3568, 10742, 0, 4124},
 };
 
-int current_Probe_position = 62;
+int current_Probe_position = 67;
 int Probe_pointx = 0, Probe_pointy = 0;
 
 int32_t ZERO_position_Joint[Joint_All] = {2241, 2643, 20041, 3199, -2126};
@@ -403,21 +403,21 @@ inline void buffer_line_to_destination(const int32_t &fr_mm_s)
 #endif
 }
 
-bool circle_inside_d(double cir_x, double cir_y)
+bool circle_inside_d(float cir_x, float cir_y)
 {
   if (pow((cir_x - Circle_Center_X), 2) + pow((cir_y - Circle_Center_Y), 2) <= pow(Circle_outside_r + 1, 2)) return 1;
   else
     return 0;
 }
 
-bool circle_outside_d(double cor_x, double cor_y)
+bool circle_outside_d(float cor_x, float cor_y)
 {
   if (pow((cor_x - Circle_Center_X), 2) + pow((cor_y - Circle_Center_Y), 2) >= pow(Circle_inside_r - 1, 2)) return 1;
   else
     return 0;
 }
 
-bool find_region_in_out_d(double x_fr, double y_fr)
+bool find_region_in_out_d(float x_fr, float y_fr)
 {
   if ((circle_inside_d(x_fr, y_fr) && circle_outside_d(x_fr, y_fr)) == 1)
   {
@@ -431,7 +431,7 @@ bool find_region_in_out_d(double x_fr, double y_fr)
   }
 }
 
-bool In_Rectangle(double IR_X, double IR_Y)
+bool In_Rectangle(float IR_X, float IR_Y)
 {
   SERIAL_ECHOPAIR("In_Rectangle X:", IR_X);
   SERIAL_ECHOPAIR(" Y:", IR_Y);
@@ -447,18 +447,26 @@ bool In_Rectangle(double IR_X, double IR_Y)
   }
 }
 
-int Use_XY_to_Matrix_Index(double UXYMIX, double UXYMIY)
+int Use_XY_to_Matrix_Index(float UXYMIX, float UXYMIY)
 {
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   SERIAL_ECHOLNPGM(">>> Use_XY_to_Matrix_Index");
 #endif
   int temp_UXYMIX = (int)UXYMIX;
   int temp_UXYMIY = (int)UXYMIY;
+
+  if (UXYMIX == 209.837014) temp_UXYMIX = 209;
+  else if (UXYMIX == 670.16299)
+    temp_UXYMIX = 670;
+
+  SERIAL_ECHOPAIR("temp_UXYMIX: ", temp_UXYMIX);
+  SERIAL_ECHOLNPAIR(" temp_UXYMIY: ", temp_UXYMIY);
+
   int temp_return = 0;
 
   switch (temp_UXYMIX)
   {
-    case 209:
+    case 210: // 209:
       switch (temp_UXYMIY)
       {
         case 615: temp_return = 62; break;
@@ -516,7 +524,7 @@ int Use_XY_to_Matrix_Index(double UXYMIX, double UXYMIY)
 
 static float Reverse_Curve(const int32_t temp_pos, JointEnum Joint)
 {
-  double temp_return = 0;
+  float temp_return = 0;
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(">>> Reverse_Curve");
@@ -524,24 +532,24 @@ static float Reverse_Curve(const int32_t temp_pos, JointEnum Joint)
 
   SERIAL_ECHOLNPAIR("  Position Joint: ", temp_pos);
 
-  double ba2 = b[Joint] / a[Joint] / 2;
-  double temp1 = (temp_pos - c[Joint]) / a[Joint]; //
-  double temp2 = ba2 * ba2;                        // X
-  double temp3[2] = {0};
-  temp3[1] = temp2 / 100000;
-  temp3[0] = (int32_t)(temp2) % 100000;
+  float ba2 = b[Joint] / a[Joint] / 2;
+  float temp1 = (temp_pos - c[Joint]) / a[Joint]; //
+  float temp2 = ba2 * ba2;                        // X
+  float temp3[2] = {0};
+  temp3[1] = temp2 / 1000000;
+  temp3[0] = (int32_t)(temp2) % 1000000;
 
   SERIAL_ECHOLNPAIR("  a: ", a[Joint]);
   SERIAL_ECHOLNPAIR("  b: ", b[Joint]);
   SERIAL_ECHOLNPAIR("  c: ", c[Joint]);
   SERIAL_ECHOLNPAIR("  b/a/2: ", ba2);
-  SERIAL_ECHOLNPAIR("  temp1: ", temp1);
-  SERIAL_ECHOLNPAIR("  temp2: ", temp2);
-  SERIAL_ECHOLNPAIR("  temp3[1]: ", temp3[1]);
-  SERIAL_ECHOLNPAIR("  temp3[0]: ", temp3[0]);
+  SERIAL_ECHOLNPAIR("  (J-c)/a: ", temp1);
+  SERIAL_ECHOLNPAIR("  [(b/a)/2]^2: ", temp2);
+  SERIAL_ECHOLNPAIR("  [(b/a)/2]^2(*10^6): ", temp3[1]); // Show Data
+  SERIAL_ECHOLNPAIR("  [(b/a)/2]^2(*10^0): ", temp3[0]);
 
   temp_return = (float)(-sqrt(temp1 + temp2) - ba2);
-
+  if (temp_return <= -3000) temp_return = (float)(+sqrt(temp1 + temp2) - ba2);
   // temp_return=sqrt((temp_pos-c[Joint])/a[Joint]+ pow((b[Joint]/a[Joint])/2,2))-(b[Joint]/a[Joint])/2;
   SERIAL_ECHOLNPAIR("  temp_return: ", temp_return);
 
@@ -554,7 +562,7 @@ static float Reverse_Curve(const int32_t temp_pos, JointEnum Joint)
 
 static float Reverse_Curve_Many(const int num_total, const int32_t temp_pos, JointEnum Joint)
 {
-  double temp_return = 0;
+  float temp_return = 0;
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(">>> Reverse_Curve_Many");
@@ -563,10 +571,10 @@ static float Reverse_Curve_Many(const int num_total, const int32_t temp_pos, Joi
   SERIAL_ECHOLNPAIR("  Position Joint: ", temp_pos);
   SERIAL_ECHOLNPAIR("  Num_total: ", num_total);
 
-  double ba2 = pgm_read_float_near(&b_m2[num_total * 5 + Joint]) / pgm_read_float_near(&a_m2[num_total * 5 + Joint]) / 2;
-  double temp1 = (temp_pos - pgm_read_float_near(&c_m2[num_total * 5 + Joint])) / pgm_read_float_near(&a_m2[num_total * 5 + Joint]); //
-  double temp2 = ba2 * ba2;                                                                                                          // X
-  double temp3[2] = {0};
+  float ba2 = pgm_read_float_near(&b_m2[num_total * 5 + Joint]) / pgm_read_float_near(&a_m2[num_total * 5 + Joint]) / 2;
+  float temp1 = (temp_pos - pgm_read_float_near(&c_m2[num_total * 5 + Joint])) / pgm_read_float_near(&a_m2[num_total * 5 + Joint]); //
+  float temp2 = ba2 * ba2;                                                                                                          // X
+  float temp3[2] = {0};
   temp3[1] = temp2 / 100000;
   temp3[0] = (int32_t)(temp2) % 100000;
 
@@ -574,13 +582,13 @@ static float Reverse_Curve_Many(const int num_total, const int32_t temp_pos, Joi
   SERIAL_ECHOLNPAIR("  b: ", pgm_read_float_near(&b_m2[num_total * 5 + Joint]));
   SERIAL_ECHOLNPAIR("  c: ", pgm_read_float_near(&c_m2[num_total * 5 + Joint]));
   SERIAL_ECHOLNPAIR("  b/a/2: ", ba2);
-  SERIAL_ECHOLNPAIR("  temp1: ", temp1);
-  SERIAL_ECHOLNPAIR("  temp2: ", temp2);
-  SERIAL_ECHOLNPAIR("  temp3[1]: ", temp3[1]);
-  SERIAL_ECHOLNPAIR("  temp3[0]: ", temp3[0]);
+  SERIAL_ECHOLNPAIR("  (J-c)/a: ", temp1);
+  SERIAL_ECHOLNPAIR("  [(b/a)/2]^2: ", temp2);
+  SERIAL_ECHOLNPAIR("  [(b/a)/2]^2(*10^6): ", temp3[1]); // Show Data
+  SERIAL_ECHOLNPAIR("  [(b/a)/2]^2(*10^0): ", temp3[0]);
 
   temp_return = (float)(-sqrt(temp1 + temp2) - ba2);
-
+  if (temp_return <= -3000) temp_return = (float)(+sqrt(temp1 + temp2) - ba2);
   // temp_return=sqrt((temp_pos-c[Joint])/a[Joint]+ pow((b[Joint]/a[Joint])/2,2))-(b[Joint]/a[Joint])/2;
   SERIAL_ECHOLNPAIR("  temp_return: ", temp_return);
 
