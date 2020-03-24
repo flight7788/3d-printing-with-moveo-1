@@ -2236,17 +2236,17 @@ void do_blocking_move_to_Joint_many(const float rx, const float ry, const float 
     buffer_line_to_current_position();
 
     planner.synchronize();
-  }
-
-  if(In_Rectangle(rx, ry))
-    current_Probe_position = Use_XY_to_Matrix_Index(rx, ry);
-  else
-    current_Probe_position = Probe_pointy * 10 + Probe_pointx;   
+  } 
 
   endstops.enable_z_probe(false);
   feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
   current_position[X_AXIS] = rx;
   current_position[Y_AXIS] = ry;
+
+  if(In_Rectangle(current_position[X_AXIS], current_position[Y_AXIS]))
+    current_Probe_position = Use_XY_to_Matrix_Index(current_position[X_AXIS], current_position[Y_AXIS]);
+  else
+    current_Probe_position = Probe_pointy * 10 + Probe_pointx;
   
   // Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]); //current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
   buffer_line_to_current_position();
@@ -3493,7 +3493,7 @@ void clean_up_after_endstop_or_probe_move() {
    *
    * @return The raw Z position where the probe was triggered
    */
-    static float run_z_probe() {
+  static float run_z_probe() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
     #endif
@@ -3770,7 +3770,7 @@ void clean_up_after_endstop_or_probe_move() {
       // If the nozzle is well over the travel height then
       // move down quickly before doing the slow probe
       float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0;
-      if (zprobe_zoffset < 0) z -= zprobe_zoffset;
+      // if (zprobe_zoffset < 0) z -= zprobe_zoffset;
 
       if (current_position[Z_AXIS] > z) {
         // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
@@ -3887,7 +3887,7 @@ void clean_up_after_endstop_or_probe_move() {
 
     float measured_z = NAN;
     if (!DEPLOY_PROBE()) {
-      measured_z = run_z_probe() + zprobe_zoffset;
+      measured_z = run_z_probe(); // + zprobe_zoffset;
 
       const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
       if (big_raise || raise_after == PROBE_PT_RAISE)
@@ -3973,11 +3973,11 @@ void clean_up_after_endstop_or_probe_move() {
 
     float measured_z = NAN;
     if (!DEPLOY_PROBE_many()) {
-      measured_z = run_z_probe_many() + zprobe_zoffset;
+      measured_z = run_z_probe_many();// + zprobe_zoffset;
 
       const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
       if (big_raise || raise_after == PROBE_PT_RAISE)
-        do_blocking_move_to_z_many(current_position[Z_AXIS] + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+        do_blocking_move_to_z_many(current_position[Z_AXIS] + (big_raise ? 50 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
       else if (raise_after == PROBE_PT_STOW)
         if (STOW_PROBE_many()) measured_z = NAN;
     }
@@ -7333,8 +7333,8 @@ void home_all_axes() { gcode_G28(true); }
           for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
             SERIAL_ECHOPAIR("Y: ", PR_OUTER_VAR);
             SERIAL_ECHOPAIR(" X: ",PR_INNER_VAR);
-            SERIAL_ECHOPAIR(" X pos: ", pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+0]));
-            SERIAL_ECHOLNPAIR(" Y pos: ", pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+1]));
+            SERIAL_ECHOPAIR(" X pos: ", pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+0]) - (X_BED_SIZE/2));
+            SERIAL_ECHOLNPAIR(" Y pos: ", pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+1]) - (Y_BED_SIZE/2));
 
             // float xBase = pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+0]);
             //       yBase = pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+1]);
@@ -7344,6 +7344,9 @@ void home_all_axes() { gcode_G28(true); }
             
             float xBase = pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+0]),
                   yBase = pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+1]);
+
+            xBase =xBase -(X_BED_SIZE/2); 
+            yBase =yBase -(Y_BED_SIZE/2);
 
             xProbe = FLOOR(xBase + (xBase < 0 ? 0 : 0.5));
             yProbe = FLOOR(yBase + (yBase < 0 ? 0 : 0.5));
@@ -7523,7 +7526,7 @@ void home_all_axes() { gcode_G28(true); }
           for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
             for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
               int ind = indexIntoAB[xx][yy];
-              float diff = eqnBVector[ind] - mean,
+              float diff = eqnBVector[ind] ,//- mean,
                     x_tmp = eqnAMatrix[ind + 0 * abl_points],
                     y_tmp = eqnAMatrix[ind + 1 * abl_points],
                     z_tmp = 0;
@@ -7539,8 +7542,10 @@ void home_all_axes() { gcode_G28(true); }
               SERIAL_PROTOCOL_F(diff, 5);
 
               char str_G29[80];
-                
-              dtostrf(eqnBVector[ind], 5, 5, str_G29);
+              if(In_Rectangle(pgm_read_float_near(&Probe_position[(int)(yy*10+(int)xx)*3+0]),pgm_read_float_near(&Probe_position[(int)(yy*10+(int)xx)*3+1])))
+                dtostrf(eqnBVector[ind] , 5, 5, str_G29);
+              else
+                dtostrf(0 , 5, 5, str_G29);
               strcat(str_G29, " ");                           
               card.write_Str(str_G29);              
             } // xx

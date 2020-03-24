@@ -12,7 +12,7 @@ AlignConsecutiveAssignments: false
 # 連續聲明時，對齊所有聲明的變量名
 AlignConsecutiveDeclarations: false
 # 左對齊逃脫換行(使用反斜槓換行)的反斜槓
-AlignEscapedNewlines: Right
+AlignEscapedNewlines: Left
 # 水平對齊二元和三元表達式的操作數
 AlignOperands:   true
 # 對齊連續的尾隨的注釋

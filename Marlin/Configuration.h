@@ -181,9 +181,9 @@
 //#define SWITCHING_EXTRUDER
 #if ENABLED(SWITCHING_EXTRUDER)
   #define SWITCHING_EXTRUDER_SERVO_NR 0
-  #define SWITCHING_EXTRUDER_SERVO_ANGLES                                                                                                                                                                                                                                                                                      \
-    {                                                                                                                                                                                                                                                                                                                          \
-      0, 90                                                                                                                                                                                                                                                                                                                    \
+  #define SWITCHING_EXTRUDER_SERVO_ANGLES \
+    {                                     \
+      0, 90                               \
     } // Angles for E0, E1[, E2, E3]
   #if EXTRUDERS > 3
     #define SWITCHING_EXTRUDER_E23_SERVO_NR 1
@@ -194,9 +194,9 @@
 //#define SWITCHING_NOZZLE
 #if ENABLED(SWITCHING_NOZZLE)
   #define SWITCHING_NOZZLE_SERVO_NR 0
-  #define SWITCHING_NOZZLE_SERVO_ANGLES                                                                                                                                                                                                                                                                                        \
-    {                                                                                                                                                                                                                                                                                                                          \
-      0, 90                                                                                                                                                                                                                                                                                                                    \
+  #define SWITCHING_NOZZLE_SERVO_ANGLES \
+    {                                   \
+      0, 90                             \
     } // Angles for E0, E1
 //#define HOTEND_OFFSET_Z { 0.0, 0.0 }
 #endif
@@ -211,15 +211,15 @@
                                                      // magnetized with applied voltage
   #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE LOW // LOW or HIGH pin signal energizes the coil
   #define PARKING_EXTRUDER_SOLENOIDS_DELAY       250 // Delay (ms) for magnetic field. No delay if 0 or not defined.
-  #define PARKING_EXTRUDER_PARKING_X                                                                                                                                                                                                                                                                                           \
-    {                                                                                                                                                                                                                                                                                                                          \
-      -78, 184                                                                                                                                                                                                                                                                                                                 \
+  #define PARKING_EXTRUDER_PARKING_X \
+    {                                \
+      -78, 184                       \
     }                                       // X positions for parking the extruders
   #define PARKING_EXTRUDER_GRAB_DISTANCE  1 // mm to move beyond the parking point to grab the extruder
   #define PARKING_EXTRUDER_SECURITY_RAISE 5 // Z-raise before parking
-  #define HOTEND_OFFSET_Z                                                                                                                                                                                                                                                                                                      \
-    {                                                                                                                                                                                                                                                                                                                          \
-      0.0, 1.3                                                                                                                                                                                                                                                                                                                 \
+  #define HOTEND_OFFSET_Z \
+    {                     \
+      0.0, 1.3            \
     } // Z-offsets of the two hotends. The first must be 0.
 #endif
 
@@ -412,7 +412,7 @@
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
 #define BANG_MAX 255 // Limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX                                                                                                                                                                                                                                                                                                                \
+#define PID_MAX \
   BANG_MAX          // Limits current to nozzle while PID is active (see
                     // PID_FUNCTIONAL_RANGE below); 255=full current
 #define PID_K1 0.95 // Smoothing factor within any PID loop
@@ -425,7 +425,7 @@
   // useful for heaters driven by a relay #define PID_PARAMS_PER_HOTEND // Uses
   // separate PID parameters for each extruder (useful for mismatched extruders)
   // Set/get with gcode: M301 E[extruder number, 0-2]
-  #define PID_FUNCTIONAL_RANGE                                                                                                                                                                                                                                                                                                 \
+  #define PID_FUNCTIONAL_RANGE \
     10 // If the temperature difference between the target temperature and the actual temperature
        // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
@@ -706,13 +706,13 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT                                                                                                                                                                                                                                                                                            \
-  {                                                                                                                                                                                                                                                                                                                            \
-    100.23, 99.86, 7999.52, 418.5                                                                                                                                                                                                                                                                                              \
+#define DEFAULT_AXIS_STEPS_PER_UNIT \
+  {                                 \
+    100.23, 99.86, 7999.52, 418.5   \
   }
-#define DEFAULT_JOINT_STEPS_PER_DEGEE                                                                                                                                                                                                                                                                                          \
-  {                                                                                                                                                                                                                                                                                                                            \
-    355.55, 391.1111, 959.0610, 477.3553, 207.2727                                                                                                                                                                                                                                                                             \
+#define DEFAULT_JOINT_STEPS_PER_DEGEE              \
+  {                                                \
+    355.55, 391.1111, 959.0610, 477.3553, 207.2727 \
   }
 
 /**
@@ -720,13 +720,13 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE                                                                                                                                                                                                                                                                                                   \
-  {                                                                                                                                                                                                                                                                                                                            \
-    300, 300, 3, 25                                                                                                                                                                                                                                                                                                            \
+#define DEFAULT_MAX_FEEDRATE \
+  {                          \
+    300, 300, 3, 25          \
   }
-#define DEFAULT_MAX_FEEDRATE_JOINT                                                                                                                                                                                                                                                                                             \
-  {                                                                                                                                                                                                                                                                                                                            \
-    700, 700, 700, 700, 700                                                                                                                                                                                                                                                                                                    \
+#define DEFAULT_MAX_FEEDRATE_JOINT \
+  {                                \
+    700, 700, 700, 700, 700        \
   }
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -734,13 +734,13 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_ACCELERATION                                                                                                                                                                                                                                                                                               \
-  {                                                                                                                                                                                                                                                                                                                            \
-    100, 100, 30, 10000                                                                                                                                                                                                                                                                                                        \
+#define DEFAULT_MAX_ACCELERATION \
+  {                              \
+    100, 100, 30, 10000          \
   }
-#define DEFAULT_MAX_ACCELERATION_joint                                                                                                                                                                                                                                                                                         \
-  {                                                                                                                                                                                                                                                                                                                            \
-    50, 70, 70, 90, 90                                                                                                                                                                                                                                                                                                         \
+#define DEFAULT_MAX_ACCELERATION_joint \
+  {                                    \
+    50, 70, 70, 90, 90                 \
   }
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -846,9 +846,9 @@
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
 #define Z_PROBE_SERVO_NR 0 // Defaults to SERVO 0 connector.
-#define Z_SERVO_ANGLES                                                                                                                                                                                                                                                                                                         \
-  {                                                                                                                                                                                                                                                                                                                            \
-    90, 0                                                                                                                                                                                                                                                                                                                      \
+#define Z_SERVO_ANGLES \
+  {                    \
+    90, 0              \
   } // Z Servo Deploy and Stow angles
 
 /**
@@ -903,9 +903,9 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER 27   // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 7    // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 12.7 // 26.55  // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 28    // 28.243 // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -7    // -7.45  // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 11.75 // 12.7   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 10
@@ -939,7 +939,7 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   25 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_DEPLOY_PROBE   50 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES 5  // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE    5  // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
@@ -1042,12 +1042,12 @@
 #define Y_BED_SIZE 880
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
-#define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE
-#define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 200
+#define X_MIN_POS -(X_BED_SIZE / 2)
+#define Y_MIN_POS -(Y_BED_SIZE / 2)
+#define Z_MIN_POS -10
+#define X_MAX_POS X_MIN_POS + X_BED_SIZE
+#define Y_MAX_POS Y_MIN_POS + Y_BED_SIZE
+#define Z_MAX_POS 500
 
 #define J_MIN_POS_step -35491
 #define A_MIN_POS_step -40350
@@ -1125,7 +1125,7 @@
  */
 //#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define NUM_RUNOUT_SENSORS                                                                                                                                                                                                                                                                                                   \
+  #define NUM_RUNOUT_SENSORS \
     1                                  // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for
                                        // each.
   #define FIL_RUNOUT_INVERTING   false // set to true to invert the logic of the sensor.
@@ -1327,7 +1327,7 @@
 // @section homing
 
 // The center of the bed is at (X=0, Y=0)
-//#define BED_CENTER_AT_0_0
+#define BED_CENTER_AT_0_0
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.
@@ -1489,9 +1489,9 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z }
-  #define NOZZLE_PARK_POINT                                                                                                                                                                                                                                                                                                    \
-    {                                                                                                                                                                                                                                                                                                                          \
-      (X_MIN_POS + 10), (Y_MAX_POS - 10), 20                                                                                                                                                                                                                                                                                   \
+  #define NOZZLE_PARK_POINT                  \
+    {                                        \
+      (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 \
     }
   #define NOZZLE_PARK_XY_FEEDRATE 100 // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE  5   // Z axis feedrate in mm/s (not used for delta printers)
@@ -1545,13 +1545,13 @@
   #define NOZZLE_CLEAN_TRIANGLES 3
 
   // Specify positions as { X, Y, Z }
-  #define NOZZLE_CLEAN_START_POINT                                                                                                                                                                                                                                                                                             \
-    {                                                                                                                                                                                                                                                                                                                          \
-      0, 30, (Z_MIN_POS + 1)                                                                                                                                                                                                                                                                                                   \
+  #define NOZZLE_CLEAN_START_POINT \
+    {                              \
+      0, 30, (Z_MIN_POS + 1)       \
     }
-  #define NOZZLE_CLEAN_END_POINT                                                                                                                                                                                                                                                                                               \
-    {                                                                                                                                                                                                                                                                                                                          \
-      100, 60, (Z_MIN_POS + 1)                                                                                                                                                                                                                                                                                                 \
+  #define NOZZLE_CLEAN_END_POINT \
+    {                            \
+      100, 60, (Z_MIN_POS + 1)   \
     }
 
   // Circular pattern radius
@@ -2116,10 +2116,10 @@
 // Support for Adafruit Neopixel LED driver
 //#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
-  #define NEOPIXEL_TYPE                                                                                                                                                                                                                                                                                                        \
+  #define NEOPIXEL_TYPE \
     NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in
              // Adafruit_NeoPixel.h)
-  #define NEOPIXEL_PIN                                                                                                                                                                                                                                                                                                         \
+  #define NEOPIXEL_PIN \
     4                               // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 =>
                                     // PC7 (EXP3-13 on Rumba)
   #define NEOPIXEL_PIXELS        30 // Number of LEDs in the strip
@@ -2162,9 +2162,9 @@
 // Delay (in milliseconds) before the next move will start, to give the servo
 // time to reach its target angle. 300ms is a good value but you can try less
 // delay. If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY                                                                                                                                                                                                                                                                                                            \
-  {                                                                                                                                                                                                                                                                                                                            \
-    300                                                                                                                                                                                                                                                                                                                        \
+#define SERVO_DELAY \
+  {                 \
+    300             \
   }
 //#define DEACTIVATE_SERVOS_AFTER_MOVE
 

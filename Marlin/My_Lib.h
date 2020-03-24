@@ -55,16 +55,16 @@ void print_Joint(const char *prefix, const char *suffix, const long Joint_POS[5]
   print_Joint(prefix, suffix, Joint_POS[Joint1_AXIS], Joint_POS[Joint2_AXIS], Joint_POS[Joint3_AXIS], Joint_POS[Joint4_AXIS], Joint_POS[Joint5_AXIS]);
 }
 
-  #define DEBUG_POS(SUFFIX, VAR)                                                                                                                     \
-    do                                                                                                                                               \
-    {                                                                                                                                                \
-      print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR);                                                                        \
+  #define DEBUG_POS(SUFFIX, VAR)                                              \
+    do                                                                        \
+    {                                                                         \
+      print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); \
     } while (0)
 
-  #define DEBUG_POS_Joint(SUFFIX, VAR)                                                                                                               \
-    do                                                                                                                                               \
-    {                                                                                                                                                \
-      print_Joint(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR);                                                                      \
+  #define DEBUG_POS_Joint(SUFFIX, VAR)                                          \
+    do                                                                          \
+    {                                                                           \
+      print_Joint(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); \
     } while (0)
 #endif
 
@@ -419,7 +419,7 @@ bool circle_outside_d(float cor_x, float cor_y)
 
 bool find_region_in_out_d(float x_fr, float y_fr)
 {
-  if ((circle_inside_d(x_fr, y_fr) && circle_outside_d(x_fr, y_fr)) == 1)
+  if ((circle_inside_d(x_fr + (X_BED_SIZE / 2), y_fr + (X_BED_SIZE / 2)) && circle_outside_d(x_fr - (Y_BED_SIZE / 2), y_fr - (Y_BED_SIZE / 2))) == 1)
   {
     SERIAL_ECHOLNPGM("In the region");
     return 1;
@@ -435,7 +435,7 @@ bool In_Rectangle(float IR_X, float IR_Y)
 {
   SERIAL_ECHOPAIR("In_Rectangle X:", IR_X);
   SERIAL_ECHOPAIR(" Y:", IR_Y);
-  if ((IR_X >= 209.837014 && IR_X <= 670.16299) && ((IR_Y >= 615 && IR_Y <= 815)))
+  if ((IR_X >= 209 - (X_BED_SIZE / 2) && IR_X <= 670 - (X_BED_SIZE / 2)) && ((IR_Y >= 615 - (Y_BED_SIZE / 2) && IR_Y <= 815 - (Y_BED_SIZE / 2))))
   {
     SERIAL_ECHOLNPGM(" Within a rectangular measuring point");
     return 1;
@@ -466,52 +466,52 @@ int Use_XY_to_Matrix_Index(float UXYMIX, float UXYMIY)
 
   switch (temp_UXYMIX)
   {
-    case 210: // 209:
+    case -231: // 209:
       switch (temp_UXYMIY)
       {
-        case 615: temp_return = 62; break;
-        case 715: temp_return = 72; break;
-        case 815: temp_return = 82; break;
+        case 175: temp_return = 62; break;
+        case 275: temp_return = 72; break;
+        case 375: temp_return = 82; break;
       }
       break;
-    case 300:
+    case -140:
       switch (temp_UXYMIY)
       {
-        case 615: temp_return = 63; break;
-        case 715: temp_return = 73; break;
-        case 815: temp_return = 83; break;
+        case 175: temp_return = 63; break;
+        case 275: temp_return = 73; break;
+        case 375: temp_return = 83; break;
       }
       break;
-    case 400:
+    case -40:
       switch (temp_UXYMIY)
       {
-        case 615: temp_return = 64; break;
-        case 715: temp_return = 74; break;
-        case 815: temp_return = 84; break;
+        case 175: temp_return = 64; break;
+        case 275: temp_return = 74; break;
+        case 375: temp_return = 84; break;
       }
       break;
-    case 500:
+    case 60:
       switch (temp_UXYMIY)
       {
-        case 615: temp_return = 65; break;
-        case 715: temp_return = 75; break;
-        case 815: temp_return = 85; break;
+        case 175: temp_return = 65; break;
+        case 275: temp_return = 75; break;
+        case 375: temp_return = 85; break;
       }
       break;
-    case 600:
+    case 160:
       switch (temp_UXYMIY)
       {
-        case 615: temp_return = 66; break;
-        case 715: temp_return = 76; break;
-        case 815: temp_return = 86; break;
+        case 175: temp_return = 66; break;
+        case 275: temp_return = 76; break;
+        case 375: temp_return = 86; break;
       }
       break;
-    case 670:
+    case 230:
       switch (temp_UXYMIY)
       {
-        case 615: temp_return = 67; break;
-        case 715: temp_return = 77; break;
-        case 815: temp_return = 87; break;
+        case 175: temp_return = 67; break;
+        case 275: temp_return = 77; break;
+        case 375: temp_return = 87; break;
       }
       break;
   }
@@ -584,8 +584,8 @@ static float Reverse_Curve_Many(const int num_total, const int32_t temp_pos, Joi
   SERIAL_ECHOLNPAIR("  b/a/2: ", ba2);
   SERIAL_ECHOLNPAIR("  (J-c)/a: ", temp1);
   SERIAL_ECHOLNPAIR("  [(b/a)/2]^2: ", temp2);
-  SERIAL_ECHOLNPAIR("  [(b/a)/2]^2(*10^6): ", temp3[1]); // Show Data
-  SERIAL_ECHOLNPAIR("  [(b/a)/2]^2(*10^0): ", temp3[0]);
+  // SERIAL_ECHOLNPAIR("  [(b/a)/2]^2(*10^6): ", temp3[1]); // Show Data
+  // SERIAL_ECHOLNPAIR("  [(b/a)/2]^2(*10^0): ", temp3[0]);
 
   temp_return = (float)(-sqrt(temp1 + temp2) - ba2);
   if (temp_return <= -3000) temp_return = (float)(+sqrt(temp1 + temp2) - ba2);
