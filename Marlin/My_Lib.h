@@ -419,7 +419,7 @@ bool circle_outside_d(float cor_x, float cor_y)
 
 bool find_region_in_out_d(float x_fr, float y_fr)
 {
-  if ((circle_inside_d(x_fr + (X_BED_SIZE / 2), y_fr + (X_BED_SIZE / 2)) && circle_outside_d(x_fr - (Y_BED_SIZE / 2), y_fr - (Y_BED_SIZE / 2))) == 1)
+  if ((circle_inside_d(x_fr + (X_BED_SIZE / 2), y_fr + (Y_BED_SIZE / 2)) && circle_outside_d(x_fr + (X_BED_SIZE / 2), y_fr + (Y_BED_SIZE / 2))) == 1)
   {
     SERIAL_ECHOLNPGM("In the region");
     return 1;
