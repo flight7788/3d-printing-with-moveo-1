@@ -2240,19 +2240,20 @@ void do_blocking_move_to_Joint_many(const float rx, const float ry, const float 
   }
 
   endstops.enable_z_probe(false);
-  SERIAL_ECHOLNPGM("Move XY1");
-  Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]);
-  buffer_line_to_current_position();
-  planner.synchronize();
-  
-  feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
-  current_position[X_AXIS] = rx;
-  current_position[Y_AXIS] = ry;
 
   if(In_Rectangle(current_position[X_AXIS], current_position[Y_AXIS]))
     current_Probe_position = Use_XY_to_Matrix_Index(current_position[X_AXIS], current_position[Y_AXIS]);
   else
     current_Probe_position = Probe_pointy * 10 + Probe_pointx;
+  
+  // SERIAL_ECHOLNPGM("Move XY1");
+  // Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]);
+  // buffer_line_to_current_position();
+  // planner.synchronize();
+  
+  feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
+  current_position[X_AXIS] = rx;
+  current_position[Y_AXIS] = ry;
   
   SERIAL_ECHOLNPGM("Move XY2");
   Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]); //current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
@@ -3159,7 +3160,15 @@ bool set_probe_deployed_ones(const bool deploy) {
     #endif
 
     if (deploy_stow_condition && unknown_condition)
+    {
+      if(current_position[X_AXIS] == 0 && current_position[Y_AXIS] == 0)
+      {
+        current_position[X_AXIS] = pgm_read_float_near(&Probe_position[current_Probe_position * 3 + 0]) - (X_BED_SIZE/2);
+        current_position[Y_AXIS] = pgm_read_float_near(&Probe_position[current_Probe_position * 3 + 1]) - (Y_BED_SIZE/2);
+      }
       do_probe_raise_many(MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
+    }
+      
 
     #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
       #if ENABLED(Z_PROBE_SLED)
@@ -3228,7 +3237,7 @@ bool set_probe_deployed_ones(const bool deploy) {
     #endif
 
     // do_blocking_move_to(oldXpos, oldYpos, current_position[Z_AXIS]); // return to position before deploy
-    do_probe_raise_many(current_position[Z_AXIS]); // return to position before deploy
+    // do_probe_raise_many(current_position[Z_AXIS]); // return to position before deploy
     endstops.enable_z_probe(deploy);
     return false;
   }
@@ -7550,7 +7559,7 @@ void home_all_axes() { gcode_G28(true); }
               SERIAL_PROTOCOL_F(diff, 5);
 
               char str_G29[80];
-              if(In_Rectangle(pgm_read_float_near(&Probe_position[(int)(yy*10+(int)xx)*3+0]),pgm_read_float_near(&Probe_position[(int)(yy*10+(int)xx)*3+1])))
+              if(In_Rectangle(pgm_read_float_near(&Probe_position[(int)(yy*10+(int)xx)*3+0]) - (X_BED_SIZE/2),pgm_read_float_near(&Probe_position[(int)(yy*10+(int)xx)*3+1])- (Y_BED_SIZE/2)))
                 dtostrf(eqnBVector[ind] , 5, 5, str_G29);
               else
                 dtostrf(0 , 5, 5, str_G29);

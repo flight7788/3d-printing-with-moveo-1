@@ -437,7 +437,8 @@ bool In_Rectangle(float IR_X, float IR_Y)
 {
   SERIAL_ECHOPAIR("In_Rectangle X:", IR_X);
   SERIAL_ECHOPAIR(" Y:", IR_Y);
-  if ((IR_X >= 209 - (X_BED_SIZE / 2) && IR_X <= 670 - (X_BED_SIZE / 2)) && ((IR_Y >= 615 - (Y_BED_SIZE / 2) && IR_Y <= 815 - (Y_BED_SIZE / 2))))
+  if ((IR_X >= 209 - (X_BED_SIZE / 2) - 1 && IR_X <= 670 - (X_BED_SIZE / 2) + 1) &&
+      (IR_Y >= 615 - (Y_BED_SIZE / 2) - 1 && IR_Y <= 815 - (Y_BED_SIZE / 2) + 1))
   {
     SERIAL_ECHOLNPGM(" Within a rectangular measuring point");
     return 1;
