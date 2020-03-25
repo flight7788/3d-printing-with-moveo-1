@@ -2226,6 +2226,7 @@ void do_blocking_move_to_Joint_many(const float rx, const float ry, const float 
 
   // If Z needs to raise, do it before moving XY
   if (current_position[Z_AXIS] < rz) {
+    SERIAL_ECHOLNPGM("To low");
     endstops.enable_z_probe(false);
     endstops.hit_on_purpose();
     feedrate_mm_s = z_feedrate;
@@ -2236,9 +2237,14 @@ void do_blocking_move_to_Joint_many(const float rx, const float ry, const float 
     buffer_line_to_current_position();
 
     planner.synchronize();
-  } 
+  }
 
   endstops.enable_z_probe(false);
+  SERIAL_ECHOLNPGM("Move XY1");
+  Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]);
+  buffer_line_to_current_position();
+  planner.synchronize();
+  
   feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
   current_position[X_AXIS] = rx;
   current_position[Y_AXIS] = ry;
@@ -2248,19 +2254,22 @@ void do_blocking_move_to_Joint_many(const float rx, const float ry, const float 
   else
     current_Probe_position = Probe_pointy * 10 + Probe_pointx;
   
-  // Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]); //current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+  SERIAL_ECHOLNPGM("Move XY2");
+  Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]); //current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
   buffer_line_to_current_position();
   planner.synchronize();
 
   if (current_position[Z_AXIS] > rz) {
-      endstops.enable_z_probe(true);
-      feedrate_mm_s = z_feedrate;
+    SERIAL_ECHOLNPGM("To high");
 
-      current_position[Z_AXIS] = rz;
-      Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]);
-      buffer_line_to_current_position();
-      planner.synchronize();
-      // endstops.enable_z_probe(false);
+    endstops.enable_z_probe(true);
+    feedrate_mm_s = z_feedrate;
+
+    current_position[Z_AXIS] = rz;
+    Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]);
+    buffer_line_to_current_position();
+    planner.synchronize();
+    // endstops.enable_z_probe(false);
   }
 
   planner.synchronize();
@@ -3020,7 +3029,7 @@ void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
-  bool set_probe_deployed_ones(const bool deploy) {
+bool set_probe_deployed_ones(const bool deploy) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
@@ -3223,7 +3232,6 @@ void clean_up_after_endstop_or_probe_move() {
     endstops.enable_z_probe(deploy);
     return false;
   }
-
   /**
    * @brief Used by run_z_probe to do a single Z probe move.
    *
@@ -7345,8 +7353,8 @@ void home_all_axes() { gcode_G28(true); }
             float xBase = pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+0]),
                   yBase = pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+1]);
 
-            xBase =xBase -(X_BED_SIZE/2); 
-            yBase =yBase -(Y_BED_SIZE/2);
+            xBase = xBase - (X_BED_SIZE/2); 
+            yBase = yBase - (Y_BED_SIZE/2);
 
             xProbe = FLOOR(xBase + (xBase < 0 ? 0 : 0.5));
             yProbe = FLOOR(yBase + (yBase < 0 ? 0 : 0.5));

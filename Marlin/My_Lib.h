@@ -244,6 +244,7 @@ inline void Set_current_Joint_Curve(const float point)
 
 inline void Set_current_Joint_Curve_many(const int num_total, const float point)
 {
+  SERIAL_ECHOLNPAIR(">>> Set_current_Joint_Curve_many \n      Num_total: ", num_total);
   DEBUG_POS_Joint("(Before)Set_current_Joint_Curve_many", current_position_Joint);
   float point1 = point * 100;
   current_position_Joint[Joint1_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 0]) * point1 * point1 +
@@ -260,6 +261,7 @@ inline void Set_current_Joint_Curve_many(const int num_total, const float point)
   // SERIAL_ECHOLNPAIR(" point:", point);
 
   DEBUG_POS_Joint("(After)Set_current_Joint_Curve_many", current_position_Joint);
+  SERIAL_ECHOLNPGM("<<< Set_current_Joint_Curve_many");
 }
 
 int X_Y_to_Number(const float Nx, const float Ny)

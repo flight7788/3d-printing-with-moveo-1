@@ -524,8 +524,12 @@ void report_current_position();
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
   bool set_probe_deployed(const bool deploy);
+  bool set_probe_deployed_ones(const bool deploy);
+  bool set_probe_deployed_many(const bool deploy);
+  static float run_z_probe_ones(void);
+  static float set_probe_deployed_many(void);
   #ifdef Z_AFTER_PROBING
-    void move_z_after_probing();
+      void move_z_after_probing();
   #endif
   enum ProbePtRaise : unsigned char {
     PROBE_PT_NONE,  // No raise or stow after run_z_probe

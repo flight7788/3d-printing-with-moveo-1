@@ -22,7 +22,7 @@ AllowAllConstructorInitializersOnNextLine: true
 # 允許函數聲明的所有參數在放在下一行
 AllowAllParametersOfDeclarationOnNextLine: true
 # 允許短的塊放在同一行
-AllowShortBlocksOnASingleLine: false
+AllowShortBlocksOnASingleLine: true
 # 允許短的case標籤放在同一行
 AllowShortCaseLabelsOnASingleLine: true
 # 允許短的函數放在同一行: None, InlineOnly(定義在類中), Empty(空函數), Inline(定義在類中，空函數), All
@@ -31,7 +31,7 @@ AllowShortLambdasOnASingleLine: All
 # 允許短的if語句保持在同一行
 AllowShortIfStatementsOnASingleLine: Always
 # 允許短的循環保持在同一行
-AllowShortLoopsOnASingleLine: false
+AllowShortLoopsOnASingleLine: true
 # 總是在定義返回類型後換行(deprecated)
 AlwaysBreakAfterDefinitionReturnType: None
 # 總是在返回類型後換行: None, All, TopLevel(頂級函數，不包括在類中的函數), 
