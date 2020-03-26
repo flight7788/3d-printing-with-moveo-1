@@ -91,6 +91,12 @@
 #ifndef MSG_AUTO_HOME_X
   #define MSG_AUTO_HOME_X                     _UxGT("Home X")
 #endif
+#ifndef MSG_M280_S0
+  #define MSG_M280_S0                         _UxGT("M280 P0 S0")
+#endif
+#ifndef MSG_M280_S90
+  #define MSG_M280_S90                        _UxGT("M280 P0 S90")
+#endif
 #ifndef MSG_AUTO_HOME_Y
   #define MSG_AUTO_HOME_Y                     _UxGT("Home Y")
 #endif
