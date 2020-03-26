@@ -1573,6 +1573,14 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
   return axis_steps * steps_to_mm[axis];
 }
 
+int32_t Planner::get_joint_position_mm(const JointEnum axis) {
+  int32_t axis_steps;
+
+  axis_steps = stepper.position_Joint(axis);
+
+  return axis_steps;
+}
+
 /**
  * Block until all buffered steps are executed / cleaned
  */
@@ -3741,7 +3749,6 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
       planner.max_acceleration_degree_per_s2_joint[i] = max_acceleration_joint_init[i];
     }
   }
-
 
   // Compute and limit the acceleration rate for the trapezoid generator.
   const float steps_per_mm = block->step_event_count * inverse_millimeters;

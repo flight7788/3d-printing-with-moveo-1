@@ -387,138 +387,7 @@ uint8_t marlin_debug_flags = DEBUG_NONE;
 float current_position[XYZE] = { 0 };
 int32_t current_position_Joint[Joint_All] = { 0 };
 
-int32_t ZERO_position_Joint[Joint_All]={2241, 2643, 20041, 3199, -2126};
-float   ZERO_position[XYZE]={0, 0, 0.25, 0};
-
-int32_t HOME_position_Joint_Mesh[25][5]={
-  {2241, 2643, 20041, 3199, -2126},
-  {256, 2616, 20379, 3199, -2029},
-  {-1760, 2633, 20163, 3199, -2091},
-  {-4302, 2391, 23956, 0, 567},
-  {-5935, 2443, 22889, 0, 927},
-  {-5139, 2603, 20540, 0, 1644},
-  {-3691, 2529, 21541, 0, 1349},
-  {-2096, 2489, 22133, 0, 1168},
-  {-416, 2479, 22299, 0, 1115},
-  {1258, 2495, 22037, 0, 1197},
-  {1031, 2704, 19316, 0, 1989},
-  {-408, 2682, 19567, 0, 1919},
-  {-1851, 2696, 19407, 0, 1963},
-  {-3240, 2745, 18838, 0, 2119},
-  {-4531, 2833, 17859, 0, 2380},
-  {-4055, 3142, 14715, 0, 3178},
-  {-2895, 3038, 15733, 0, 2926},
-  {-1666, 2981, 16314, 0, 2780},
-  {-402, 2965, 16476, 0, 2739},
-  {861, 2990, 16222, 0, 2803},
-  {727, 3376, 12490, 0, 3714},
-  {-397, 3346, 12775, 0, 3647},
-  {-1522, 3365, 12594, 0, 3690},
-  {-2622, 3436, 11935, 0, 3845},
-  {-3673, 3568, 10742, 0, 4124},
-};
-
-int32_t HOME_position_Joint[Joint_All]={0, 0, 0, 0, 0};
-float   HOME_position[XYZE]={-45.484, -10, 0, 0};
-
-//int32_t HOME_position_Z20_Joint[Joint_All]={-609, 3504, 16908, 0, -2917};
-int32_t HOME_position_Z20_Joint[Joint_All]={4506, 19059, 101482, 85898, -5163};
-float   HOME_position_Z20[XYZE]={0, 0, 20, 0};
-/*
-int32_t HOME_position_Z10_Joint[Joint_All]={-609, 3621, 16573, 0, -2947};
-float   HOME_position_Z10[XYZE]={0, 0, 10, 0};
-int32_t HOME_position_Z5_Joint[Joint_All]={-609, 3680, 16396, 0, -2960};
-float   HOME_position_Z5[XYZE]={0, 0, 5, 0};
-int32_t HOME_position_Z0_Joint[Joint_All]={-609, 3739, 16214, 0, -2972};
-float   HOME_position_Z0[XYZE]={0, 0, 0, 0};
-int32_t HOME_position_ZNeg10_Joint[Joint_All]={-609, 3857, 15830, 0, -2994};
-float   HOME_position_ZNeg10[XYZE]={0, 0, -10, 0};
-float   HOME_position_Slope[Joint_All]={0,	0.1175,	-0.347,	0,  -0.0275};
-//*/
-float a[5] = {0.0000000000, 0.0000022500, -0.0000558750, 0.0000000000, 0.0000108750};
-float b[5] = {0.0000000000, -0.9975000024, 0.9322500229, 0.0000000000, 0.3272500038};
-float c[5] = {242.0000000000, 21082.0000000000, 102767.0000000000, -23.0000000000, 3943.0000000000};
-// float a_m[25][5];
-// float b_m[25][5];
-// float c_m[25][5];
-
-const PROGMEM float a_m1[125] ={0.0000000000, 0.0000026250, -0.0000550000, 0.0000000000, -0.0000106250,
-            0.0000000000, 0.0000015000, -0.0000561250, -0.0000001250, -0.0000113750,
-            0.0000000000, 0.0000010000, -0.0000567500, 0.0000000000, -0.0000118750,
-            0.0000000000, 0.0000015000, -0.0000565000, 0.0000000000, -0.0000113750,
-            0.0000000000, 0.0000027500, -0.0000558750, 0.0000000000, -0.0000107500,
-            0.0000001250, 0.0000055000, -0.0000555000, -0.0000001250, -0.0000090000,
-            0.0000000000, 0.0000047500, -0.0000551250, 0.0000000000, -0.0000093750,
-            0.0000000000, 0.0000043750, -0.0000550000, 0.0000000000, -0.0000095000,
-            0.0000000000, 0.0000050000, -0.0000556250, 0.0000000000, -0.0000093750,
-            0.0000001250, 0.0000053750, -0.0000552500, 0.0000000000, -0.0000090000,
-            0.0000000000, 0.0000033750, -0.0000553750, 0.0000000000, 0.0000103750,
-            0.0000000000, 0.0000023750, -0.0000555000, 0.0000000000, 0.0000106250,
-            0.0000000000, 0.0000022500, -0.0000558750, 0.0000000000, 0.0000108750,
-            0.0000000000, 0.0000025000, -0.0000555000, 0.0000001250, 0.0000106250,
-            -0.0000001250, 0.0000035000, -0.0000556250, 0.0000000000, 0.0000101250,
-            0.0000000000, 0.0000061250, -0.0000562500, 0.0000000000, 0.0000088750,
-            0.0000000000, 0.0000055000, -0.0000557500, 0.0000000000, 0.0000090000,
-            0.0000000000, 0.0000053750, -0.0000551250, 0.0000000000, 0.0000090000,
-            0.0000000000, 0.0000053750, -0.0000557500, 0.0000000000, 0.0000090000,
-            0.0000000000, 0.0000060000, -0.0000560000, 0.0000000000, 0.0000088750,
-            0.0000000000, 0.0000090000, -0.0000613750, 0.0000000000, 0.0000086250,
-            0.0000000000, 0.0000085000, -0.0000601250, 0.0000000000, 0.0000086250,
-            0.0000000000, 0.0000081250, -0.0000591250, 0.0000000000, 0.0000085000,
-            -0.0000001250, 0.0000082500, -0.0000596250, 0.0000000000, 0.0000085000,
-            0.0000000000, 0.0000088750, -0.0000622500, 0.0000000000, 0.0000086250};
-
-const PROGMEM float b_m1[125] ={0.0000000000, -0.9827499986, 0.9254999757, 0.0000000000, -0.3207499981,
-            0.0000000000, -1.0255000591, 0.9477499723, 0.0002500000, -0.3387500048,
-            0.0000000000, -1.0414999723, 0.9564999938, 0.0000000000, -0.3452500105,
-            0.0000000000, -1.0255000591, 0.9474999905, 0.0000000000, -0.3387500048,
-            0.0000000000, -0.9829999804, 0.9252499938, 0.0000000000, -0.3210000098,
-            -0.0002500000, -0.8815000057, 0.8939999938, 0.0002500000, -0.2739999890,
-            0.0000000000, -0.9075000286, 0.8977500200, 0.0000000000, -0.2867499888,
-            0.0000000000, -0.9167500138, 0.8999999762, 0.0000000000, -0.2915000021,
-            0.0000000000, -0.9075000286, 0.8977500200, 0.0000000000, -0.2867499888,
-            0.0002500000, -0.8817499876, 0.8939999938, 0.0000000000, -0.2739999890,
-            0.0000000000, -0.9627500176, 0.9162499905, 0.0000000000, 0.3122499883,
-            0.0000000000, -0.9912499785, 0.9290000200, 0.0000000000, 0.3247500062,
-            0.0000000000, -1.0015000105, 0.9342499971, 0.0000000000, 0.3287500143,
-            0.0000000000, -0.9909999967, 0.9294999838, 0.0002500000, 0.3242500126,
-            -0.0002500000, -0.9629999995, 0.9162499905, 0.0000000000, 0.3122499883,
-            0.0000000000, -0.8642500043, 0.8945000172, 0.0000000000, 0.2647500038,
-            0.0000000000, -0.8820000291, 0.8939999938, 0.0000000000, 0.2739999890,
-            0.0000000000, -0.8877500296, 0.8942499757, 0.0000000000, 0.2775000036,
-            0.0000000000, -0.8817499876, 0.8945000172, 0.0000000000, 0.2739999890,
-            0.0000000000, -0.8644999862, 0.8945000172, 0.0000000000, 0.2647500038,
-            0.0000000000, -0.7990000248, 0.9452499747, 0.0000000000, 0.2192499936,
-            0.0000000000, -0.8080000281, 0.9277499914, 0.0000000000, 0.2277500033,
-            0.0000000000, -0.8112499714, 0.9232500196, 0.0000000000, 0.2304999977,
-            -0.0002500000, -0.8080000281, 0.9287499785, 0.0000000000, 0.2275000066,
-            0.0000000000, -0.7987499833, 0.9440000057, 0.0000000000, 0.2192499936};
-
-const PROGMEM float c_m1[125]  ={4503.0000000000, 21265.0000000000, 101258.0000000000, 85898.0000000000, -4295.0000000000,
-            2489.0000000000, 20772.0000000000, 105454.0000000000, 85898.0000000000, -3650.0000000000,
-            249.0000000000, 20616.0000000000, 106887.0000000000, 85898.0000000000, -3423.0000000000,
-            -2019.0000000000, 20772.0000000000, 105455.0000000000, 85898.0000000000, -3650.0000000000,
-            -4110.0000000000, 21265.0000000000, 101261.0000000000, 85898.0000000000, -4295.0000000000,
-            -3478.0000000000, 23070.0000000000, 88137.0000000000, 85898.0000000000, -6175.0000000000,
-            -1720.0000000000, 22498.0000000000, 92042.0000000000, 85898.0000000000, -5634.0000000000,
-            138.0000000000, 22312.0000000000, 93355.0000000000, 85898.0000000000, -5449.0000000000,
-            1980.0000000000, 22497.0000000000, 92044.0000000000, 85898.0000000000, -5634.0000000000,
-            3693.0000000000, 23070.0000000000, 88136.0000000000, 85898.0000000000, -6175.0000000000,
-            2376.0000000000, 21541.0000000000, 99069.0000000000, -23.0000000000, 4499.0000000000,
-            867.0000000000, 21161.0000000000, 102113.0000000000, -23.0000000000, 4043.0000000000,
-            -704.0000000000, 21038.0000000000, 103135.0000000000, -23.0000000000, 3887.0000000000,
-            -2268.0000000000, 21161.0000000000, 102113.0000000000, -23.0000000000, 4043.0000000000,
-            -3753.0000000000, 21540.0000000000, 99070.0000000000, -23.0000000000, 4500.0000000000,
-            -3320.0000000000, 23523.0000000000, 85155.0000000000, -23.0000000000, 6456.0000000000,
-            -2015.0000000000, 23067.0000000000, 88158.0000000000, -23.0000000000, 6049.0000000000,
-            -657.0000000000, 22918.0000000000, 89157.0000000000, -23.0000000000, 5912.0000000000,
-            704.0000000000, 23067.0000000000, 88159.0000000000, -23.0000000000, 6049.0000000000,
-            2025.0000000000, 23523.0000000000, 85154.0000000000, -23.0000000000, 6456.0000000000,
-            1753.0000000000, 26201.0000000000, 68787.0000000000, -23.0000000000, 8574.0000000000,
-            580.0000000000, 25657.0000000000, 71976.0000000000, -23.0000000000, 8173.0000000000,
-            -622.0000000000, 25481.0000000000, 73024.0000000000, -23.0000000000, 8040.0000000000,
-            -1820.0000000000, 25658.0000000000, 71975.0000000000, -23.0000000000, 8173.0000000000,
-            -2983.0000000000, 26201.0000000000, 68789.0000000000, -23.0000000000, 8574.0000000000};
+#include "My_Lib.h"
 
 /**
  * Cartesian Destination
@@ -939,45 +808,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 
 void report_current_position();
 void report_current_position_detail();
-
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-  void print_xyz(const char* prefix, const char* suffix, const float x, const float y, const float z) {
-    serialprintPGM(prefix);
-    SERIAL_CHAR('(');
-    SERIAL_ECHO(x);
-    SERIAL_ECHOPAIR(", ", y);
-    SERIAL_ECHOPAIR(", ", z);
-    SERIAL_CHAR(')');
-    if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
-  }
-
-  void print_Joint(const char* prefix, const char* suffix,const long j1,const long j2,const long j3,const long j4,const long j5) {
-    serialprintPGM(prefix);
-    SERIAL_CHAR('(');
-    SERIAL_ECHO(j1);
-    SERIAL_ECHOPAIR(", ", j2);
-    SERIAL_ECHOPAIR(", ", j3);
-    SERIAL_ECHOPAIR(", ", j4);
-    SERIAL_ECHOPAIR(", ", j5);
-    SERIAL_CHAR(')');
-    if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
-  }
-
-  void print_xyz(const char* prefix, const char* suffix, const float xyz[4]) {
-    print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
-  }
-
-  void print_Joint(const char* prefix, const char* suffix, const long Joint_POS[5]) {
-    print_Joint(prefix, suffix, Joint_POS[Joint1_AXIS], Joint_POS[Joint2_AXIS], Joint_POS[Joint3_AXIS],Joint_POS[Joint4_AXIS],Joint_POS[Joint5_AXIS]);
-  }
-
-
-  #define DEBUG_POS(SUFFIX,VAR) do { \
-    print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); }while(0)
-  
-  #define DEBUG_POS_Joint(SUFFIX,VAR) do { \
-    print_Joint(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); }while(0)
-#endif
 
 /**
  * sync_plan_position
@@ -2011,245 +1841,6 @@ inline void buffer_line_to_current_position() {
   #endif
 }
 
-/**
- * Move the planner to the position stored in the destination array, which is
- * used by G0/G1/G2/G3/G5 and many other functions to set a destination.
- */
-inline void Set_current_XYZE(const float (&Set_current_XYZ_point)[XYZE]){
-  current_position[X_AXIS]=Set_current_XYZ_point[X_AXIS];
-  current_position[Y_AXIS]=Set_current_XYZ_point[Y_AXIS];
-  current_position[Z_AXIS]=Set_current_XYZ_point[Z_AXIS];
-  current_position[E_AXIS]=Set_current_XYZ_point[E_AXIS];
- 
-  DEBUG_POS("Set_current", current_position);
-}
-
-inline void Set_current_Joint(const int32_t (&Set_current_Joint_point)[Joint_All]){
-  current_position_Joint[Joint1_AXIS]=Set_current_Joint_point[Joint1_AXIS];
-  current_position_Joint[Joint2_AXIS]=Set_current_Joint_point[Joint2_AXIS];
-  current_position_Joint[Joint3_AXIS]=Set_current_Joint_point[Joint3_AXIS];
-  current_position_Joint[Joint4_AXIS]=Set_current_Joint_point[Joint4_AXIS];
-  current_position_Joint[Joint5_AXIS]=Set_current_Joint_point[Joint5_AXIS];
-
-  DEBUG_POS_Joint("Set_current_Joint", current_position_Joint);   
-}
-
-inline void Set_current_Joint_5(const int32_t Set_current_Joint_point1, const int32_t Set_current_Joint_point2, const int32_t Set_current_Joint_point3,
-const int32_t Set_current_Joint_point4,const int32_t Set_current_Joint_point5){
-  current_position_Joint[Joint1_AXIS]=Set_current_Joint_point1;
-  current_position_Joint[Joint2_AXIS]=Set_current_Joint_point2;
-  current_position_Joint[Joint3_AXIS]=Set_current_Joint_point3;
-  current_position_Joint[Joint4_AXIS]=Set_current_Joint_point4;
-  current_position_Joint[Joint5_AXIS]=Set_current_Joint_point5;
-
-  DEBUG_POS_Joint("Set_current_Joint_5", current_position_Joint);   
-}
-
-inline void Set_current_Joint_Curve(const float point){
-  DEBUG_POS_Joint("(Before)Set_current_Joint_Curve", current_position_Joint); 
-  float point1=point*100;
-  current_position_Joint[Joint1_AXIS]=a[0]*point1*point1 + b[0]*point1 + c[0];
-  current_position_Joint[Joint2_AXIS]=a[1]*point1*point1 + b[1]*point1 + c[1];
-  current_position_Joint[Joint3_AXIS]=a[2]*point1*point1 + b[2]*point1 + c[2];
-  current_position_Joint[Joint4_AXIS]=a[3]*point1*point1 + b[3]*point1 + c[3];
-  current_position_Joint[Joint5_AXIS]=a[4]*point1*point1 + b[4]*point1 + c[4];
-
-  SERIAL_ECHOLNPAIR(" point:", point);
-
-  DEBUG_POS_Joint("(After)Set_current_Joint_Curve", current_position_Joint);   
-}
-
-int X_Y_to_Number(const float Nx,const float Ny)
-{
-  int tempX=(int)(Nx/45);
-  int tempY=(int)(Ny/45);
-  int temp=0;
-  // SERIAL_ECHOLNPAIR("tempY*5+tempX:", tempY*5+tempX);
-  switch(tempY*5+tempX)
-  { //y*5+x
-    case 0:
-      temp=0;
-    break;
-    case 1:
-      temp=1;
-    break;
-    case 2:
-      temp=2;
-    break;
-    case 3:
-      temp=3;
-    break;
-    case 4:
-      temp=4;
-    break;
-    case 9:
-      temp=5;
-    break;
-    case 8:
-      temp=6;
-    break;
-    case 7:
-      temp=7;
-    break;
-    case 6:
-      temp=8;
-    break;
-    case 5:
-      temp=9;
-    break;
-    case 10:
-      temp=10;
-    break;
-    case 11:
-      temp=11;
-    break;
-    case 12:
-      temp=12;
-    break;
-    case 13:
-      temp=13;
-    break;
-    case 14:
-      temp=14;
-    break;
-    case 19:
-      temp=15;
-    break;
-    case 18:
-      temp=16;
-    break;
-    case 17:
-      temp=17;
-    break;
-    case 16:
-      temp=18;
-    break;
-    case 15:
-      temp=19;
-    break;
-    case 20:
-      temp=20;
-    break;
-    case 21:
-      temp=21;
-    break;
-    case 22:
-      temp=22;
-    break;
-    case 23:
-      temp=23;
-    break;
-    case 24:
-      temp=24;
-    break;
-  }
-  return temp;
-}
-
-float Forward_Curve(float point_FC, int number_mat, int Joint_num)
-{
-  // SERIAL_ECHOPAIR("point_FC:", point_FC);
-  // SERIAL_ECHOPAIR(" number_mat:", number_mat);
-  // SERIAL_ECHOPAIR(" Joint_num:", Joint_num);
-  // float temp_return = c_m[number_mat][Joint_num];
-  float temp_return = pgm_read_float_near(&a_m1[number_mat*5+Joint_num])*point_FC*point_FC+pgm_read_float_near(&b_m1[number_mat*5+Joint_num])*point_FC+pgm_read_float_near(&c_m1[number_mat*5+Joint_num]);// + b_m[0][Joint_num]*point_FC + c_m[0][Joint_num];
-  // SERIAL_ECHOPAIR(" return data:", temp_return);
-  // SERIAL_ECHOLNPAIR(" c_m[0][0]:", c_m[0][Joint_num]);  
-
-  return temp_return;
-}
-
-void Set_current_Joint_Curve_More(float numberx,float numbery,float numberz){
-  int number = X_Y_to_Number(numberx, numbery);
-  //int number = 0;
-  // SERIAL_ECHOLNPAIR("number:", number);
-  
-  //DEBUG_POS_Joint("(Before)Set_current_Joint_Curve_More", current_position_Joint); 
-  float point1=numberz*100;
-
-  //SERIAL_ECHOLNPAIR("Forward_Curve(2000,0,0)", Forward_Curve(2000,0,0));
-
-  current_position_Joint[Joint1_AXIS]=(int32_t)Forward_Curve(point1, number, Joint1_AXIS);
-  current_position_Joint[Joint2_AXIS]=(int32_t)Forward_Curve(point1, number, Joint2_AXIS);
-  current_position_Joint[Joint3_AXIS]=(int32_t)Forward_Curve(point1, number, Joint3_AXIS);
-  current_position_Joint[Joint4_AXIS]=(int32_t)Forward_Curve(point1, number, Joint4_AXIS);
-  current_position_Joint[Joint5_AXIS]=(int32_t)Forward_Curve(point1, number, Joint5_AXIS);
-
-  //SERIAL_ECHOPAIR(" point:", point);
-  //SERIAL_ECHOPAIR(" x:", numberx);
-  //SERIAL_ECHOPAIR("-y:", numbery);
-
-  //DEBUG_POS_Joint("(After)Set_current_Joint_Curve_More", current_position_Joint);
-}
-
-inline void Set_current_Joint_Slope(const int32_t (&Set_current_Joint_data)[Joint_All], const float (&Set_current_Joint_slope)[Joint_All], const float point){
-  DEBUG_POS_Joint("(Before)Set_current_Joint_Slope", Set_current_Joint_data);  
-
-  current_position_Joint[Joint1_AXIS]=Set_current_Joint_data[Joint1_AXIS] + (int32_t)LROUND(Set_current_Joint_slope[Joint1_AXIS] * point);
-  current_position_Joint[Joint2_AXIS]=Set_current_Joint_data[Joint2_AXIS] + (int32_t)LROUND(Set_current_Joint_slope[Joint2_AXIS] * point);
-  current_position_Joint[Joint3_AXIS]=Set_current_Joint_data[Joint3_AXIS] + (int32_t)LROUND(Set_current_Joint_slope[Joint3_AXIS] * point);
-  current_position_Joint[Joint4_AXIS]=Set_current_Joint_data[Joint4_AXIS] + (int32_t)LROUND(Set_current_Joint_slope[Joint4_AXIS] * point);
-  current_position_Joint[Joint5_AXIS]=Set_current_Joint_data[Joint5_AXIS] + (int32_t)LROUND(Set_current_Joint_slope[Joint5_AXIS] * point);
-
-  SERIAL_ECHOPAIR("Slope J:", Set_current_Joint_slope[Joint1_AXIS]);
-  SERIAL_ECHOPAIR(" Slope A:", Set_current_Joint_slope[Joint2_AXIS]);
-  SERIAL_ECHOPAIR(" Slope B:", Set_current_Joint_slope[Joint3_AXIS]);
-  SERIAL_ECHOPAIR(" Slope C:", Set_current_Joint_slope[Joint4_AXIS]);
-  SERIAL_ECHOPAIR(" Slope D:", Set_current_Joint_slope[Joint5_AXIS]);
-
-  SERIAL_ECHOLNPAIR(" point:", point);
-
-  DEBUG_POS_Joint("(After)Set_current_Joint_Slope", current_position_Joint);   
-}
-
-inline float Delta_Z_01mm(const float data1, const float data2){
-  return (data1 - data2)* 100;
-}
-
-inline void buffer_line_to_destination_Constant(const float (&Set_Position)[XYZE], const int32_t (&Set_Position_Joint)[Joint_All], const int32_t &fr_mm_s) {
-  #if ENABLED(HANGPRINTER)
-    UNUSED(fr_mm_s);
-  #else
-  // SERIAL_ECHOLNPGM("<<< buffer_line_to_destination_Constant");
-
-  current_position[X_AXIS]=Set_Position[X_AXIS];
-  current_position[Y_AXIS]=Set_Position[Y_AXIS];
-  current_position[Z_AXIS]=Set_Position[Z_AXIS];
-  current_position[E_AXIS]=Set_Position[E_AXIS];
-  
-  current_position_Joint[Joint1_AXIS]=Set_Position_Joint[Joint1_AXIS];
-  current_position_Joint[Joint2_AXIS]=Set_Position_Joint[Joint2_AXIS];
-  current_position_Joint[Joint3_AXIS]=Set_Position_Joint[Joint3_AXIS];
-  current_position_Joint[Joint4_AXIS]=Set_Position_Joint[Joint4_AXIS];
-  current_position_Joint[Joint5_AXIS]=Set_Position_Joint[Joint5_AXIS];
-
-  planner.buffer_line_joint(Set_Position[X_AXIS], Set_Position[Y_AXIS], Set_Position[Z_AXIS], 
-                            Set_Position_Joint[Joint1_AXIS], Set_Position_Joint[Joint2_AXIS], Set_Position_Joint[Joint3_AXIS], 
-                            Set_Position_Joint[Joint4_AXIS], Set_Position_Joint[Joint5_AXIS],
-                            Set_Position[E_CART], fr_mm_s, active_extruder);
-  //SERIAL_ECHOLNPAIR("feedrate_mm_s:",fr_mm_s);
-  sync_plan_position();
-
-  // SERIAL_ECHOLNPGM(">>> buffer_line_to_destination_Constant");
-  #endif
-}
-
-inline void buffer_line_to_destination(const int32_t &fr_mm_s) {
-  #if ENABLED(HANGPRINTER)
-    UNUSED(fr_mm_s);
-  #else
-  planner.accel_f = Accel_SW;
-  planner.buffer_line_joint(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 
-                            destination_Joint[Joint1_AXIS], destination_Joint[Joint2_AXIS], destination_Joint[Joint3_AXIS], 
-                            destination_Joint[Joint4_AXIS], destination_Joint[Joint5_AXIS],
-                            destination[E_CART], fr_mm_s, active_extruder);
-
-  //SERIAL_ECHOLNPAIR("feedrate_mm_s:",fr_mm_s);
-  #endif
-}
-
-
-
 #if IS_KINEMATIC
   /**
 buffer_line_to_destination   * Calculate delta, start a line, and set current_position to destination
@@ -2613,7 +2204,7 @@ void do_blocking_move_to_Joint_ones(const float rx, const float ry, const float 
       Set_current_Joint_Curve(current_position[Z_AXIS]);
       buffer_line_to_current_position();
       planner.synchronize();
-      endstops.enable_z_probe(false);
+      // endstops.enable_z_probe(false);
   }
 
   planner.synchronize();
@@ -2622,6 +2213,73 @@ void do_blocking_move_to_Joint_ones(const float rx, const float ry, const float 
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to_Joint_ones");
+  #endif
+}
+
+void do_blocking_move_to_Joint_many(const float rx, const float ry, const float rz, const float &fr_mm_s/*=0.0*/) {
+  const float old_feedrate_mm_s = feedrate_mm_s;
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) print_xyz(PSTR(">>> do_blocking_move_to_Joint_many"), NULL, LOGICAL_X_POSITION(rx), LOGICAL_Y_POSITION(ry), LOGICAL_Z_POSITION(rz));
+  #endif
+
+  const float z_feedrate = fr_mm_s ? fr_mm_s : homing_feedrate_Joint(Joint1_AXIS);
+
+  // If Z needs to raise, do it before moving XY
+  if (current_position[Z_AXIS] < rz) {
+    SERIAL_ECHOLNPGM("To low");
+    endstops.enable_z_probe(false);
+    endstops.hit_on_purpose();
+    feedrate_mm_s = z_feedrate;
+    
+    current_position[Z_AXIS] = rz;  
+    Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]);
+
+    buffer_line_to_current_position();
+
+    planner.synchronize();
+  }
+
+  endstops.enable_z_probe(false);
+
+  if(In_Rectangle(current_position[X_AXIS], current_position[Y_AXIS]))
+    current_Probe_position = Use_XY_to_Matrix_Index(current_position[X_AXIS], current_position[Y_AXIS]);
+  else
+    current_Probe_position = Probe_pointy * 10 + Probe_pointx;
+  
+  // SERIAL_ECHOLNPGM("Move XY1");
+  // Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]);
+  // buffer_line_to_current_position();
+  // planner.synchronize();
+  
+  feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
+  current_position[X_AXIS] = rx;
+  current_position[Y_AXIS] = ry;
+  
+  SERIAL_ECHOLNPGM("Move XY2");
+  Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]); //current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+  buffer_line_to_current_position();
+  planner.synchronize();
+
+  if (current_position[Z_AXIS] > rz) {
+    SERIAL_ECHOLNPGM("To high");
+
+    endstops.enable_z_probe(true);
+    feedrate_mm_s = z_feedrate;
+
+    current_position[Z_AXIS] = rz;
+    Set_current_Joint_Curve_many(current_Probe_position, current_position[Z_AXIS]);
+    buffer_line_to_current_position();
+    planner.synchronize();
+    // endstops.enable_z_probe(false);
+  }
+
+  planner.synchronize();
+
+  feedrate_mm_s = old_feedrate_mm_s;
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to_Joint_many");
   #endif
 }
 
@@ -2635,6 +2293,10 @@ void do_blocking_move_to_z(const float &rz, const float &fr_mm_s/*=0.0*/) {
 void do_blocking_move_to_z_ones(const float &rz, const float &fr_mm_s/*=0.0*/) {
   // do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], rz, fr_mm_s);
   do_blocking_move_to_Joint_ones(current_position[X_AXIS], current_position[Y_AXIS], rz, fr_mm_s);
+}
+void do_blocking_move_to_z_many(const float &rz, const float &fr_mm_s/*=0.0*/) {
+  // do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], rz, fr_mm_s);
+  do_blocking_move_to_Joint_many(current_position[X_AXIS], current_position[Y_AXIS], rz, fr_mm_s);
 }
 void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(rx, ry, current_position[Z_AXIS], fr_mm_s);
@@ -3248,6 +2910,25 @@ void clean_up_after_endstop_or_probe_move() {
       do_blocking_move_to_z_ones(z_dest,XY_PROBE_FEEDRATE_MM_S);
   }
 
+  inline void do_probe_raise_many(const float z_raise) {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("do_probe_raise_many(", z_raise);
+        SERIAL_CHAR(')');
+        SERIAL_EOL();
+      }
+    #endif
+
+    float z_dest = z_raise;
+    if (zprobe_zoffset < 0) z_dest -= zprobe_zoffset;
+
+    NOMORE(z_dest, Z_MAX_POS);
+
+    if (z_dest > current_position[Z_AXIS])
+      //Set_current_Joint_Slope(current_position_Joint, HOME_position_Slope, LROUND((z_dest-current_position[Z_AXIS])*100));
+      do_blocking_move_to_z_many(z_dest,XY_PROBE_FEEDRATE_MM_S);
+  }
+
   // returns false for ok and true for failure
   bool set_probe_deployed(const bool deploy) {
 
@@ -3350,7 +3031,7 @@ void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
-  bool set_probe_deployed_ones(const bool deploy) {
+bool set_probe_deployed_ones(const bool deploy) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
@@ -3452,6 +3133,115 @@ void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
+  bool set_probe_deployed_many(const bool deploy) {
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        DEBUG_POS("set_probe_deployed_many", current_position);
+        DEBUG_POS_Joint("set_probe_deployed_many", current_position_Joint);
+        SERIAL_ECHOLNPAIR("deploy: ", deploy);
+      }
+    #endif
+
+    if (endstops.z_probe_enabled == deploy) return false;
+
+    // Make room for probe to deploy (or stow)
+    // Fix-mounted probe should only raise for deploy
+    #if ENABLED(FIX_MOUNTED_PROBE)
+      const bool deploy_stow_condition = deploy;
+    #else
+      constexpr bool deploy_stow_condition = true;
+    #endif
+
+    // For beds that fall when Z is powered off only raise for trusted Z
+    #if ENABLED(UNKNOWN_Z_NO_RAISE)
+      const bool unknown_condition = TEST(axis_known_position, Z_AXIS);
+    #else
+      constexpr float unknown_condition = true;
+    #endif
+
+    if (deploy_stow_condition && unknown_condition)
+    {
+      if(current_position[X_AXIS] == 0 && current_position[Y_AXIS] == 0)
+      {
+        current_position[X_AXIS] = pgm_read_float_near(&Probe_position[current_Probe_position * 3 + 0]) - (X_BED_SIZE/2);
+        current_position[Y_AXIS] = pgm_read_float_near(&Probe_position[current_Probe_position * 3 + 1]) - (Y_BED_SIZE/2);
+      }
+      do_probe_raise_many(MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
+    }
+      
+
+    #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+      #if ENABLED(Z_PROBE_SLED)
+        #define _AUE_ARGS true, false, false
+      #else
+        #define _AUE_ARGS
+      #endif
+      if (axis_unhomed_error(_AUE_ARGS)) {
+        SERIAL_ERROR_START();
+        SERIAL_ERRORLNPGM(MSG_STOP_UNHOMED);
+        stop();
+        return true;
+      }
+    #endif
+
+    const float oldXpos = current_position[X_AXIS],
+                oldYpos = current_position[Y_AXIS];
+
+    #ifdef _TRIGGERED_WHEN_STOWED_TEST
+
+      // If endstop is already false, the Z probe is deployed
+      if (_TRIGGERED_WHEN_STOWED_TEST == deploy) {     // closed after the probe specific actions.
+                                                       // Would a goto be less ugly?
+        //while (!_TRIGGERED_WHEN_STOWED_TEST) idle(); // would offer the opportunity
+                                                       // for a triggered when stowed manual probe.
+
+        if (!deploy) endstops.enable_z_probe(false); // Switch off triggered when stowed probes early
+                                                     // otherwise an Allen-Key probe can't be stowed.
+    #endif
+
+        #if ENABLED(SOLENOID_PROBE)
+
+          #if HAS_SOLENOID_1
+            WRITE(SOL1_PIN, deploy);
+          #endif
+
+        #elif ENABLED(Z_PROBE_SLED)
+
+          dock_sled(!deploy);
+
+        #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
+
+          MOVE_SERVO(Z_PROBE_SERVO_NR, z_servo_angle[deploy ? 0 : 1]);
+
+        #elif ENABLED(Z_PROBE_ALLEN_KEY)
+
+          deploy ? run_deploy_moves_script() : run_stow_moves_script();
+
+        #endif
+
+    #ifdef _TRIGGERED_WHEN_STOWED_TEST
+      } // _TRIGGERED_WHEN_STOWED_TEST == deploy
+
+      if (_TRIGGERED_WHEN_STOWED_TEST == deploy) { // State hasn't changed?
+
+        if (IsRunning()) {
+          SERIAL_ERROR_START();
+          SERIAL_ERRORLNPGM("Z-Probe failed");
+          LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+        }
+        stop();
+        return true;
+
+      } // _TRIGGERED_WHEN_STOWED_TEST == deploy
+
+    #endif
+
+    // do_blocking_move_to(oldXpos, oldYpos, current_position[Z_AXIS]); // return to position before deploy
+    // do_probe_raise_many(current_position[Z_AXIS]); // return to position before deploy
+    endstops.enable_z_probe(deploy);
+    return false;
+  }
   /**
    * @brief Used by run_z_probe to do a single Z probe move.
    *
@@ -3558,8 +3348,10 @@ void clean_up_after_endstop_or_probe_move() {
     #if QUIET_PROBING
       probing_pause(true);
     #endif
-
+    // endstops.hit_on_purpose();
     // Move down until probe triggered
+    
+    /*
     float temp_current_Z_pos=current_position[Z_AXIS];
     while( (temp_current_Z_pos>=z) && !(TEST(endstops.trigger_state(),Z_MIN_PROBE) != 0) )
     {
@@ -3567,12 +3359,14 @@ void clean_up_after_endstop_or_probe_move() {
       if(temp_current_Z_pos>=18.0)temp_current_Z_pos=temp_current_Z_pos-0.1;
       else temp_current_Z_pos=temp_current_Z_pos-0.01;
       //current_position[Z_AXIS]=current_position[Z_AXIS]-0.1;
-      do_blocking_move_to_z_ones(temp_current_Z_pos, fr_mm_s);
+      do_blocking_move_to_z_ones(temp_current_Z_pos, Z_PROBE_SPEED_FAST);
     }
-    endstops.enable_z_probe(false);
+    //*/
+    
+    // endstops.enable_z_probe(false);
     // SERIAL_ECHOLNPAIR("current_position[Z_AXIS]:",current_position[Z_AXIS]);
-    sync_plan_position_noprint();
-    // do_blocking_move_to_z(z, fr_mm_s);
+    // sync_plan_position_noprint();
+    do_blocking_move_to_z_ones(z, fr_mm_s);
 
     // Check to see if the probe was triggered
     const bool probe_triggered = TEST(endstops.trigger_state(),
@@ -3595,19 +3389,119 @@ void clean_up_after_endstop_or_probe_move() {
       if (probe_triggered && set_bltouch_deployed(false)) return true;
     #endif    
 
-    endstops.hit_on_purpose();    
+    endstops.hit_on_purpose();
 
     // Get Z where the steppers were interrupted
     set_current_from_steppers_for_axis(Z_AXIS);    
+
+    //*
+    current_position_Joint[Joint1_AXIS] = planner.get_joint_position_mm(Joint1_AXIS);
+    current_position_Joint[Joint2_AXIS] = planner.get_joint_position_mm(Joint2_AXIS);
+    current_position_Joint[Joint3_AXIS] = planner.get_joint_position_mm(Joint3_AXIS);
+    current_position_Joint[Joint4_AXIS] = planner.get_joint_position_mm(Joint4_AXIS);
+    current_position_Joint[Joint5_AXIS] = planner.get_joint_position_mm(Joint5_AXIS);   
+    //*/
+
+    //current_position[Z_AXIS] = Reverse_Curve(current_position_Joint[Joint2_AXIS], Joint2_AXIS)/100;
 
     // Tell the planner where we actually are
     SYNC_PLAN_POSITION_KINEMATIC();    
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move_ones", current_position);
     #endif
 
-    endstops.enable_z_probe(true);
+    // endstops.enable_z_probe(true);
+    return !probe_triggered;
+  }
+
+  static bool do_probe_move_many(const float z, const float fr_mm_s) {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move_many", current_position);
+    #endif
+
+    #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
+      // Wait for bed to heat back up between probing points
+      if (thermalManager.isHeatingBed()) {
+        serialprintPGM(msg_wait_for_bed_heating);
+        LCD_MESSAGEPGM(MSG_BED_HEATING);
+        while (thermalManager.isHeatingBed()) safe_delay(200);
+        lcd_reset_status();
+      }
+    #endif
+
+    // Deploy BLTouch at the start of any probe
+    #if ENABLED(BLTOUCH)
+      if (set_bltouch_deployed(true)) return true;
+    #endif
+
+    #if QUIET_PROBING
+      probing_pause(true);
+    #endif
+    // endstops.hit_on_purpose();
+    // Move down until probe triggered
+    
+    /*
+    float temp_current_Z_pos=current_position[Z_AXIS];
+    while( (temp_current_Z_pos>=z) && !(TEST(endstops.trigger_state(),Z_MIN_PROBE) != 0) )
+    {
+      //if(temp_current_Z_pos>5.0)temp_current_Z_pos=temp_current_Z_pos-5;
+      if(temp_current_Z_pos>=18.0)temp_current_Z_pos=temp_current_Z_pos-0.1;
+      else temp_current_Z_pos=temp_current_Z_pos-0.01;
+      //current_position[Z_AXIS]=current_position[Z_AXIS]-0.1;
+      do_blocking_move_to_z_ones(temp_current_Z_pos, Z_PROBE_SPEED_FAST);
+    }
+    //*/
+    
+    // endstops.enable_z_probe(false);
+    // SERIAL_ECHOLNPAIR("current_position[Z_AXIS]:",current_position[Z_AXIS]);
+    // sync_plan_position_noprint();
+    do_blocking_move_to_z_many(z, fr_mm_s);
+
+    // Check to see if the probe was triggered
+    const bool probe_triggered = TEST(endstops.trigger_state(),
+      #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+        Z_MIN
+      #else
+        Z_MIN_PROBE
+      #endif
+    );
+
+    /*SERIAL_ECHOPAIR("hit_state:",endstops.trigger_state());
+    SERIAL_ECHOLNPAIR("  probe_triggered:",probe_triggered);*/
+
+    #if QUIET_PROBING
+      probing_pause(false);
+    #endif
+
+    // Retract BLTouch immediately after a probe if it was triggered
+    #if ENABLED(BLTOUCH)
+      if (probe_triggered && set_bltouch_deployed(false)) return true;
+    #endif    
+
+    endstops.hit_on_purpose();
+
+    // Get Z where the steppers were interrupted
+    set_current_from_steppers_for_axis(Z_AXIS);    
+
+    //*
+    current_position_Joint[Joint1_AXIS] = planner.get_joint_position_mm(Joint1_AXIS);
+    current_position_Joint[Joint2_AXIS] = planner.get_joint_position_mm(Joint2_AXIS);
+    current_position_Joint[Joint3_AXIS] = planner.get_joint_position_mm(Joint3_AXIS);
+    current_position_Joint[Joint4_AXIS] = planner.get_joint_position_mm(Joint4_AXIS);
+    current_position_Joint[Joint5_AXIS] = planner.get_joint_position_mm(Joint5_AXIS);   
+    //*/
+
+    //current_position[Z_AXIS] = Reverse_Curve(current_position_Joint[Joint2_AXIS], Joint2_AXIS)/100;
+
+    // Tell the planner where we actually are
+    SYNC_PLAN_POSITION_KINEMATIC();    
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move_many", current_position);
+    #endif
+
+    // endstops.enable_z_probe(true);
     return !probe_triggered;
   }
 
@@ -3617,7 +3511,7 @@ void clean_up_after_endstop_or_probe_move() {
    *
    * @return The raw Z position where the probe was triggered
    */
-    static float run_z_probe() {
+  static float run_z_probe() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
     #endif
@@ -3720,7 +3614,7 @@ void clean_up_after_endstop_or_probe_move() {
 
   static float run_z_probe_ones() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe_ones", current_position);
     #endif
 
     // Stop the probe before it goes too low to prevent damage.
@@ -3741,7 +3635,23 @@ void clean_up_after_endstop_or_probe_move() {
         return NAN;
       }
       // SERIAL_ECHOLNPAIR("3 endstops.trigger_state(): ",endstops.trigger_state());
-      float first_probe_z = current_position[Z_AXIS];
+      
+      // SERIAL_ECHOLNPAIR("Position Joint: ",planner.get_joint_position_mm(Joint2_AXIS));
+
+      /*
+      Reverse_Curve(current_position_Joint[Joint1_AXIS], Joint1_AXIS);
+      Reverse_Curve(current_position_Joint[Joint2_AXIS], Joint2_AXIS);
+      Reverse_Curve(current_position_Joint[Joint3_AXIS], Joint3_AXIS);
+      Reverse_Curve(current_position_Joint[Joint4_AXIS], Joint4_AXIS);
+      Reverse_Curve(current_position_Joint[Joint5_AXIS], Joint5_AXIS);
+      //*/
+
+      // float first_probe_z = current_position[Z_AXIS];     
+      float first_probe_z = Reverse_Curve(current_position_Joint[Joint2_AXIS], Joint2_AXIS)/100;    
+       
+      current_position[Z_AXIS] = first_probe_z;
+
+      SYNC_PLAN_POSITION_KINEMATIC();
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("1st Probe Z:", first_probe_z);
@@ -3795,7 +3705,10 @@ void clean_up_after_endstop_or_probe_move() {
 
     #elif MULTIPLE_PROBING == 2
 
-      const float z2 = current_position[Z_AXIS];
+      // const float z2 = current_position[Z_AXIS];
+      const float z2 = Reverse_Curve(current_position_Joint[Joint2_AXIS], Joint2_AXIS)/100;
+
+      SERIAL_ECHOLNPAIR("Position Joint: ",planner.get_joint_position_mm(Joint2_AXIS));
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
@@ -3815,7 +3728,129 @@ void clean_up_after_endstop_or_probe_move() {
     #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe_ones", current_position);
+    #endif
+
+    return measured_z;
+  }
+
+  static float run_z_probe_many() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe_many", current_position);
+    #endif
+
+    // Stop the probe before it goes too low to prevent damage.
+    // If Z isn't known then probe to -10mm.
+    const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
+
+    // Double-probing does a fast probe followed by a slow probe
+    #if MULTIPLE_PROBING == 2
+
+      // Do a first probe at the fast speed
+      if (do_probe_move_many(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOLNPGM("FAST Probe fail!");
+            DEBUG_POS("<<< run_z_probe_many", current_position);
+          }
+        #endif
+        return NAN;
+      }
+      // SERIAL_ECHOLNPAIR("3 endstops.trigger_state(): ",endstops.trigger_state());
+      
+      // SERIAL_ECHOLNPAIR("Position Joint: ",planner.get_joint_position_mm(Joint2_AXIS));
+
+      /*
+      Reverse_Curve(current_position_Joint[Joint1_AXIS], Joint1_AXIS);
+      Reverse_Curve(current_position_Joint[Joint2_AXIS], Joint2_AXIS);
+      Reverse_Curve(current_position_Joint[Joint3_AXIS], Joint3_AXIS);
+      Reverse_Curve(current_position_Joint[Joint4_AXIS], Joint4_AXIS);
+      Reverse_Curve(current_position_Joint[Joint5_AXIS], Joint5_AXIS);
+      //*/
+
+      // float first_probe_z = current_position[Z_AXIS];     
+      float first_probe_z = Reverse_Curve_Many(current_Probe_position, current_position_Joint[Joint2_AXIS], Joint2_AXIS)/100;    
+       
+      current_position[Z_AXIS] = first_probe_z;
+
+      SYNC_PLAN_POSITION_KINEMATIC();
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("1st Probe Z:", first_probe_z);
+      #endif
+      // move up to make clearance for the probe
+      endstops.enable_z_probe(false);
+      // do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      do_blocking_move_to_z_many(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      endstops.enable_z_probe(true);
+    #else
+
+      // If the nozzle is well over the travel height then
+      // move down quickly before doing the slow probe
+      float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0;
+      // if (zprobe_zoffset < 0) z -= zprobe_zoffset;
+
+      if (current_position[Z_AXIS] > z) {
+        // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
+        if (!do_probe_move_many(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
+          // do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+          do_blocking_move_to_z_many(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      }
+    #endif
+
+    #if MULTIPLE_PROBING > 2
+      float probes_total = 0;
+      for (uint8_t p = MULTIPLE_PROBING + 1; --p;) {
+    #endif
+
+        // move down slowly to find bed
+        if (do_probe_move_many(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) {
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_ECHOLNPGM("SLOW Probe fail!");
+              DEBUG_POS("<<< run_z_probe_many", current_position);
+            }
+          #endif
+          return NAN;
+        }
+
+    #if MULTIPLE_PROBING > 2
+        probes_total += current_position[Z_AXIS];
+        if (p > 1) do_blocking_move_to_z_many(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      }
+    #endif
+
+    #if MULTIPLE_PROBING > 2
+
+      // Return the average value of all probes
+      const float measured_z = probes_total * (1.0f / (MULTIPLE_PROBING));
+
+    #elif MULTIPLE_PROBING == 2
+
+      // const float z2 = current_position[Z_AXIS];
+      const float z2 = Reverse_Curve_Many(current_Probe_position, current_position_Joint[Joint2_AXIS], Joint2_AXIS)/100;
+
+      SERIAL_ECHOLNPAIR("Position Joint: ",planner.get_joint_position_mm(Joint2_AXIS));
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOPAIR("2nd Probe Z:", z2);
+          SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - z2);
+        }
+      #endif
+      //current_position[Z_AXIS] = 0;
+      // Return a weighted average of the fast and slow probes
+      const float measured_z = (z2 * 3.0 + first_probe_z * 2.0) * 0.2;
+
+    #else
+
+      // Return the single probe result
+      const float measured_z = current_position[Z_AXIS];
+
+    #endif
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe_many", current_position);
     #endif
 
     return measured_z;
@@ -3870,7 +3905,7 @@ void clean_up_after_endstop_or_probe_move() {
 
     float measured_z = NAN;
     if (!DEPLOY_PROBE()) {
-      measured_z = run_z_probe() + zprobe_zoffset;
+      measured_z = run_z_probe(); // + zprobe_zoffset;
 
       const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
       if (big_raise || raise_after == PROBE_PT_RAISE)
@@ -3899,6 +3934,92 @@ void clean_up_after_endstop_or_probe_move() {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< probe_pt");
+    #endif
+
+    return measured_z;
+  }
+
+  float probe_pt_many(const int num_x,const int num_y,float &rx, float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/) {
+    // rx=pgm_read_float_near(&Probe_position[(int)(num_y*10+(int)num_x)*3+0]);
+    // ry=pgm_read_float_near(&Probe_position[(int)(num_y*10+(int)num_x)*3+1]);
+    if(find_region_in_out_d(rx, ry) == 0)
+    {
+      return 0;
+    }
+    if(In_Rectangle(rx, ry) == 0)
+    {
+      return 0;
+    }
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR(">>> probe_pt_many(", LOGICAL_X_POSITION(rx));
+        SERIAL_ECHOPAIR(", ", LOGICAL_Y_POSITION(ry));
+        SERIAL_ECHOPAIR(", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none");
+        SERIAL_ECHOPAIR(", ", int(verbose_level));
+        SERIAL_ECHOPAIR(", ", probe_relative ? "probe" : "nozzle");
+        SERIAL_ECHOLNPGM("_relative)");
+        DEBUG_POS("", current_position);
+      }
+    #endif
+
+    // TODO: Adapt for SCARA, where the offset rotates
+    float nx = rx, ny = ry;
+    if (probe_relative) {
+      if (!position_is_reachable_by_probe(rx, ry)) return NAN;  // The given position is in terms of the probe
+      // nx -= (X_PROBE_OFFSET_FROM_EXTRUDER);                     // Get the nozzle position
+      // ny -= (Y_PROBE_OFFSET_FROM_EXTRUDER);
+    }
+    else if (!position_is_reachable(nx, ny)) return NAN;        // The given position is in terms of the nozzle
+
+    const float nz =
+      #if ENABLED(DELTA)
+        // Move below clip height or xy move will be aborted by do_blocking_move_to
+        MIN(current_position[Z_AXIS], delta_clip_start_height)
+      #else
+        current_position[Z_AXIS]
+      #endif
+    ;
+    Probe_pointx = num_x;
+    Probe_pointy = num_y;
+
+    const float old_feedrate_mm_s = feedrate_mm_s;
+    feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
+    
+    // Move the probe to the starting XYZ and Joint
+    //Set_current_Joint(HOME_position_Z20_Joint);
+    do_blocking_move_to_Joint_many(nx, ny, nz);
+
+    float measured_z = NAN;
+    if (!DEPLOY_PROBE_many()) {
+      measured_z = run_z_probe_many();// + zprobe_zoffset;
+
+      const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
+      if (big_raise || raise_after == PROBE_PT_RAISE)
+        do_blocking_move_to_z_many(current_position[Z_AXIS] + (big_raise ? 50 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      else if (raise_after == PROBE_PT_STOW)
+        if (STOW_PROBE_many()) measured_z = NAN;
+    }
+
+    if (verbose_level > 2) {
+      SERIAL_PROTOCOLPGM("Bed X: ");
+      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(rx), 3);
+      SERIAL_PROTOCOLPGM(" Y: ");
+      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ry), 3);
+      SERIAL_PROTOCOLPGM(" Z: ");
+      SERIAL_PROTOCOL_F(measured_z, 3);
+      SERIAL_EOL();
+    }
+
+    feedrate_mm_s = old_feedrate_mm_s;
+
+    if (isnan(measured_z)) {
+      LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
+      SERIAL_ERROR_START();
+      SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
+    }
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< probe_pt_many");
     #endif
 
     return measured_z;
@@ -3973,7 +4094,7 @@ void clean_up_after_endstop_or_probe_move() {
     }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< probe_pt");
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< probe_pt_ones");
     #endif
 
     return measured_z;
@@ -5086,7 +5207,7 @@ static void homeJoint(const JointEnum axis) {
     // For cartesian/core machines,
     // set the axis to its home position
   
-    set_Joint_is_at_home(axis);    
+    set_Joint_is_at_home(axis);
     do_move_Joint(axis, 0, manual_feedrate_mm_m_joint[axis]);
     sync_plan_position();
     
@@ -6614,14 +6735,14 @@ void home_all_axes() { gcode_G28(true); }
   #if ABL_GRID
     #if ENABLED(PROBE_Y_FIRST)
       #define PR_OUTER_VAR xCount
-      #define PR_OUTER_END abl_grid_points_x
+      #define PR_OUTER_END 10//abl_grid_points_x
       #define PR_INNER_VAR yCount
-      #define PR_INNER_END abl_grid_points_y
+      #define PR_INNER_END 10//abl_grid_points_y
     #else
       #define PR_OUTER_VAR yCount
-      #define PR_OUTER_END abl_grid_points_y
+      #define PR_OUTER_END 10//abl_grid_points_y
       #define PR_INNER_VAR xCount
-      #define PR_INNER_END abl_grid_points_x
+      #define PR_INNER_END 10//abl_grid_points_x
     #endif
   #endif
 
@@ -6978,7 +7099,7 @@ void home_all_axes() { gcode_G28(true); }
 
       #if HAS_BED_PROBE
         // Deploy the probe. Probe will raise if needed.
-        if (DEPLOY_PROBE()) {
+        if (DEPLOY_PROBE_many()) {
           set_bed_leveling_enabled(abl_should_enable);
           return;
         }
@@ -7210,11 +7331,12 @@ void home_all_axes() { gcode_G28(true); }
       #if ABL_GRID
 
         bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
-
+        SERIAL_ECHOLNPAIR("PR_OUTER_END: ", PR_OUTER_END);
+        SERIAL_ECHOLNPAIR("PR_INNER_END: ", PR_INNER_END);
         measured_z = 0;
 
         // Outer loop is Y with PROBE_Y_FIRST disabled
-        for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END && !isnan(measured_z); PR_OUTER_VAR++) {
+        for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END ; PR_OUTER_VAR++) {//&& !isnan(measured_z); PR_OUTER_VAR++) {
 
           int8_t inStart, inStop, inInc;
 
@@ -7233,9 +7355,22 @@ void home_all_axes() { gcode_G28(true); }
 
           // Inner loop is Y with PROBE_Y_FIRST enabled
           for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
+            SERIAL_ECHOPAIR("Y: ", PR_OUTER_VAR);
+            SERIAL_ECHOPAIR(" X: ",PR_INNER_VAR);
+            SERIAL_ECHOPAIR(" X pos: ", pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+0]) - (X_BED_SIZE/2));
+            SERIAL_ECHOLNPAIR(" Y pos: ", pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+1]) - (Y_BED_SIZE/2));
 
-            float xBase = left_probe_bed_position + xGridSpacing * xCount,
-                  yBase = front_probe_bed_position + yGridSpacing * yCount;
+            // float xBase = pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+0]);
+            //       yBase = pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+1]);
+                  
+            // float xBase = left_probe_bed_position + xGridSpacing * xCount,
+            //       yBase = front_probe_bed_position + yGridSpacing * yCount;
+            
+            float xBase = pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+0]),
+                  yBase = pgm_read_float_near(&Probe_position[(int)(PR_OUTER_VAR*10+(int)PR_INNER_VAR)*3+1]);
+
+            xBase = xBase - (X_BED_SIZE/2); 
+            yBase = yBase - (Y_BED_SIZE/2);
 
             xProbe = FLOOR(xBase + (xBase < 0 ? 0 : 0.5));
             yProbe = FLOOR(yBase + (yBase < 0 ? 0 : 0.5));
@@ -7249,7 +7384,7 @@ void home_all_axes() { gcode_G28(true); }
               if (!position_is_reachable_by_probe(xProbe, yProbe)) continue;
             #endif
 
-            measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, raise_after, verbose_level);
+            measured_z = faux ? 0.001 * random(-100, 101) : probe_pt_many(PR_INNER_VAR,PR_OUTER_VAR,xProbe, yProbe, raise_after, verbose_level);
 
             if (isnan(measured_z)) {
               set_bed_leveling_enabled(abl_should_enable);
@@ -7415,7 +7550,7 @@ void home_all_axes() { gcode_G28(true); }
           for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
             for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
               int ind = indexIntoAB[xx][yy];
-              float diff = eqnBVector[ind] - mean,
+              float diff = eqnBVector[ind] ,//- mean,
                     x_tmp = eqnAMatrix[ind + 0 * abl_points],
                     y_tmp = eqnAMatrix[ind + 1 * abl_points],
                     z_tmp = 0;
@@ -7430,9 +7565,11 @@ void home_all_axes() { gcode_G28(true); }
                 SERIAL_PROTOCOLCHAR(' ');
               SERIAL_PROTOCOL_F(diff, 5);
 
-              char str_G29[80];            
-                
-              dtostrf(eqnBVector[ind]-Z_PROBE_OFFSET_FROM_EXTRUDER, 5, 5, str_G29);
+              char str_G29[80];
+              if(In_Rectangle(pgm_read_float_near(&Probe_position[(int)(yy*10+(int)xx)*3+0]) - (X_BED_SIZE/2),pgm_read_float_near(&Probe_position[(int)(yy*10+(int)xx)*3+1])- (Y_BED_SIZE/2)))
+                dtostrf(eqnBVector[ind] , 5, 5, str_G29);
+              else
+                dtostrf(0 , 5, 5, str_G29);
               strcat(str_G29, " ");                           
               card.write_Str(str_G29);              
             } // xx
@@ -17386,6 +17523,15 @@ void loop() {
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop
       print_job_timer.init();   // Initial setup of print job timer
+      float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
+      float max_feedrate_mm_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
+      float axis_steps_per_degree_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_DEGEE;
+
+      LOOP_NUM_JOINT(i){
+        planner.max_acceleration_degree_per_s2_joint[i] = max_acceleration_joint_init[i];
+        planner.max_feedrate_mm_s_joint[i] = max_feedrate_mm_joint_init[i];
+        planner.axis_steps_per_degree_joint[i] = axis_steps_per_degree_joint_init[i];
+      }
     }
 
   #endif // SDSUPPORT
