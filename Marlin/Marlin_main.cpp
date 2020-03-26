@@ -16716,6 +16716,7 @@ void disable_e_steppers() {
 }
 
 void disable_all_steppers() {
+  
   disable_X();
   disable_Y();
   disable_Z();
@@ -16726,6 +16727,7 @@ void disable_all_steppers() {
   disable_Joint3();
   disable_Joint4();
   disable_Joint5();
+  SERIAL_ECHOPGM("All steppers disable");
 }
 
 /**
@@ -17321,8 +17323,8 @@ void setup() {
     card.beginautostart();
   #endif
 
-  axis_homed=7;
-  axis_known_position=7;
+  //axis_homed=7;
+  //axis_known_position=7;
   /*
   enable_Joint1();
   enable_Joint2();
@@ -17368,18 +17370,22 @@ void loop() {
       #endif
       HOME_position[E_AXIS] = current_position[E_AXIS]-3;
       buffer_line_to_destination_Constant(HOME_position, HOME_position_Joint, homing_feedrate_Joint(0));
-      stepper.init();           // Init stepper. This enables interrupts!
-      thermalManager.init();    // Initialize temperature loop
-      print_job_timer.init();   // Initial setup of print job timer
+      
       float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
       float max_feedrate_mm_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
       float axis_steps_per_degree_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_DEGEE;
-
       LOOP_NUM_JOINT(i){
         planner.max_acceleration_degree_per_s2_joint[i] = max_acceleration_joint_init[i];
         planner.max_feedrate_mm_s_joint[i] = max_feedrate_mm_joint_init[i];
         planner.axis_steps_per_degree_joint[i] = axis_steps_per_degree_joint_init[i];
       }
+      feedrate_mm_s = MMM_TO_MMS(3000.0f);
+      set_home_joint = 0;
+      planner.accel_f = true;
+      Accel_SW = true;
+      stepper.init();           // Init stepper. This enables interrupts!
+      thermalManager.init();    // Initialize temperature loop
+      print_job_timer.init();   // Initial setup of print job timer
     }
 
   #endif // SDSUPPORT

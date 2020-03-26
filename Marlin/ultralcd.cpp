@@ -3074,7 +3074,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   }
 
   inline void manual_move_to_current_Joint(JointEnum axis) {
-    manual_move_start_time = millis();// + (move_menu_scale < 1000 ? 0UL : 250UL); // delay for bigger moves
+    manual_move_start_time = millis() + (move_menu_scale < 1000 ? 0UL : 250UL); // delay for bigger moves
     manual_move_joint = (int8_t)axis;
   }
 
@@ -5579,6 +5579,7 @@ void lcd_update() {
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       // Don't run the debouncer if UBL owns the display
+      
       #define UBL_CONDITION !lcd_external_control
     #else
       #define UBL_CONDITION true

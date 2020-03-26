@@ -248,7 +248,7 @@ void safe_delay(millis_t ms) {
     conv[4] = RJDIGIT(i, 100);
     conv[5] = RJDIGIT(i, 10);
     conv[6] = DIGIMOD(i, 1);
-    return conv;
+    return &conv[0];
   }
 
   // Convert unsigned float to string with 1234.56 format omitting trailing zeros
