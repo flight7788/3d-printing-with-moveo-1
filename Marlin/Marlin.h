@@ -129,6 +129,11 @@ extern const char axis_codes[XYZE];
   #define disable_Joint5() NOOP
 #endif
 
+#define Circle_Center_X  440 // 440 // 435
+#define Circle_Center_Y  440 // 440 // 435
+#define Circle_inside_r  175
+#define Circle_outside_r 440 // 440 // 435
+bool find_region_in_out_d(double, double);
 
 #if ENABLED(MIXING_EXTRUDER)
 
@@ -524,8 +529,12 @@ void report_current_position();
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
   bool set_probe_deployed(const bool deploy);
+  bool set_probe_deployed_ones(const bool deploy);
+  bool set_probe_deployed_many(const bool deploy);
+  static float run_z_probe_ones(void);
+  static float set_probe_deployed_many(void);
   #ifdef Z_AFTER_PROBING
-    void move_z_after_probing();
+      void move_z_after_probing();
   #endif
   enum ProbePtRaise : unsigned char {
     PROBE_PT_NONE,  // No raise or stow after run_z_probe
@@ -534,10 +543,13 @@ void report_current_position();
     PROBE_PT_BIG_RAISE  // Raise to big clearance after run_z_probe
   };
   float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true);
+  float probe_pt_many(const int num_x,const int num_y, float &rx, float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define DEPLOY_PROBE_ones() set_probe_deployed_ones(true)
+  #define DEPLOY_PROBE_many() set_probe_deployed_many(true)
   #define STOW_PROBE() set_probe_deployed(false)
   #define STOW_PROBE_ones() set_probe_deployed_ones(false)
+  #define STOW_PROBE_many() set_probe_deployed_many(false)
 #else
   #define DEPLOY_PROBE()
   #define DEPLOY_PROBE_ones()
@@ -616,6 +628,7 @@ void prepare_move_to_destination();
  * Blocking movement and shorthand functions
  */
 void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s=0);
+void do_blocking_move_to_Joint_many(const float rx, const float ry, const float rz, const float &fr_mm_s=0);
 void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0);
 void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0);
 void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0);
