@@ -1405,31 +1405,31 @@ void Stepper::stepper_pulse_phase_isr() {
       } \
     }while(0)
 
-    // Pulse start
-    #if ENABLED(HANGPRINTER)
-      #if HAS_A_STEP
-        PULSE_START(A);
-      #endif
-      #if HAS_B_STEP
-        PULSE_START(B);
-      #endif
-      #if HAS_C_STEP
-        PULSE_START(C);
-      #endif
-      #if HAS_D_STEP
-        PULSE_START(D);
-      #endif
-    #else
-      #if HAS_X_STEP
-        PULSE_START(X);
-      #endif
-      #if HAS_Y_STEP
-        PULSE_START(Y);
-      #endif
-      #if HAS_Z_STEP
-        PULSE_START(Z);
-      #endif
-    #endif // HANGPRINTER
+    //// Pulse start
+    //#if ENABLED(HANGPRINTER)
+    //  #if HAS_A_STEP
+    //    PULSE_START(A);
+    //  #endif
+    //  #if HAS_B_STEP
+    //    PULSE_START(B);
+    //  #endif
+    //  #if HAS_C_STEP
+    //    PULSE_START(C);
+    //  #endif
+    //  #if HAS_D_STEP
+    //    PULSE_START(D);
+    //  #endif
+    //#else
+    //  #if HAS_X_STEP
+    //    PULSE_START(X);
+    //  #endif
+    //  #if HAS_Y_STEP
+    //    PULSE_START(Y);
+    //  #endif
+    //  #if HAS_Z_STEP
+    //    PULSE_START(Z);
+    //  #endif
+    //#endif // HANGPRINTER
 
     //Joint
     #if HAS_Joint1_STEP
@@ -1525,30 +1525,30 @@ void Stepper::stepper_pulse_phase_isr() {
     // Add the delay needed to ensure the maximum driver rate is enforced
     if (signed(added_step_ticks) > 0) pulse_end += hal_timer_t(added_step_ticks);
 
-    #if ENABLED(HANGPRINTER)
-      #if HAS_A_STEP
-        PULSE_STOP(A);
-      #endif
-      #if HAS_B_STEP
-        PULSE_STOP(B);
-      #endif
-      #if HAS_C_STEP
-        PULSE_STOP(C);
-      #endif
-      #if HAS_D_STEP
-        PULSE_STOP(D);
-      #endif
-    #else
-      #if HAS_X_STEP
-        PULSE_STOP(X);
-      #endif
-      #if HAS_Y_STEP
-        PULSE_STOP(Y);
-      #endif
-      #if HAS_Z_STEP
-        PULSE_STOP(Z);
-      #endif
-    #endif
+    //#if ENABLED(HANGPRINTER)
+    //  #if HAS_A_STEP
+    //    PULSE_STOP(A);
+    //  #endif
+    //  #if HAS_B_STEP
+    //    PULSE_STOP(B);
+    //  #endif
+    //  #if HAS_C_STEP
+    //    PULSE_STOP(C);
+    //  #endif
+    //  #if HAS_D_STEP
+    //    PULSE_STOP(D);
+    //  #endif
+    //#else
+    //  #if HAS_X_STEP
+    //    PULSE_STOP(X);
+    //  #endif
+    //  #if HAS_Y_STEP
+    //    PULSE_STOP(Y);
+    //  #endif
+    //  #if HAS_Z_STEP
+    //    PULSE_STOP(Z);
+    //  #endif
+    //#endif
 
     //Joint
     #if HAS_Joint1_STEP
@@ -1818,9 +1818,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       uint8_t axis_bits = 0;
       uint8_t axis_bits_Joint = 0;
-      if (X_MOVE_TEST) SBI(axis_bits, A_AXIS);
-      if (Y_MOVE_TEST) SBI(axis_bits, B_AXIS);
-      if (Z_MOVE_TEST) SBI(axis_bits, C_AXIS);
+      //if (X_MOVE_TEST) SBI(axis_bits, A_AXIS);
+      //if (Y_MOVE_TEST) SBI(axis_bits, B_AXIS);
+      //if (Z_MOVE_TEST) SBI(axis_bits, C_AXIS);
       //SERIAL_ECHOLNPAIR("axis_bits:",axis_bits);
       if(Joint1_MOVE_TEST)SBI(axis_bits_Joint, Joint1_AXIS);
       if(Joint2_MOVE_TEST)SBI(axis_bits_Joint, Joint2_AXIS);

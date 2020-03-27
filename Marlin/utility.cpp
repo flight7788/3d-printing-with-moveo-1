@@ -167,14 +167,14 @@ void safe_delay(millis_t ms) {
   // Convert float to fixed-length string with +123.45 / -123.45 format
   char* ftostr42sign(const float &f) {
     int i = (f * 1000 + (f < 0 ? -5: 5)) / 10;
-    conv[1] = MINUSOR(i, '+');
-    conv[2] = DIGIMOD(i, 10000);
-    conv[3] = DIGIMOD(i, 1000);
-    conv[4] = DIGIMOD(i, 100);
-    conv[5] = '.';
-    conv[6] = DIGIMOD(i, 10);
-    conv[7] = DIGIMOD(i, 1);
-    return &conv[1];
+    conv[0] = MINUSOR(i, '+');
+    conv[1] = DIGIMOD(i, 10000);
+    conv[2] = DIGIMOD(i, 1000);
+    conv[3] = DIGIMOD(i, 100);
+    conv[4] = '.';
+    conv[5] = DIGIMOD(i, 10);
+    conv[6] = DIGIMOD(i, 1);
+    return conv;
   }
 
   // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
@@ -248,7 +248,7 @@ void safe_delay(millis_t ms) {
     conv[4] = RJDIGIT(i, 100);
     conv[5] = RJDIGIT(i, 10);
     conv[6] = DIGIMOD(i, 1);
-    return conv;
+    return &conv[0];
   }
 
   // Convert unsigned float to string with 1234.56 format omitting trailing zeros
