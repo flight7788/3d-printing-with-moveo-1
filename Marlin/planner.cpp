@@ -3424,7 +3424,8 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
 
   // Compute direction bit-mask for this block
   uint8_t dm = 0, djm = 0;
-    
+  //uint8_t d0_Fix = 0;
+  //static uint8_t djm_old = 0;
   //if (da < 0) SBI(dm, X_AXIS);
   //if (db < 0) SBI(dm, Y_AXIS);
   //if (dc < 0) SBI(dm, Z_AXIS);
@@ -3433,9 +3434,20 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   if (d2 < 0) SBI(djm, Joint3_AXIS);
   if (d3 < 0) SBI(djm, Joint4_AXIS);
   if (d4 < 0) SBI(djm, Joint5_AXIS);
-  
   if (de < 0) SBI(dm, E_AXIS);
-
+  /*
+  if(djm!=djm_old){
+    if ((djm & _BV(Joint1_AXIS))!=(djm_old & _BV(Joint1_AXIS))){
+      d0_Fix = 100;
+    }
+    else{
+      d0_Fix = 0;
+    }
+    
+    
+    djm_old = djm;
+  }
+  //*/
   const float esteps_float = de * e_factor[extruder];
   const uint32_t esteps = ABS(esteps_float) + 0.5f;
 
@@ -3459,7 +3471,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   //block->steps[A_AXIS] = ABS(da);
   //block->steps[B_AXIS] = ABS(db);
   //block->steps[C_AXIS] = ABS(dc);
-  block->step_Joint[Joint1_AXIS] = ABS(d0);
+  block->step_Joint[Joint1_AXIS] = ABS(d0);// + d0_Fix;
   block->step_Joint[Joint2_AXIS] = ABS(d1);
   block->step_Joint[Joint3_AXIS] = ABS(d2);
   block->step_Joint[Joint4_AXIS] = ABS(d3);

@@ -3047,7 +3047,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
                                       , manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
         //SERIAL_ECHOLNPAIR("E_AXIS",current_position[E_AXIS]);
         //SERIAL_ECHOLNPAIR("current_position",current_position);
-        //SERIAL_ECHOLNPAIR("current_position_Joint : ",current_position_Joint);
+        //SERIAL_ECHOLNPAIR("current_position_Joint : ",manual_move_joint);
         old_E0_position = current_position[E_AXIS];
         manual_move_axis = (int8_t)NO_AXIS;
         manual_move_joint = (int8_t)NO_AXIS;
@@ -3077,6 +3077,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   inline void manual_move_to_current_Joint(JointEnum axis) {
     manual_move_start_time = millis() + (move_menu_scale < 1000 ? 0UL : 250UL); // delay for bigger moves
     manual_move_joint = (int8_t)axis;
+    //SERIAL_ECHOLNPAIR("LCD Move Joint = ", axis);
   }
 
   /**
@@ -3172,8 +3173,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition && !processing_manual_move) {      
       // Start with no limits to movement
-      float min = current_position[axis] - 100,
-            max = current_position[axis] + 100;
+      float min = current_position_Joint[axis] - 100,
+            max = current_position_Joint[axis] + 100;
 
       // Limit to software endstops, if enabled
       #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
@@ -3237,11 +3238,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
     encoderPosition = 0;
     if (lcdDrawUpdate) {
-      const float pos = NATIVE_TO_LOGICAL(processing_manual_move ? destination_Joint[axis] : current_position_Joint[axis]
-        #if IS_KINEMATIC
-          + manual_move_offset
-        #endif
-      , axis);
+      const float pos = processing_manual_move ? destination_Joint[axis] : current_position_Joint[axis];
       lcd_implementation_drawedit(name, ftostr6sign(pos));
     }
   }
@@ -3316,11 +3313,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
     encoderPosition = 0;
     if (lcdDrawUpdate) {
-      const float pos = NATIVE_TO_LOGICAL(processing_manual_move ? destination_Joint[axis] : current_position_Joint[axis]
-        #if IS_KINEMATIC
-          + manual_move_offset
-        #endif
-      , axis) * planner.steps_to_degree_joint[axis];
+      const float pos = (processing_manual_move ? destination_Joint[axis] : current_position_Joint[axis]) * planner.steps_to_degree_joint[axis];
       lcd_implementation_drawedit(name, ftostr42sign(pos));
     }
   }

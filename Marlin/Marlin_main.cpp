@@ -385,7 +385,7 @@ uint8_t marlin_debug_flags = DEBUG_NONE;
  *   Used by 'SYNC_PLAN_POSITION_KINEMATIC' to update 'planner.position'.
  */
 float current_position[XYZE] = { 0 };
-int32_t current_position_Joint[Joint_All] = { 0 };
+int32_t current_position_Joint[Joint_All] = { 0, 0, 0, 0, 0};
 
 #include "My_Lib.h"
 
@@ -396,7 +396,7 @@ int32_t current_position_Joint[Joint_All] = { 0 };
  *   Set with 'gcode_get_destination' or 'set_destination_from_current'.
  */
 float destination[XYZE] = { 0 };
-int32_t destination_Joint[Joint_All] = { 0 };
+int32_t destination_Joint[Joint_All] = { 0, 0, 0, 0, 0};
 bool Accel_SW = true;
 uint8_t set_home_joint = 0;
 /**
@@ -1669,9 +1669,6 @@ static void set_axis_is_at_home(const AxisEnum axis) {
     }
   #endif
 
-  #if ENABLED(I2C_POSITION_ENCODERS)
-    I2CPEM.homed(axis);
-  #endif
 }
 
 static void set_Joint_is_at_home(const JointEnum axis) {
@@ -1782,9 +1779,6 @@ static void set_Joint_is_at_home(const JointEnum axis) {
     }
   #endif
 
-  #if ENABLED(I2C_POSITION_ENCODERS)
-    I2CPEM.homed(axis);
-  #endif
 }
 
 /**
@@ -17120,6 +17114,10 @@ void idle(
     static millis_t i2cpem_next_update_ms;
     if (planner.has_blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
       I2CPEM.update();
+      current_position_Joint[Joint1_AXIS] = I2CPEM.position_joint[Joint1_AXIS] * planner.axis_steps_per_degree_joint[Joint1_AXIS];
+      current_position_Joint[Joint2_AXIS] = I2CPEM.position_joint[Joint2_AXIS] * planner.axis_steps_per_degree_joint[Joint2_AXIS];
+      current_position_Joint[Joint3_AXIS] = I2CPEM.position_joint[Joint3_AXIS] * planner.axis_steps_per_degree_joint[Joint3_AXIS];
+      current_position_Joint[Joint5_AXIS] = I2CPEM.position_joint[Joint5_AXIS] * planner.axis_steps_per_degree_joint[Joint5_AXIS];
       i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
     }
   #endif
@@ -17505,9 +17503,10 @@ void loop() {
       #if ENABLED(POWER_LOSS_RECOVERY)
         card.removeJobRecoveryFile();
       #endif
+      
       HOME_position[E_AXIS] = current_position[E_AXIS]-3;
       buffer_line_to_destination_Constant(HOME_position, HOME_position_Joint, homing_feedrate_Joint(0));
-      
+      current_position[E_AXIS] = destination[E_AXIS] = 0;
       float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
       float max_feedrate_mm_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
       float axis_steps_per_degree_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_DEGEE;
@@ -17523,15 +17522,6 @@ void loop() {
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop
       print_job_timer.init();   // Initial setup of print job timer
-      float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
-      float max_feedrate_mm_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
-      float axis_steps_per_degree_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_DEGEE;
-
-      LOOP_NUM_JOINT(i){
-        planner.max_acceleration_degree_per_s2_joint[i] = max_acceleration_joint_init[i];
-        planner.max_feedrate_mm_s_joint[i] = max_feedrate_mm_joint_init[i];
-        planner.axis_steps_per_degree_joint[i] = axis_steps_per_degree_joint_init[i];
-      }
     }
 
   #endif // SDSUPPORT

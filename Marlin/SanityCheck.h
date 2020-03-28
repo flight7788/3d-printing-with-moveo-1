@@ -448,16 +448,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #endif
 #endif
 
-/**
- * I2C Position Encoders
- */
-#if ENABLED(I2C_POSITION_ENCODERS)
-  #if DISABLED(BABYSTEPPING) || DISABLED(BABYSTEP_XY)
-    #error "I2C_POSITION_ENCODERS requires BABYSTEPPING and BABYSTEP_XY."
-  #elif !WITHIN(I2CPE_ENCODER_CNT, 1, 5)
-    #error "I2CPE_ENCODER_CNT must be between 1 and 5."
-  #endif
-#endif
 
 /**
  * Babystepping
