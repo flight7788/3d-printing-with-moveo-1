@@ -2743,6 +2743,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
    // G29 P5 T
    //
     MENU_ITEM(gcode, MSG_AUTO_G29, PSTR("G29 P10 T"));
+    MENU_ITEM(gcode, MSG_AUTO_G30, PSTR("G30"));
     MENU_ITEM(gcode, MSG_M280_S0, PSTR("M280 P0 S0"));
     MENU_ITEM(gcode, MSG_M280_S90, PSTR("M280 P0 S90"));
     //

@@ -102,9 +102,9 @@ float   HOME_position_ZNeg10[XYZE]={0, 0, -10, 0};
 float   HOME_position_Slope[Joint_All]={0,	0.1175,	-0.347,	0,  -0.0275};
 //*/
 
-float a[5] = {0.0000000000, 0.0000017500, -0.0000560000, 0.0000000000, 0.0000111250};
-float b[5] = {0.0000000000, -1.0184999704, 0.9434999824, 0.0000000000, 0.3357500136};
-float c[5] = {128.0000000000, 20845.0000000000, 104799.0000000000, -23.0000000000, 3630.0000000000};
+float a[5] = {0.0000000000, 0.0000040000, -0.0000560000, 0.0000000000, -0.0000080000};
+float b[5] = {0.0000000000, -0.8380000000, 1.0320000000, 0.0000000000, -0.1680000000};
+float c[5] = {2884.0000000000, 24742.0000000000, 78523.0000000000, 85924.0000000000, -5048.0000000000};
 // float a_m[25][5];
 // float b_m[25][5];
 // float c_m[25][5];
@@ -188,6 +188,9 @@ const PROGMEM float c_m1[125] = {
 #include "Joint_curvea.cpp" //Introduce a array
 #include "Joint_curveb.cpp" //Introduce b array
 #include "Joint_curvec.cpp" //Introduce c array
+
+extern const float manual_feedrate_mm_m_joint[];
+extern const float manual_feedrate_mm_m_joint1[];
 
 /**
  * Move the planner to the position stored in the destination array, which is
@@ -600,4 +603,21 @@ static float Reverse_Curve_Many(const int num_total, const int32_t temp_pos, Joi
 #endif
 
   return temp_return;
+}
+
+void Go_to_Joint_Zero_Marlin()
+{
+  current_position_Joint[Joint1_AXIS] = 0;
+  current_position_Joint[Joint2_AXIS] = 0;
+  current_position_Joint[Joint3_AXIS] = 0;
+  current_position_Joint[Joint4_AXIS] = 0;
+  current_position_Joint[Joint5_AXIS] = 0;
+
+  current_position[X_AXIS] = 0.00;
+  current_position[Y_AXIS] = 0.00;
+  current_position[Z_AXIS] = 779.94;
+  float max_feedrate_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
+  // planner.max_feedrate_mm_s_joint[Joint1_AXIS] = 700;
+  planner.buffer_line_kinematic(current_position, current_position_Joint, MMM_TO_MMS(manual_feedrate_mm_m_joint1[0]), 0);
+  // planner.max_feedrate_mm_s_joint[Joint1_AXIS] = max_feedrate_joint_init[Joint1_AXIS];
 }

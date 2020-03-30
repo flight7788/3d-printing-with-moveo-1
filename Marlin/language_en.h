@@ -88,6 +88,9 @@
 #ifndef MSG_AUTO_G29
   #define MSG_AUTO_G29                        _UxGT("G29 P10 T")
 #endif
+#ifndef MSG_AUTO_G30
+  #define MSG_AUTO_G30                        _UxGT("G30")
+#endif
 #ifndef MSG_AUTO_HOME_X
   #define MSG_AUTO_HOME_X                     _UxGT("Home X")
 #endif
