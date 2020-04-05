@@ -395,13 +395,13 @@ inline void buffer_line_to_destination_Constant(const float (&Set_Position)[XYZE
 
 inline void buffer_line_to_destination(const int32_t &fr_mm_s)
 {
-#if ENABLED(HANGPRINTER)
-  UNUSED(fr_mm_s);
-#else
-  planner.buffer_line_joint(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination_Joint[Joint1_AXIS],
-                            destination_Joint[Joint2_AXIS], destination_Joint[Joint3_AXIS], destination_Joint[Joint4_AXIS],
-                            destination_Joint[Joint5_AXIS], destination[E_CART], fr_mm_s, active_extruder);
-// SERIAL_ECHOLNPAIR("feedrate_mm_s:",fr_mm_s);
+  #if ENABLED(HANGPRINTER)
+    UNUSED(fr_mm_s);
+  #else
+    planner.buffer_line_joint(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination_Joint[Joint1_AXIS],
+                              destination_Joint[Joint2_AXIS], destination_Joint[Joint3_AXIS], destination_Joint[Joint4_AXIS],
+                              destination_Joint[Joint5_AXIS], destination[E_CART], fr_mm_s, active_extruder);
+  // SERIAL_ECHOLNPAIR("feedrate_mm_s:",fr_mm_s);
 #endif
 }
 

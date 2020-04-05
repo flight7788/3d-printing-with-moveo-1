@@ -30,22 +30,27 @@
   #include "enum.h"
   #include "macros.h"
   #include "types.h"
-  #include <Wire.h>
+  #include "I2C.h"
 
   
 
 class I2CPositionEncodersMgr {
   private:
-    static const uint8_t I2CPE_addr = ENCODER_ADDR;
+    uint8_t addr,cmd;
+    uint8_t buffer[ENCODER_BUF_SIZE];
     
   public:
-    static float position_joint[Joint_All];
 
-    static void init(void);
+    float position_joint_SAD[Joint_All];
+    float position_joint[Joint_All];
 
-    static void update(void);
+    void init(void);
 
-    void get_raw_count(float (&joint)[Joint_All]);
+    void reset(void);
+
+    void update(void);
+
+    uint8_t get_raw_count(float (&joint)[Joint_All]);
 
     /*
     static void report_position(const int8_t idx, const bool units, const bool noOffset);
@@ -68,25 +73,26 @@ class I2CPositionEncodersMgr {
     static void M863();
     static void M864();
     static void M865();
-    static void M866();
+    
     static void M867();
     static void M868();
     static void M869();
     */
+    void M866();
   };
 
   extern I2CPositionEncodersMgr I2CPEM;
 
-  FORCE_INLINE static void gcode_M860() { ;}//I2CPEM.M860(); }
-  FORCE_INLINE static void gcode_M861() { ;}//I2CPEM.M861(); }
-  FORCE_INLINE static void gcode_M862() { ;}//I2CPEM.M862(); }
-  FORCE_INLINE static void gcode_M863() { ;}//I2CPEM.M863(); }
-  FORCE_INLINE static void gcode_M864() { ;}//I2CPEM.M864(); }
-  FORCE_INLINE static void gcode_M865() { ;}//I2CPEM.M865(); }
-  FORCE_INLINE static void gcode_M866() { ;}//I2CPEM.M866(); }
-  FORCE_INLINE static void gcode_M867() { ;}//I2CPEM.M867(); }
-  FORCE_INLINE static void gcode_M868() { ;}//I2CPEM.M868(); }
-  FORCE_INLINE static void gcode_M869() { ;}//I2CPEM.M869(); }
+  FORCE_INLINE void gcode_M860() { ;}//I2CPEM.M860(); }
+  FORCE_INLINE void gcode_M861() { ;}//I2CPEM.M861(); }
+  FORCE_INLINE void gcode_M862() { ;}//I2CPEM.M862(); }
+  FORCE_INLINE void gcode_M863() { ;}//I2CPEM.M863(); }
+  FORCE_INLINE void gcode_M864() { ;}//I2CPEM.M864(); }
+  FORCE_INLINE void gcode_M865() { ;}//I2CPEM.M865(); }
+  FORCE_INLINE void gcode_M866() { I2CPEM.M866(); }
+  FORCE_INLINE void gcode_M867() { ;}//I2CPEM.M867(); }
+  FORCE_INLINE void gcode_M868() { ;}//I2CPEM.M868(); }
+  FORCE_INLINE void gcode_M869() { ;}//I2CPEM.M869(); }
 
 #endif //I2C_POSITION_ENCODERS
 #endif //I2CPOSENC_H

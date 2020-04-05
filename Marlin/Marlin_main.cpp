@@ -16414,6 +16414,12 @@ void prepare_move_to_destination() {
   ) return;
 
   set_current_from_destination();
+  #if ENABLED(I2C_POSITION_ENCODERS)
+    //current_position_Joint[Joint1_AXIS] = I2CPEM.position_joint[Joint1_AXIS] * planner.axis_steps_per_degree_joint[Joint1_AXIS];
+    //current_position_Joint[Joint2_AXIS] = I2CPEM.position_joint[Joint2_AXIS] * planner.axis_steps_per_degree_joint[Joint2_AXIS];
+    //current_position_Joint[Joint3_AXIS] = I2CPEM.position_joint[Joint3_AXIS] * planner.axis_steps_per_degree_joint[Joint3_AXIS];
+    //current_position_Joint[Joint5_AXIS] = I2CPEM.position_joint[Joint5_AXIS] * planner.axis_steps_per_degree_joint[Joint5_AXIS];
+  #endif
 }
 
 #if ENABLED(ARC_SUPPORT)
@@ -17110,15 +17116,19 @@ void idle(
     buzzer.tick();
   #endif
 
-  #if ENABLED(I2C_POSITION_ENCODERS)
-    static millis_t i2cpem_next_update_ms;
-    if (planner.has_blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
+  #if ENABLED(POSITION_ECHO)
+    static millis_t i2cpem_next_update_ms = 0, encoder_position_moniter_ms = 0; 
+    if (ELAPSED(millis(), i2cpem_next_update_ms)) {
       I2CPEM.update();
-      current_position_Joint[Joint1_AXIS] = I2CPEM.position_joint[Joint1_AXIS] * planner.axis_steps_per_degree_joint[Joint1_AXIS];
-      current_position_Joint[Joint2_AXIS] = I2CPEM.position_joint[Joint2_AXIS] * planner.axis_steps_per_degree_joint[Joint2_AXIS];
-      current_position_Joint[Joint3_AXIS] = I2CPEM.position_joint[Joint3_AXIS] * planner.axis_steps_per_degree_joint[Joint3_AXIS];
-      current_position_Joint[Joint5_AXIS] = I2CPEM.position_joint[Joint5_AXIS] * planner.axis_steps_per_degree_joint[Joint5_AXIS];
       i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
+    }
+    
+    if (ELAPSED(millis(), encoder_position_moniter_ms)) {
+      SERIAL_ECHOPAIR_F("Current J : ", I2CPEM.position_joint[Joint1_AXIS]);
+      SERIAL_ECHOPAIR_F(      "  A : ", I2CPEM.position_joint[Joint2_AXIS]);
+      SERIAL_ECHOPAIR_F(      "  B : ", I2CPEM.position_joint[Joint3_AXIS]);
+      SERIAL_ECHOLNPAIR_F(    "  D : ", I2CPEM.position_joint[Joint5_AXIS]);
+      encoder_position_moniter_ms = millis() + POSITION_ECHO_UPD_TIME_MS;
     }
   #endif
 
@@ -17519,6 +17529,9 @@ void loop() {
       set_home_joint = 0;
       planner.accel_f = true;
       Accel_SW = true;
+      #if ENABLED(I2C_POSITION_ENCODERS)
+        I2CPEM.reset();
+      #endif
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop
       print_job_timer.init();   // Initial setup of print job timer

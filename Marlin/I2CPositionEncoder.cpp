@@ -1,33 +1,3 @@
-/**
- * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
-//todo:  add support for multiple encoders on a single axis
-//todo:    add z axis auto-leveling
-//todo:  consolidate some of the related M codes?
-//todo:  add endstop-replacement mode?
-//todo:  try faster I2C speed; tweak TWI_FREQ (400000L, or faster?); or just TWBR = ((CPU_FREQ / 400000L) - 16) / 2;
-//todo:    consider Marlin-optimized Wire library; i.e. MarlinWire, like MarlinSerial
-
-
 #include "MarlinConfig.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -37,60 +7,74 @@
   #include "stepper.h"
   #include "I2CPositionEncoder.h"
   #include "parser.h"
-
-  #include <Wire.h>
-
-
- 
+  #include "I2C.h"
 
 
-  static const uint8_t I2CPositionEncodersMgr::I2CPE_addr;
-  static float I2CPositionEncodersMgr::position_joint[Joint_All]; 
-
-  static void I2CPositionEncodersMgr::init() {
-    Wire.begin();
-    SERIAL_ECHOLNPGM("Setting up encoder on ");
-    SERIAL_ECHOLNPAIR("Joint, addr = ", I2CPE_addr);
-    I2CPEM.get_raw_count(position_joint);
-  }
-
-  static void I2CPositionEncodersMgr::update() {
-    
-    I2CPEM.get_raw_count(position_joint);
-
-    //LOOP_NUM_JOINT(i)
-      //lastPosition[i] = position_joint[i];
-    
-  }
-
-  void I2CPositionEncodersMgr::get_raw_count(float (&joint)[Joint_All]) {
-    uint8_t index = 0;
-    uint8_t buffer[16];
-    union u_tag {
-     uint8_t b[4];
-     float fval;
-    } u;
-
-
-    if (Wire.requestFrom((int)I2CPE_addr, 16) != 16) {
-      return 0;
+  void I2CPositionEncodersMgr::init() {
+    addr = ENCODER_ADDR;
+    cmd = ENCODER_CMD;
+    I2c.begin();
+    I2c.timeOut(10);
+    SERIAL_ECHOLNPGM("Setting up encoder ... ");
+    SERIAL_ECHOLNPAIR("Joint encoder, addr = ", addr);
+    update();
+    LOOP_NUM_JOINT(i){
+      position_joint_SAD[i] = 0;
     }
+  }
 
-    while (Wire.available())
-      buffer[index++] = (uint8_t)Wire.read();
+  void I2CPositionEncodersMgr::reset(){
+    SERIAL_ECHOLNPGM("Resetting encoder ...");
+    update();
+    LOOP_NUM_JOINT(i){
+      position_joint_SAD[i] = 0;
+    }
+  }
+
+  void I2CPositionEncodersMgr::update() {
+    switch(get_raw_count(position_joint)){
+      case 0: break;
+      case 1: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Start bit");                  break;
+      case 2: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in transmit mode (MT)"); break;
+      case 3: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while sending data to the slave");              break;
+      case 4: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Repeated Start");             break;
+      case 5: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in receiver mode (MR)"); break;
+      case 6: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while receiving data from the slave");          break;
+      case 7: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of the Stop bit");                 break;
+      default: SERIAL_ECHOLNPGM("See datasheet for exact meaning"); break;
+    }
+  }
+
+  uint8_t I2CPositionEncodersMgr::get_raw_count(float (&joint)[Joint_All]) {
+    uint8_t status = I2c.read(addr,cmd,ENCODER_BUF_SIZE,buffer);
+    union stringtofloat {
+     uint8_t strbyte[4];
+     float fval;
+    } strtof;
     
-    for(int i=0;i<4;i++){
-      u.b[0] = buffer[(4*i) + 0];
-      u.b[1] = buffer[(4*i) + 1];
-      u.b[2] = buffer[(4*i) + 2];
-      u.b[3] = buffer[(4*i) + 3];
-      switch(i){
-        case 0: joint[Joint1_AXIS] = u.fval; break;
-        case 1: joint[Joint2_AXIS] = u.fval; break;
-        case 2: joint[Joint3_AXIS] = u.fval; break;
-        case 3: joint[Joint5_AXIS] = u.fval; break;
+    if(buffer[ENCODER_BUF_SIZE-1]=='\n'){
+      for(int i=0;i<4;i++){
+        strtof.strbyte[0] = buffer[(4*i) + 0];
+        strtof.strbyte[1] = buffer[(4*i) + 1];
+        strtof.strbyte[2] = buffer[(4*i) + 2];
+        strtof.strbyte[3] = buffer[(4*i) + 3];
+        switch(i){
+          case 0: joint[0] = strtof.fval; break;
+          case 1: joint[1] = strtof.fval; break;
+          case 2: joint[2] = strtof.fval; break;
+          case 3: joint[4] = strtof.fval; break;
+        }
       }
     }
+    return status;
+  }
+
+  
+  void I2CPositionEncodersMgr::M866() {
+    SERIAL_ECHOPAIR_F("SAD = J : ", position_joint_SAD[Joint1_AXIS]);
+    SERIAL_ECHOPAIR_F(      "  A : ", position_joint_SAD[Joint2_AXIS]);
+    SERIAL_ECHOPAIR_F(      "  B : ", position_joint_SAD[Joint3_AXIS]);
+    SERIAL_ECHOLNPAIR_F(    "  D : ", position_joint_SAD[Joint5_AXIS]);
   }
 /*
   void I2CPositionEncodersMgr::report_position(const int8_t idx, const bool units, const bool noOffset) {
