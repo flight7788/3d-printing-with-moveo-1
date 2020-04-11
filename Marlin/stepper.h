@@ -223,17 +223,17 @@ class Stepper
 {
 
 public:
-#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
-  static bool homing_dual_axis;
-#endif
+  #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+    static bool homing_dual_axis;
+  #endif
 
-#if HAS_MOTOR_CURRENT_PWM
-#ifndef PWM_MOTOR_CURRENT
-#define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
-#endif
-  static uint32_t motor_current_setting[3];
-#endif
-
+  #if HAS_MOTOR_CURRENT_PWM
+  #ifndef PWM_MOTOR_CURRENT
+  #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
+  #endif
+    static uint32_t motor_current_setting[3];
+  #endif
+  static bool finishmov_flag;
 private:
   static block_t *current_block; // A pointer to the block currently being traced
 

@@ -340,6 +340,7 @@
 
 #if ENABLED(I2C_POSITION_ENCODERS)
   #include "I2CPositionEncoder.h"
+  extern Stepper stepper;
 #endif
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
@@ -398,6 +399,7 @@ int32_t current_position_Joint[Joint_All] = { 0, 0, 0, 0, 0};
 float destination[XYZE] = { 0 };
 int32_t destination_Joint[Joint_All] = { 0, 0, 0, 0, 0};
 bool Accel_SW = true;
+bool finish_update = false;
 uint8_t set_home_joint = 0;
 /**
  * axis_homed
@@ -17116,20 +17118,39 @@ void idle(
     buzzer.tick();
   #endif
 
-  #if ENABLED(POSITION_ECHO)
-    static millis_t i2cpem_next_update_ms = 0, encoder_position_moniter_ms = 0; 
+  #if ENABLED(I2C_POSITION_ENCODERS)
+    static millis_t i2cpem_next_update_ms = 0;
     if (ELAPSED(millis(), i2cpem_next_update_ms)) {
       I2CPEM.update();
       i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
     }
-    
-    if (ELAPSED(millis(), encoder_position_moniter_ms)) {
-      SERIAL_ECHOPAIR_F("Current J : ", I2CPEM.position_joint[Joint1_AXIS]);
-      SERIAL_ECHOPAIR_F(      "  A : ", I2CPEM.position_joint[Joint2_AXIS]);
-      SERIAL_ECHOPAIR_F(      "  B : ", I2CPEM.position_joint[Joint3_AXIS]);
-      SERIAL_ECHOLNPAIR_F(    "  D : ", I2CPEM.position_joint[Joint5_AXIS]);
-      encoder_position_moniter_ms = millis() + POSITION_ECHO_UPD_TIME_MS;
+    static millis_t finishdelay_ms = 0;
+    if(stepper.finishmov_flag == true){
+      if(ELAPSED(millis(), finishdelay_ms)){
+        finish_update = true;
+        finishdelay_ms = millis() + 5;
+        stepper.finishmov_flag = false;
+      }
     }
+    #if ENABLED(POSITION_ECHO)
+      if(I2CPEM.ConstECHO_f == true){
+        static millis_t encoder_position_moniter_ms = 0;
+        if (ELAPSED(millis(), encoder_position_moniter_ms)) {
+          if(I2CPEM.ConstUpdate_f == true){ I2CPEM.update(); }
+          SERIAL_ECHOPAIR_F("Current J : ", I2CPEM.position_joint[Joint1_AXIS]);
+          SERIAL_ECHOPAIR_F(      "  A : ", I2CPEM.position_joint[Joint2_AXIS]);
+          SERIAL_ECHOPAIR_F(      "  B : ", I2CPEM.position_joint[Joint3_AXIS]);
+          SERIAL_ECHOLNPAIR_F(    "  D : ", I2CPEM.position_joint[Joint5_AXIS]);
+
+          SERIAL_ECHOPAIR("Steps   J : ", I2CPEM.position_joint[Joint1_AXIS] * planner.axis_steps_per_degree_joint[Joint1_AXIS]);
+          SERIAL_ECHOPAIR(       " A : ", I2CPEM.position_joint[Joint2_AXIS] * planner.axis_steps_per_degree_joint[Joint2_AXIS]);
+          SERIAL_ECHOPAIR(       " B : ", I2CPEM.position_joint[Joint3_AXIS] * planner.axis_steps_per_degree_joint[Joint3_AXIS]);
+          SERIAL_ECHOLNPAIR(     " D : ", I2CPEM.position_joint[Joint5_AXIS] * planner.axis_steps_per_degree_joint[Joint5_AXIS]);
+          SERIAL_ECHOLN("----------------------------------------------------");
+          encoder_position_moniter_ms = millis() + POSITION_ECHO_UPD_TIME_MS;
+        }
+      }
+    #endif
   #endif
 
   #if HAS_AUTO_REPORTING
@@ -17491,6 +17512,7 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
+
 
   #if ENABLED(SDSUPPORT)
 

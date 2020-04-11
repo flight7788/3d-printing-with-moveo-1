@@ -329,6 +329,7 @@ extern volatile bool wait_for_heatup;
 extern float   current_position[XYZE], destination[XYZE];
 extern int32_t current_position_Joint[Joint_All], destination_Joint[Joint_All];
 extern bool Accel_SW;
+extern bool finish_update;
 extern uint8_t set_home_joint;
 // extern float   ZERO_position[XYZE], HOME_position[XYZE];
 // extern int32_t ZERO_position_Joint[Joint_All], HOME_position_Joint[Joint_All];

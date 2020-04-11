@@ -1624,13 +1624,12 @@
 #if ENABLED(I2C_POSITION_ENCODERS)
 
 
-#define ENCODER_ADDR          0x01  // I2C address of the encoder. 30-200.
-#define ENCODER_CMD           '?'
-#define ENCODER_BUF_SIZE      17
-
-//#define POSITION_ECHO
+#define ENCODER_ADDR             0x01  // I2C address of the encoder. 30-200.
+#define ENCODER_CMD              '?'
+#define ENCODER_BUF_SIZE         17
+#define I2CPE_MIN_UPD_TIME_MS    4     // (ms) Minimum time between encoder checks.
+#define POSITION_ECHO
 #if ENABLED(POSITION_ECHO)
-   #define I2CPE_MIN_UPD_TIME_MS  4     // (ms) Minimum time between encoder checks.
    #define POSITION_ECHO_UPD_TIME_MS 200  // (ms) Minimum time between position echo.
 #endif
 #endif // I2C_POSITION_ENCODERS

@@ -257,6 +257,13 @@ void Planner::init() {
   #endif
   clear_block_buffer();
   delay_before_delivering = 0;
+  #if ENABLED(I2C_POSITION_ENCODERS)
+    position_joint[Joint1_AXIS] = I2CPEM.position_joint[Joint1_AXIS] * axis_steps_per_degree_joint[Joint1_AXIS];
+    position_joint[Joint2_AXIS] = I2CPEM.position_joint[Joint2_AXIS] * axis_steps_per_degree_joint[Joint2_AXIS];
+    position_joint[Joint3_AXIS] = I2CPEM.position_joint[Joint3_AXIS] * axis_steps_per_degree_joint[Joint3_AXIS];
+    position_joint[Joint5_AXIS] = I2CPEM.position_joint[Joint5_AXIS] * axis_steps_per_degree_joint[Joint5_AXIS];
+  #endif
+
 }
 
 #if ENABLED(S_CURVE_ACCELERATION)
@@ -3349,26 +3356,39 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
                 #endif
               ;
   #if ENABLED(I2C_POSITION_ENCODERS) 
-    I2CPEM.update();
-    position_joint[Joint1_AXIS] = I2CPEM.position_joint[Joint1_AXIS] * axis_steps_per_degree_joint[Joint1_AXIS];
-    position_joint[Joint2_AXIS] = I2CPEM.position_joint[Joint2_AXIS] * axis_steps_per_degree_joint[Joint2_AXIS];
-    position_joint[Joint3_AXIS] = I2CPEM.position_joint[Joint3_AXIS] * axis_steps_per_degree_joint[Joint3_AXIS];
-    position_joint[Joint5_AXIS] = I2CPEM.position_joint[Joint5_AXIS] * axis_steps_per_degree_joint[Joint5_AXIS];
-    //*
-    SERIAL_ECHOPAIR_F("Current J : ", I2CPEM.position_joint[Joint1_AXIS]);
-    SERIAL_ECHOPAIR_F(       " A : ", I2CPEM.position_joint[Joint2_AXIS]);
-    SERIAL_ECHOPAIR_F(       " B : ", I2CPEM.position_joint[Joint3_AXIS]);
-    SERIAL_ECHOLNPAIR_F(     " D : ", I2CPEM.position_joint[Joint5_AXIS]);
+      
+    if(finish_update == true){
+      if(I2CPEM.ReadStatus == 0){
+        position_joint[Joint1_AXIS] = I2CPEM.position_joint[Joint1_AXIS] * axis_steps_per_degree_joint[Joint1_AXIS];
+        position_joint[Joint2_AXIS] = I2CPEM.position_joint[Joint2_AXIS] * axis_steps_per_degree_joint[Joint2_AXIS];
+        position_joint[Joint3_AXIS] = I2CPEM.position_joint[Joint3_AXIS] * axis_steps_per_degree_joint[Joint3_AXIS];
+        position_joint[Joint5_AXIS] = I2CPEM.position_joint[Joint5_AXIS] * axis_steps_per_degree_joint[Joint5_AXIS];
+        //SERIAL_ECHOLNPGM("finish update !!");
+      }
+      else{
+        //SERIAL_ECHOLNPGM("Update Fail ...");
+      }
+      finish_update = false;
+    }
 
-    SERIAL_ECHOPAIR_F("Steps   J : ", position_joint[Joint1_AXIS]);
-    SERIAL_ECHOPAIR_F(       " A : ", position_joint[Joint2_AXIS]);
-    SERIAL_ECHOPAIR_F(       " B : ", position_joint[Joint3_AXIS]);
-    SERIAL_ECHOLNPAIR_F(     " D : ", position_joint[Joint5_AXIS]);
-    //*/
-    I2CPEM.position_joint_SAD[Joint1_AXIS] += (float) ABS(position_joint[Joint1_AXIS]-joint[Joint1_AXIS]) * axis_steps_per_degree_joint[Joint1_AXIS];
-    I2CPEM.position_joint_SAD[Joint2_AXIS] += (float) ABS(position_joint[Joint1_AXIS]-joint[Joint1_AXIS]) * axis_steps_per_degree_joint[Joint2_AXIS];
-    I2CPEM.position_joint_SAD[Joint3_AXIS] += (float) ABS(position_joint[Joint1_AXIS]-joint[Joint1_AXIS]) * axis_steps_per_degree_joint[Joint3_AXIS];
-    I2CPEM.position_joint_SAD[Joint5_AXIS] += (float) ABS(position_joint[Joint1_AXIS]-joint[Joint1_AXIS]) * axis_steps_per_degree_joint[Joint5_AXIS];
+    if(I2CPEM.PlannerECHO_f == true){
+      SERIAL_ECHOPAIR_F("From J : ", I2CPEM.position_joint[Joint1_AXIS]);
+      SERIAL_ECHOPAIR_F(    " A : ", I2CPEM.position_joint[Joint2_AXIS]);
+      SERIAL_ECHOPAIR_F(    " B : ", I2CPEM.position_joint[Joint3_AXIS]);
+      SERIAL_ECHOLNPAIR_F(  " D : ", I2CPEM.position_joint[Joint5_AXIS]);
+
+      SERIAL_ECHOPAIR("Steps   J : ", position_joint[Joint1_AXIS]);
+      SERIAL_ECHOPAIR(       " A : ", position_joint[Joint2_AXIS]);
+      SERIAL_ECHOPAIR(       " B : ", position_joint[Joint3_AXIS]);
+      SERIAL_ECHOLNPAIR(     " D : ", position_joint[Joint5_AXIS]);
+      SERIAL_ECHOLNPGM("----------------------------------------------------");
+    }
+    
+    
+    //I2CPEM.position_joint_SAD[Joint1_AXIS] += (float) ABS(position_joint[Joint1_AXIS]-joint[Joint1_AXIS]) * axis_steps_per_degree_joint[Joint1_AXIS];
+    //I2CPEM.position_joint_SAD[Joint2_AXIS] += (float) ABS(position_joint[Joint1_AXIS]-joint[Joint1_AXIS]) * axis_steps_per_degree_joint[Joint2_AXIS];
+    //I2CPEM.position_joint_SAD[Joint3_AXIS] += (float) ABS(position_joint[Joint1_AXIS]-joint[Joint1_AXIS]) * axis_steps_per_degree_joint[Joint3_AXIS];
+    //I2CPEM.position_joint_SAD[Joint5_AXIS] += (float) ABS(position_joint[Joint1_AXIS]-joint[Joint1_AXIS]) * axis_steps_per_degree_joint[Joint5_AXIS];
   #endif
 
   const int32_t d0 = joint[Joint1_AXIS] - position_joint[Joint1_AXIS],
@@ -3379,6 +3399,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
 
 
   int32_t de = target[E_AXIS] - position[E_AXIS];
+
 
   /* <-- add a slash to enable
     SERIAL_ECHOPAIR("  _populate_block_Joint FR:", fr_mm_s);
@@ -4220,7 +4241,6 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
     COPY(position, target);
     COPY(position_joint, joint);
     //SERIAL_ECHOLNPGM("Position Joint Update");
-    
     #if HAS_POSITION_FLOAT
       COPY(position_float, target_float);
     #endif
@@ -4641,7 +4661,7 @@ void Planner::_set_position_mm_Joint(const uint32_t &j1, const uint32_t &j2, con
   position_joint[Joint4_AXIS]=j4;
   position_joint[Joint5_AXIS]=j5;
 
- stepper.set_position(position[A_AXIS], position[B_AXIS], position[C_AXIS],
+  stepper.set_position(position[A_AXIS], position[B_AXIS], position[C_AXIS],
          position_joint[0],position_joint[1],position_joint[2],position_joint[3],position_joint[4], position[E_AXIS]
   );
 }

@@ -14,34 +14,50 @@
     addr = ENCODER_ADDR;
     cmd = ENCODER_CMD;
     I2c.begin();
-    I2c.timeOut(10);
+    I2c.timeOut(100);
+    I2c.setSpeed(true);
+    //I2c.pullup(true);
     SERIAL_ECHOLNPGM("Setting up encoder ... ");
     SERIAL_ECHOLNPAIR("Joint encoder, addr = ", addr);
     update();
     LOOP_NUM_JOINT(i){
       position_joint_SAD[i] = 0;
     }
+    ConstECHO_f = false;
+    ConstUpdate_f = false;
+    PlannerECHO_f = false;
+    PrintStatue_f = false;
   }
 
   void I2CPositionEncodersMgr::reset(){
     SERIAL_ECHOLNPGM("Resetting encoder ...");
-    update();
+    //update();
     LOOP_NUM_JOINT(i){
       position_joint_SAD[i] = 0;
     }
+    ConstECHO_f = false;
+    ConstUpdate_f = false;
+    PlannerECHO_f = false;
+    PrintStatue_f = false;
+    addr = ENCODER_ADDR;
+    cmd = ENCODER_CMD;
   }
 
   void I2CPositionEncodersMgr::update() {
-    switch(get_raw_count(position_joint)){
-      case 0: break;
-      case 1: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Start bit");                  break;
-      case 2: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in transmit mode (MT)"); break;
-      case 3: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while sending data to the slave");              break;
-      case 4: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Repeated Start");             break;
-      case 5: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in receiver mode (MR)"); break;
-      case 6: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while receiving data from the slave");          break;
-      case 7: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of the Stop bit");                 break;
-      default: SERIAL_ECHOLNPGM("See datasheet for exact meaning"); break;
+    ReadStatus = get_raw_count(position_joint);
+    
+    if(PrintStatue_f == true){
+      switch(ReadStatus){
+        case 0: break;
+        case 1: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Start bit");                  break;
+        case 2: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in transmit mode (MT)"); break;
+        case 3: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while sending data to the slave");              break;
+        case 4: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Repeated Start");             break;
+        case 5: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in receiver mode (MR)"); break;
+        case 6: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while receiving data from the slave");          break;
+        case 7: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of the Stop bit");                 break;
+        default: SERIAL_ECHOLNPGM("See datasheet for exact meaning"); break;
+      }
     }
   }
 
@@ -71,11 +87,57 @@
 
   
   void I2CPositionEncodersMgr::M866() {
+    if(parser.seen('C')){
+      if(parser.value_linear_units() == 1){
+        LOOP_NUM_JOINT(i){
+          position_joint_SAD[i] = 0;
+        }
+      }
+    }
     SERIAL_ECHOPAIR_F("SAD = J : ", position_joint_SAD[Joint1_AXIS]);
     SERIAL_ECHOPAIR_F(      "  A : ", position_joint_SAD[Joint2_AXIS]);
     SERIAL_ECHOPAIR_F(      "  B : ", position_joint_SAD[Joint3_AXIS]);
     SERIAL_ECHOLNPAIR_F(    "  D : ", position_joint_SAD[Joint5_AXIS]);
   }
+
+  // * M860:  Report the position(s) of position encoder module(s).
+  void I2CPositionEncodersMgr::M860() {
+    if(parser.seen('C')){
+      uint8_t mode = parser.value_linear_units();
+      if(mode == 0){
+        ConstECHO_f = false;
+        ConstUpdate_f = false;
+      }
+      else if(mode == 1){
+        ConstECHO_f = true;
+      }
+      else if(mode == 2){
+        ConstECHO_f = true;
+        ConstUpdate_f = true;
+      }
+    }
+    else if(parser.seen('P')){
+      PlannerECHO_f = (parser.value_linear_units()==1)?true:false;
+    }
+    else if(parser.seen('S')){
+      PrintStatue_f = (parser.value_linear_units()==1)?true:false;
+    }
+    else{
+      update();
+      SERIAL_ECHOPAIR_F("Current J : ", position_joint[Joint1_AXIS]);
+      SERIAL_ECHOPAIR_F(       " A : ", position_joint[Joint2_AXIS]);
+      SERIAL_ECHOPAIR_F(       " B : ", position_joint[Joint3_AXIS]);
+      SERIAL_ECHOLNPAIR_F(     " D : ", position_joint[Joint5_AXIS]);
+
+      SERIAL_ECHOPAIR("Steps J : ", (int32_t)position_joint[Joint1_AXIS] * planner.axis_steps_per_degree_joint[Joint1_AXIS]);
+      SERIAL_ECHOPAIR(     " A : ", (int32_t)position_joint[Joint2_AXIS] * planner.axis_steps_per_degree_joint[Joint2_AXIS]);
+      SERIAL_ECHOPAIR(     " B : ", (int32_t)position_joint[Joint3_AXIS] * planner.axis_steps_per_degree_joint[Joint3_AXIS]);
+      SERIAL_ECHOLNPAIR(   " D : ", (int32_t)position_joint[Joint5_AXIS] * planner.axis_steps_per_degree_joint[Joint5_AXIS]);
+    }
+    
+  }
+
+
 /*
   void I2CPositionEncodersMgr::report_position(const int8_t idx, const bool units, const bool noOffset) {
     CHECK_IDX();

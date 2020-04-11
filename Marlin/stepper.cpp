@@ -94,6 +94,10 @@
 
 Stepper stepper; // Singleton
 
+#if ENABLED(I2C_POSITION_ENCODERS)
+  #include "I2CPositionEncoder.h"
+  extern I2CPositionEncodersMgr I2CPEM;
+#endif
 // public:
 
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
@@ -103,6 +107,7 @@ Stepper stepper; // Singleton
 #if HAS_MOTOR_CURRENT_PWM
   uint32_t Stepper::motor_current_setting[3]; // Initialized by settings.load()
 #endif
+bool Stepper::finishmov_flag = true;
 
 // private:
 
@@ -1344,6 +1349,7 @@ void Stepper::stepper_pulse_phase_isr() {
     if (current_block) {
       axis_did_move = 0;
       axis_did_move_Joint = 0;
+      finishmov_flag = true;
       current_block = NULL;
       planner.discard_current_block();
     }
@@ -1612,7 +1618,14 @@ uint32_t Stepper::stepper_block_phase_isr() {
     if (step_events_completed >= step_event_count) {
       axis_did_move = 0;
       axis_did_move_Joint = 0;
+      finishmov_flag = true;
       current_block = NULL;
+      //SERIAL_ECHOLNPGM("finish!!");
+      //I2CPEM.update();
+      //SERIAL_ECHOPAIR_F("From J : ", I2CPEM.position_joint[Joint1_AXIS]);
+      //SERIAL_ECHOPAIR_F(    " A : ", I2CPEM.position_joint[Joint2_AXIS]);
+      //SERIAL_ECHOPAIR_F(    " B : ", I2CPEM.position_joint[Joint3_AXIS]);
+      //SERIAL_ECHOLNPAIR_F(  " D : ", I2CPEM.position_joint[Joint5_AXIS]);
       planner.discard_current_block();
     }
     else {
@@ -1740,7 +1753,6 @@ uint32_t Stepper::stepper_block_phase_isr() {
         //*/
         _set_position_Joint(current_block->position_Joint[Joint1_AXIS],current_block->position_Joint[Joint2_AXIS],current_block->position_Joint[Joint3_AXIS],
         current_block->position_Joint[Joint4_AXIS],current_block->position_Joint[Joint5_AXIS]);
-
         planner.discard_current_block();
 
         // Try to get a new block
@@ -1834,7 +1846,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       //if (!!current_block->steps[C_AXIS]) SBI(axis_bits, Z_HEAD);
       axis_did_move = axis_bits;
       axis_did_move_Joint = axis_bits_Joint;
-
+      finishmov_flag = false;
       // No acceleration / deceleration time elapsed so far
       acceleration_time = deceleration_time = 0;
 

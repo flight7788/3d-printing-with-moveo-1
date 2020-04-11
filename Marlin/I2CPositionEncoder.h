@@ -30,6 +30,7 @@
   #include "enum.h"
   #include "macros.h"
   #include "types.h"
+  #include "planner.h"
   #include "I2C.h"
 
   
@@ -40,7 +41,7 @@ class I2CPositionEncodersMgr {
     uint8_t buffer[ENCODER_BUF_SIZE];
     
   public:
-
+    bool ConstECHO_f, ConstUpdate_f, PlannerECHO_f, PrintStatue_f, ReadStatus;
     float position_joint_SAD[Joint_All];
     float position_joint[Joint_All];
 
@@ -67,7 +68,7 @@ class I2CPositionEncodersMgr {
 
     static int8_t parse();
 
-    static void M860();
+    
     static void M861();
     static void M862();
     static void M863();
@@ -78,12 +79,14 @@ class I2CPositionEncodersMgr {
     static void M868();
     static void M869();
     */
+    void M860();
     void M866();
   };
 
   extern I2CPositionEncodersMgr I2CPEM;
+  extern Planner planner;
 
-  FORCE_INLINE void gcode_M860() { ;}//I2CPEM.M860(); }
+  FORCE_INLINE void gcode_M860() { I2CPEM.M860(); }
   FORCE_INLINE void gcode_M861() { ;}//I2CPEM.M861(); }
   FORCE_INLINE void gcode_M862() { ;}//I2CPEM.M862(); }
   FORCE_INLINE void gcode_M863() { ;}//I2CPEM.M863(); }
