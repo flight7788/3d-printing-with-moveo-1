@@ -3357,7 +3357,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
               ;
   #if ENABLED(I2C_POSITION_ENCODERS) 
       
-    if(finish_update == true){
+    if(stepper.finishmov_flag == true){
       if(I2CPEM.ReadStatus == 0){
         position_joint[Joint1_AXIS] = I2CPEM.position_joint[Joint1_AXIS] * axis_steps_per_degree_joint[Joint1_AXIS];
         position_joint[Joint2_AXIS] = I2CPEM.position_joint[Joint2_AXIS] * axis_steps_per_degree_joint[Joint2_AXIS];
@@ -3368,7 +3368,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
       else{
         //SERIAL_ECHOLNPGM("Update Fail ...");
       }
-      finish_update = false;
+      stepper.finishmov_flag = false; //finish_update = false;
     }
 
     if(I2CPEM.PlannerECHO_f == true){

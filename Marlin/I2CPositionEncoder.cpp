@@ -48,15 +48,15 @@
     
     if(PrintStatue_f == true){
       switch(ReadStatus){
-        case 0: break;
-        case 1: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Start bit");                  break;
-        case 2: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in transmit mode (MT)"); break;
-        case 3: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while sending data to the slave");              break;
-        case 4: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Repeated Start");             break;
-        case 5: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in receiver mode (MR)"); break;
-        case 6: SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while receiving data from the slave");          break;
-        case 7: SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of the Stop bit");                 break;
-        default: SERIAL_ECHOLNPGM("See datasheet for exact meaning"); break;
+        case 0: I2c.write(addr, (uint8_t)'Y'); break;
+        case 1: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Start bit");                  break;
+        case 2: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in transmit mode (MT)"); break;
+        case 3: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while sending data to the slave");              break;
+        case 4: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Repeated Start");             break;
+        case 5: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in receiver mode (MR)"); break;
+        case 6: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while receiving data from the slave");          break;
+        case 7: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of the Stop bit");                 break;
+        default: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("See datasheet for exact meaning"); break;
       }
     }
   }

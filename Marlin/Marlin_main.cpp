@@ -17124,14 +17124,14 @@ void idle(
       I2CPEM.update();
       i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
     }
-    static millis_t finishdelay_ms = 0;
-    if(stepper.finishmov_flag == true){
-      if(ELAPSED(millis(), finishdelay_ms)){
-        finish_update = true;
-        finishdelay_ms = millis() + 5;
-        stepper.finishmov_flag = false;
-      }
-    }
+    //static millis_t finishdelay_ms = 0;
+    //if(stepper.finishmov_flag == true){
+    //  if(ELAPSED(millis(), finishdelay_ms)){
+    //    finish_update = true;
+    //    finishdelay_ms = millis() + 5;
+    //    stepper.finishmov_flag = false;
+    //  }
+    //}
     #if ENABLED(POSITION_ECHO)
       if(I2CPEM.ConstECHO_f == true){
         static millis_t encoder_position_moniter_ms = 0;
@@ -17535,7 +17535,9 @@ void loop() {
       #if ENABLED(POWER_LOSS_RECOVERY)
         card.removeJobRecoveryFile();
       #endif
-      
+      #if ENABLED(I2C_POSITION_ENCODERS)
+        I2CPEM.update();
+      #endif
       HOME_position[E_AXIS] = current_position[E_AXIS]-3;
       buffer_line_to_destination_Constant(HOME_position, HOME_position_Joint, homing_feedrate_Joint(0));
       current_position[E_AXIS] = destination[E_AXIS] = 0;
@@ -17553,6 +17555,7 @@ void loop() {
       Accel_SW = true;
       #if ENABLED(I2C_POSITION_ENCODERS)
         I2CPEM.reset();
+        I2CPEM.update();
       #endif
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop
