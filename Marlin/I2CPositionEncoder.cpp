@@ -27,6 +27,7 @@
     ConstUpdate_f = false;
     PlannerECHO_f = false;
     PrintStatue_f = false;
+    ErrorSteps_f = false;
   }
 
   void I2CPositionEncodersMgr::reset(){
@@ -39,13 +40,18 @@
     ConstUpdate_f = false;
     PlannerECHO_f = false;
     PrintStatue_f = false;
+    ErrorSteps_f = false;
     addr = ENCODER_ADDR;
     cmd = ENCODER_CMD;
   }
 
   void I2CPositionEncodersMgr::update() {
     ReadStatus = get_raw_count(position_joint);
-    
+    position_joint_steps[Joint1_AXIS] = position_joint[Joint1_AXIS] * planner.axis_steps_per_degree_joint[Joint1_AXIS];
+    position_joint_steps[Joint2_AXIS] = position_joint[Joint2_AXIS] * planner.axis_steps_per_degree_joint[Joint2_AXIS];
+    position_joint_steps[Joint3_AXIS] = position_joint[Joint3_AXIS] * planner.axis_steps_per_degree_joint[Joint3_AXIS];
+    position_joint_steps[Joint5_AXIS] = position_joint[Joint5_AXIS] * planner.axis_steps_per_degree_joint[Joint5_AXIS];
+
     if(PrintStatue_f == true){
       switch(ReadStatus){
         case 0: I2c.write(addr, (uint8_t)'Y'); break;
@@ -122,6 +128,9 @@
     else if(parser.seen('S')){
       PrintStatue_f = (parser.value_linear_units()==1)?true:false;
     }
+    else if(parser.seen('E')){
+      ErrorSteps_f = (parser.value_linear_units()==1)?true:false;
+    }
     else{
       update();
       SERIAL_ECHOPAIR_F("Current J : ", position_joint[Joint1_AXIS]);
@@ -129,10 +138,10 @@
       SERIAL_ECHOPAIR_F(       " B : ", position_joint[Joint3_AXIS]);
       SERIAL_ECHOLNPAIR_F(     " D : ", position_joint[Joint5_AXIS]);
 
-      SERIAL_ECHOPAIR("Steps J : ", (int32_t)position_joint[Joint1_AXIS] * planner.axis_steps_per_degree_joint[Joint1_AXIS]);
-      SERIAL_ECHOPAIR(     " A : ", (int32_t)position_joint[Joint2_AXIS] * planner.axis_steps_per_degree_joint[Joint2_AXIS]);
-      SERIAL_ECHOPAIR(     " B : ", (int32_t)position_joint[Joint3_AXIS] * planner.axis_steps_per_degree_joint[Joint3_AXIS]);
-      SERIAL_ECHOLNPAIR(   " D : ", (int32_t)position_joint[Joint5_AXIS] * planner.axis_steps_per_degree_joint[Joint5_AXIS]);
+      SERIAL_ECHOPAIR("Steps J : ", (int32_t)position_joint_steps[Joint1_AXIS]);
+      SERIAL_ECHOPAIR(     " A : ", (int32_t)position_joint_steps[Joint2_AXIS]);
+      SERIAL_ECHOPAIR(     " B : ", (int32_t)position_joint_steps[Joint3_AXIS]);
+      SERIAL_ECHOLNPAIR(   " D : ", (int32_t)position_joint_steps[Joint5_AXIS]);
     }
     
   }

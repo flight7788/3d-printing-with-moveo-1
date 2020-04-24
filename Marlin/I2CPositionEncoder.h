@@ -41,9 +41,10 @@ class I2CPositionEncodersMgr {
     uint8_t buffer[ENCODER_BUF_SIZE];
     
   public:
-    bool ConstECHO_f, ConstUpdate_f, PlannerECHO_f, PrintStatue_f, ReadStatus;
+    bool ConstECHO_f, ConstUpdate_f, PlannerECHO_f, PrintStatue_f, ReadStatus, ErrorSteps_f;
     float position_joint_SAD[Joint_All];
     float position_joint[Joint_All];
+    int32_t position_joint_steps[Joint_All];
 
     void init(void);
 

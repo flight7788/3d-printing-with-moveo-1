@@ -36,6 +36,8 @@
 #include "parser.h"
 #include <avr/wdt.h>
 
+extern Stepper stepper;
+
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
 #endif
@@ -1220,6 +1222,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     planner.max_feedrate_mm_s_joint[Joint1_AXIS] = 50;
     planner.buffer_line_kinematic(current_position, current_position_Joint, MMM_TO_MMS(manual_feedrate_mm_m_joint[0]), 0);
     planner.max_feedrate_mm_s_joint[Joint1_AXIS] = max_feedrate_joint_init[Joint1_AXIS];
+    stepper.Zaxis_move = true;
   }
 
   #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY)
@@ -3533,6 +3536,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   void lcd_Set_Home_B()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint3_AXIS + 1; }
   void lcd_Set_Home_C()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint4_AXIS + 1; }
   void lcd_Set_Home_D()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint5_AXIS + 1; }
+  void lcd_Set_Home_ALL()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = 6; }
 
   #if E_MANUAL > 1
     void lcd_move_get_e0_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }
@@ -3696,6 +3700,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     MENU_ITEM(function, MSG_SET_B, lcd_Set_Home_B);
     MENU_ITEM(function, MSG_SET_C, lcd_Set_Home_C);
     MENU_ITEM(function, MSG_SET_D, lcd_Set_Home_D);
+    MENU_ITEM(function, MSG_SET_ALL, lcd_Set_Home_ALL);
     
     END_MENU();
   }
