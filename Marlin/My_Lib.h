@@ -461,10 +461,6 @@ int Use_XY_to_Matrix_Index(float UXYMIX, float UXYMIY)
   int temp_UXYMIX = (int)UXYMIX;
   int temp_UXYMIY = (int)UXYMIY;
 
-  if (UXYMIX == 209.837014) temp_UXYMIX = 209;
-  else if (UXYMIX == 670.16299)
-    temp_UXYMIX = 670;
-
   SERIAL_ECHOPAIR("temp_UXYMIX: ", temp_UXYMIX);
   SERIAL_ECHOLNPAIR(" temp_UXYMIY: ", temp_UXYMIY);
 
