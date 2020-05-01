@@ -28,6 +28,9 @@
     PlannerECHO_f = false;
     PrintStatue_f = false;
     ErrorSteps_f = false;
+    diff_f = true;
+    Manual_f = false;
+    Update_f = false;
   }
 
   void I2CPositionEncodersMgr::reset(){
@@ -41,30 +44,42 @@
     PlannerECHO_f = false;
     PrintStatue_f = false;
     ErrorSteps_f = false;
+    Update_f = false;
+    diff_f = true;
+    Manual_f = false;
     addr = ENCODER_ADDR;
     cmd = ENCODER_CMD;
   }
 
   void I2CPositionEncodersMgr::update() {
-    ReadStatus = get_raw_count(position_joint);
-    position_joint_steps[Joint1_AXIS] = position_joint[Joint1_AXIS] * planner.axis_steps_per_degree_joint[Joint1_AXIS];
-    position_joint_steps[Joint2_AXIS] = position_joint[Joint2_AXIS] * planner.axis_steps_per_degree_joint[Joint2_AXIS];
-    position_joint_steps[Joint3_AXIS] = position_joint[Joint3_AXIS] * planner.axis_steps_per_degree_joint[Joint3_AXIS];
-    position_joint_steps[Joint5_AXIS] = position_joint[Joint5_AXIS] * planner.axis_steps_per_degree_joint[Joint5_AXIS];
-
-    if(PrintStatue_f == true){
-      switch(ReadStatus){
-        case 0: I2c.write(addr, (uint8_t)'Y'); break;
-        case 1: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Start bit");                  break;
-        case 2: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in transmit mode (MT)"); break;
-        case 3: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while sending data to the slave");              break;
-        case 4: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Repeated Start");             break;
-        case 5: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in receiver mode (MR)"); break;
-        case 6: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while receiving data from the slave");          break;
-        case 7: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of the Stop bit");                 break;
-        default: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("See datasheet for exact meaning"); break;
+    float position_joint_temp[Joint_All];
+    ReadStatus = get_raw_count(position_joint_temp);
+    
+    LOOP_NUM_JOINT(joint){
+      if(joint != Joint4_AXIS){
+        //if((fabs(position_joint[joint]-position_joint_temp[joint]) <= 15.00) || (diff_f == true)){
+          position_joint[joint] = position_joint_temp[joint];
+          position_joint_steps[joint] = position_joint[joint] * planner.axis_steps_per_degree_joint[joint];
+        //}
       }
     }
+    //if(diff_f == true){
+    //  diff_f = false;
+    //}
+
+    //if(PrintStatue_f == true){
+    //  switch(ReadStatus){
+    //    case 0: I2c.write(addr, (uint8_t)'Y'); break;
+    //    case 1: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Start bit");                  break;
+    //    case 2: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in transmit mode (MT)"); break;
+    //    case 3: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while sending data to the slave");              break;
+    //    case 4: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Repeated Start");             break;
+    //    case 5: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in receiver mode (MR)"); break;
+    //    case 6: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while receiving data from the slave");          break;
+    //    case 7: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of the Stop bit");                 break;
+    //    default: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("See datasheet for exact meaning"); break;
+    //  }
+    //}
   }
 
   uint8_t I2CPositionEncodersMgr::get_raw_count(float (&joint)[Joint_All]) {
@@ -130,6 +145,12 @@
     }
     else if(parser.seen('E')){
       ErrorSteps_f = (parser.value_linear_units()==1)?true:false;
+    }
+    else if(parser.seen('M')){
+      Manual_f = (parser.value_linear_units()==1)?true:false;
+    }
+    else if(parser.seen('F')){
+      Update_f = (parser.value_linear_units()==1)?true:false;
     }
     else{
       update();

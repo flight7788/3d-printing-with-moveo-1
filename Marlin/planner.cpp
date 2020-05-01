@@ -3362,6 +3362,10 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
       position_joint[Joint3_AXIS] = I2CPEM.position_joint_steps[Joint3_AXIS];
       position_joint[Joint5_AXIS] = I2CPEM.position_joint_steps[Joint5_AXIS];
       init_position = false;
+      //stepper.need_correction = false;
+      //stepper.need_correction_manual = false;
+      stepper.Zaxis_move = true;
+      //stepper.init_correction = true;
     }
 
 
@@ -3381,11 +3385,13 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
     block->old_position_joint[Joint1_AXIS] = position_joint[Joint1_AXIS];
     block->old_position_joint[Joint2_AXIS] = position_joint[Joint2_AXIS];
     block->old_position_joint[Joint3_AXIS] = position_joint[Joint3_AXIS];
+    block->old_position_joint[Joint4_AXIS] = position_joint[Joint4_AXIS];
     block->old_position_joint[Joint5_AXIS] = position_joint[Joint5_AXIS];
   
     block->new_position_joint[Joint1_AXIS] = joint[Joint1_AXIS];
     block->new_position_joint[Joint2_AXIS] = joint[Joint2_AXIS];
     block->new_position_joint[Joint3_AXIS] = joint[Joint3_AXIS];
+    block->new_position_joint[Joint4_AXIS] = joint[Joint4_AXIS];
     block->new_position_joint[Joint5_AXIS] = joint[Joint5_AXIS];
 
     //I2CPEM.position_joint_SAD[Joint1_AXIS] += (float) ABS(position_joint[Joint1_AXIS]-joint[Joint1_AXIS]) * axis_steps_per_degree_joint[Joint1_AXIS];
@@ -3504,7 +3510,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   //block->steps[A_AXIS] = ABS(da);
   //block->steps[B_AXIS] = ABS(db);
   block->steps[C_AXIS] = ABS(dc);
-  block->step_Joint[Joint1_AXIS] = ABS(d0);// + d0_Fix;
+  block->step_Joint[Joint1_AXIS] = ABS(d0);
   block->step_Joint[Joint2_AXIS] = ABS(d1);
   block->step_Joint[Joint3_AXIS] = ABS(d2);
   block->step_Joint[Joint4_AXIS] = ABS(d3);

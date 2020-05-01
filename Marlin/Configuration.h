@@ -723,7 +723,7 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #define DEFAULT_MAX_ACCELERATION {100, 100, 30, 10000}
-#define DEFAULT_MAX_ACCELERATION_joint {50, 70, 80, 70, 70}
+#define DEFAULT_MAX_ACCELERATION_joint {50, 70, 70, 70, 70}
 #define ACCELERATION_SW_Limit_Degree {15, 15, 15, 15, 15}
 /**
  * 

@@ -504,7 +504,7 @@
 #if ENABLED(ULTIPANEL)
 
 #define MANUAL_FEEDRATE {50 * 60, 50 * 60, 4 * 60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
-#define MANUAL_FEEDRATE_JOINT_LCD {120 * 60, 100 * 60, 120 * 60, 120 * 60, 120 * 60}
+#define MANUAL_FEEDRATE_JOINT_LCD {120 * 60, 100 * 60, 100 * 60, 120 * 60, 120 * 60}
 #define MANUAL_FEEDRATE_JOINT_G28 {3 * 60, 2 * 60, 2.5 * 60, 3 * 60, 3 * 60}
 
 #define ULTIPANEL_FEEDMULTIPLY // Comment to disable setting feedrate multiplier via encoder
@@ -1622,8 +1622,6 @@
 
 #define I2C_POSITION_ENCODERS
 #if ENABLED(I2C_POSITION_ENCODERS)
-
-
 #define ENCODER_ADDR             0x01  // I2C address of the encoder. 30-200.
 #define ENCODER_CMD              '?'
 #define ENCODER_BUF_SIZE         17
