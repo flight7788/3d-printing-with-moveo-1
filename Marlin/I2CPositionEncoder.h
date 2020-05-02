@@ -39,12 +39,17 @@ class I2CPositionEncodersMgr {
   private:
     uint8_t addr,cmd;
     uint8_t buffer[ENCODER_BUF_SIZE];
-    
+    millis_t lastPositionTime;
+    float lastposition_joint[Joint_All];
+    int32_t lastposition_joint_steps[Joint_All];
+    const uint32_t Threshold_Speed_per_steps[Joint_All] = Threshold_Speed;
+
   public:
-    bool ConstECHO_f, ConstUpdate_f, PlannerECHO_f, PrintStatue_f, ReadStatus, ErrorSteps_f, diff_f, Manual_f, Update_f;
+    bool ConstECHO_f, ConstUpdate_f, PlannerECHO_f, PrintStatue_f, ReadStatus, ErrorSteps_f, diff_f, Manual_f, Update_f, Speed_f;
     float position_joint_SAD[Joint_All];
-    float position_joint[Joint_All];
-    int32_t position_joint_steps[Joint_All];
+    float position_joint[Joint_All], Current_joint[Joint_All], Current_speed[Joint_All];;
+    int32_t position_joint_steps[Joint_All], Current_joint_steps[Joint_All], Current_deltadistance[Joint_All];
+    millis_t DeltaTime;
 
     void init(void);
 
@@ -53,6 +58,8 @@ class I2CPositionEncodersMgr {
     void update(void);
 
     uint8_t get_raw_count(float (&joint)[Joint_All]);
+
+    void get_joint_steps(float (&joint_degree)[Joint_All] ,int32_t (&joint_steps)[Joint_All]);
 
     /*
     static void report_position(const int8_t idx, const bool units, const bool noOffset);

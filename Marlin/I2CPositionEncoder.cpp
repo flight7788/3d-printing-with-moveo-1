@@ -31,14 +31,13 @@
     diff_f = true;
     Manual_f = false;
     Update_f = false;
+    lastPositionTime = 0;
+    ReadStatus = get_raw_count(lastposition_joint);
+    get_joint_steps(lastposition_joint, lastposition_joint_steps);
   }
 
   void I2CPositionEncodersMgr::reset(){
     SERIAL_ECHOLNPGM("Resetting encoder ...");
-    //update();
-    LOOP_NUM_JOINT(i){
-      position_joint_SAD[i] = 0;
-    }
     ConstECHO_f = false;
     ConstUpdate_f = false;
     PlannerECHO_f = false;
@@ -49,37 +48,53 @@
     Manual_f = false;
     addr = ENCODER_ADDR;
     cmd = ENCODER_CMD;
+    lastPositionTime = 0;
+    LOOP_NUM_JOINT(i){
+      position_joint_SAD[i] = 0;
+    }
+    ReadStatus = get_raw_count(lastposition_joint);
+    get_joint_steps(lastposition_joint, lastposition_joint_steps);
   }
 
   void I2CPositionEncodersMgr::update() {
-    float position_joint_temp[Joint_All];
-    ReadStatus = get_raw_count(position_joint_temp);
-    
-    LOOP_NUM_JOINT(joint){
+    const millis_t positionTime = millis(), deltaTime = ABS(positionTime - lastPositionTime);
+    lastPositionTime = positionTime;
+    ReadStatus = get_raw_count(Current_joint);
+    get_joint_steps(Current_joint, Current_joint_steps);
+
+    LOOP_NUM_JOINT(joint) {
       if(joint != Joint4_AXIS){
-        //if((fabs(position_joint[joint]-position_joint_temp[joint]) <= 15.00) || (diff_f == true)){
-          position_joint[joint] = position_joint_temp[joint];
-          position_joint_steps[joint] = position_joint[joint] * planner.axis_steps_per_degree_joint[joint];
-        //}
+        const double distance = ABS(Current_joint_steps[joint] - lastposition_joint_steps[joint]), 
+                     speed = (double)distance / deltaTime / 1000;
+        if(speed <= Threshold_Speed_per_steps[joint]) {
+          position_joint[joint] = Current_joint[joint];
+          position_joint_steps[joint] = Current_joint_steps[joint];
+        }
+        lastposition_joint[joint] = position_joint[joint];
+        Current_speed[joint] = speed;
+        Current_deltadistance[joint] = distance;
       }
     }
-    //if(diff_f == true){
-    //  diff_f = false;
-    //}
+    DeltaTime = deltaTime;
 
-    //if(PrintStatue_f == true){
-    //  switch(ReadStatus){
-    //    case 0: I2c.write(addr, (uint8_t)'Y'); break;
-    //    case 1: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Start bit");                  break;
-    //    case 2: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in transmit mode (MT)"); break;
-    //    case 3: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while sending data to the slave");              break;
-    //    case 4: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Repeated Start");             break;
-    //    case 5: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in receiver mode (MR)"); break;
-    //    case 6: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while receiving data from the slave");          break;
-    //    case 7: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of the Stop bit");                 break;
-    //    default: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("See datasheet for exact meaning"); break;
-    //  }
-    //}
+
+    get_joint_steps(lastposition_joint, lastposition_joint_steps);
+
+    if(PrintStatue_f == true){
+      switch(ReadStatus){
+        case 0: I2c.write(addr, (uint8_t)'Y'); break;
+        case 1: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Start bit");                  break;
+        case 2: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in transmit mode (MT)"); break;
+        case 3: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while sending data to the slave");              break;
+        case 4: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of a Repeated Start");             break;
+        case 5: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while addressing slave in receiver mode (MR)"); break;
+        case 6: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for ACK/NACK while receiving data from the slave");          break;
+        case 7: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("Function timed out waiting for successful completion of the Stop bit");                 break;
+        default: I2c.write(addr, (uint8_t)'N'); SERIAL_ECHOLNPGM("See datasheet for exact meaning"); break;
+      }
+    }
+
+    
   }
 
   uint8_t I2CPositionEncodersMgr::get_raw_count(float (&joint)[Joint_All]) {
@@ -106,7 +121,14 @@
     return status;
   }
 
-  
+  void I2CPositionEncodersMgr::get_joint_steps(float (&joint_degree)[Joint_All], int32_t (&joint_steps)[Joint_All]) {
+    LOOP_NUM_JOINT(j) {
+      if(j != Joint4_AXIS) {
+        joint_steps[j] = (double)joint_degree[j] * planner.axis_steps_per_degree_joint[j];
+      }
+    }
+  }
+
   void I2CPositionEncodersMgr::M866() {
     if(parser.seen('C')){
       if(parser.value_linear_units() == 1){
@@ -152,19 +174,33 @@
     else if(parser.seen('F')){
       Update_f = (parser.value_linear_units()==1)?true:false;
     }
+    else if(parser.seen('Q')){
+      Speed_f = (parser.value_linear_units()==1)?true:false;
+    }
     else{
       update();
-      SERIAL_ECHOPAIR_F("Current J : ", position_joint[Joint1_AXIS]);
-      SERIAL_ECHOPAIR_F(       " A : ", position_joint[Joint2_AXIS]);
-      SERIAL_ECHOPAIR_F(       " B : ", position_joint[Joint3_AXIS]);
-      SERIAL_ECHOLNPAIR_F(     " D : ", position_joint[Joint5_AXIS]);
+      SERIAL_ECHOPAIR_F("Current J : ", Current_joint[Joint1_AXIS]);
+      SERIAL_ECHOPAIR_F(       " A : ", Current_joint[Joint2_AXIS]);
+      SERIAL_ECHOPAIR_F(       " B : ", Current_joint[Joint3_AXIS]);
+      SERIAL_ECHOLNPAIR_F(     " D : ", Current_joint[Joint5_AXIS]);
 
-      SERIAL_ECHOPAIR("Steps J : ", (int32_t)position_joint_steps[Joint1_AXIS]);
-      SERIAL_ECHOPAIR(     " A : ", (int32_t)position_joint_steps[Joint2_AXIS]);
-      SERIAL_ECHOPAIR(     " B : ", (int32_t)position_joint_steps[Joint3_AXIS]);
-      SERIAL_ECHOLNPAIR(   " D : ", (int32_t)position_joint_steps[Joint5_AXIS]);
+      SERIAL_ECHOPAIR("Steps J : ", (int32_t)Current_joint_steps[Joint1_AXIS]);
+      SERIAL_ECHOPAIR(     " A : ", (int32_t)Current_joint_steps[Joint2_AXIS]);
+      SERIAL_ECHOPAIR(     " B : ", (int32_t)Current_joint_steps[Joint3_AXIS]);
+      SERIAL_ECHOLNPAIR(   " D : ", (int32_t)Current_joint_steps[Joint5_AXIS]);
+
+      if(Speed_f) {
+        SERIAL_ECHOPAIR_F("Speed J : ", Current_speed[Joint1_AXIS]);
+        SERIAL_ECHOPAIR_F(     " A : ", Current_speed[Joint2_AXIS]);
+        SERIAL_ECHOPAIR_F(     " B : ", Current_speed[Joint3_AXIS]);
+        SERIAL_ECHOLNPAIR_F(   " D : ", Current_speed[Joint5_AXIS]);
+
+        SERIAL_ECHOPAIR("Saft Steps J : ", (int32_t)position_joint_steps[Joint1_AXIS]);
+        SERIAL_ECHOPAIR(          " A : ", (int32_t)position_joint_steps[Joint2_AXIS]);
+        SERIAL_ECHOPAIR(          " B : ", (int32_t)position_joint_steps[Joint3_AXIS]);
+        SERIAL_ECHOLNPAIR(        " D : ", (int32_t)position_joint_steps[Joint5_AXIS]);
+      }
     }
-    
   }
 
 

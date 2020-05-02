@@ -3362,10 +3362,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
       position_joint[Joint3_AXIS] = I2CPEM.position_joint_steps[Joint3_AXIS];
       position_joint[Joint5_AXIS] = I2CPEM.position_joint_steps[Joint5_AXIS];
       init_position = false;
-      //stepper.need_correction = false;
-      //stepper.need_correction_manual = false;
       stepper.Zaxis_move = true;
-      //stepper.init_correction = true;
     }
 
 

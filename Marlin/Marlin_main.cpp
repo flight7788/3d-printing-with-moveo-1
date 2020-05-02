@@ -17152,15 +17152,35 @@ void idle(
         static millis_t encoder_position_moniter_ms = 0;
         if (ELAPSED(millis(), encoder_position_moniter_ms)) {
           if(I2CPEM.ConstUpdate_f == true){ I2CPEM.update(); }
-          SERIAL_ECHOPAIR_F("Current J : ", I2CPEM.position_joint[Joint1_AXIS]);
-          SERIAL_ECHOPAIR_F(      "  A : ", I2CPEM.position_joint[Joint2_AXIS]);
-          SERIAL_ECHOPAIR_F(      "  B : ", I2CPEM.position_joint[Joint3_AXIS]);
-          SERIAL_ECHOLNPAIR_F(    "  D : ", I2CPEM.position_joint[Joint5_AXIS]);
+          SERIAL_ECHOPAIR_F("Current J : ", I2CPEM.Current_joint[Joint1_AXIS]);
+          SERIAL_ECHOPAIR_F(      "  A : ", I2CPEM.Current_joint[Joint2_AXIS]);
+          SERIAL_ECHOPAIR_F(      "  B : ", I2CPEM.Current_joint[Joint3_AXIS]);
+          SERIAL_ECHOLNPAIR_F(    "  D : ", I2CPEM.Current_joint[Joint5_AXIS]);
 
-          SERIAL_ECHOPAIR("Steps   J : ", (int32_t)I2CPEM.position_joint_steps[Joint1_AXIS]);
-          SERIAL_ECHOPAIR(       " A : ", (int32_t)I2CPEM.position_joint_steps[Joint2_AXIS]);
-          SERIAL_ECHOPAIR(       " B : ", (int32_t)I2CPEM.position_joint_steps[Joint3_AXIS]);
-          SERIAL_ECHOLNPAIR(     " D : ", (int32_t)I2CPEM.position_joint_steps[Joint5_AXIS]);
+          SERIAL_ECHOPAIR("Steps   J : ", (int32_t)I2CPEM.Current_joint_steps[Joint1_AXIS]);
+          SERIAL_ECHOPAIR(       " A : ", (int32_t)I2CPEM.Current_joint_steps[Joint2_AXIS]);
+          SERIAL_ECHOPAIR(       " B : ", (int32_t)I2CPEM.Current_joint_steps[Joint3_AXIS]);
+          SERIAL_ECHOLNPAIR(     " D : ", (int32_t)I2CPEM.Current_joint_steps[Joint5_AXIS]);
+
+          if(I2CPEM.Speed_f) {
+            SERIAL_ECHOPAIR("distance J : ", (int32_t)I2CPEM.Current_deltadistance[Joint1_AXIS]);
+            SERIAL_ECHOPAIR(        " A : ", (int32_t)I2CPEM.Current_deltadistance[Joint2_AXIS]);
+            SERIAL_ECHOPAIR(        " B : ", (int32_t)I2CPEM.Current_deltadistance[Joint3_AXIS]);
+            SERIAL_ECHOLNPAIR(      " D : ", (int32_t)I2CPEM.Current_deltadistance[Joint5_AXIS]);
+
+            SERIAL_ECHOPAIR("deltaTime : ", I2CPEM.DeltaTime);
+            SERIAL_ECHOLNPGM(" (ms)");
+
+            SERIAL_ECHOPAIR_F("Speed J : ", I2CPEM.Current_speed[Joint1_AXIS]);
+            SERIAL_ECHOPAIR_F(     " A : ", I2CPEM.Current_speed[Joint2_AXIS]);
+            SERIAL_ECHOPAIR_F(     " B : ", I2CPEM.Current_speed[Joint3_AXIS]);
+            SERIAL_ECHOLNPAIR_F(   " D : ", I2CPEM.Current_speed[Joint5_AXIS]);
+
+            SERIAL_ECHOPAIR("Saft Steps J : ", (int32_t)I2CPEM.position_joint_steps[Joint1_AXIS]);
+            SERIAL_ECHOPAIR(          " A : ", (int32_t)I2CPEM.position_joint_steps[Joint2_AXIS]);
+            SERIAL_ECHOPAIR(          " B : ", (int32_t)I2CPEM.position_joint_steps[Joint3_AXIS]);
+            SERIAL_ECHOLNPAIR(        " D : ", (int32_t)I2CPEM.position_joint_steps[Joint5_AXIS]);
+          }
           SERIAL_ECHOLN("----------------------------------------------------");
           encoder_position_moniter_ms = millis() + POSITION_ECHO_UPD_TIME_MS;
         }
@@ -17571,6 +17591,7 @@ void loop() {
       #if ENABLED(I2C_POSITION_ENCODERS)
         I2CPEM.reset();
         I2CPEM.update();
+        planner.init_position = true;
       #endif
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop

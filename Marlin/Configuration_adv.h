@@ -1626,6 +1626,8 @@
 #define ENCODER_CMD              '?'
 #define ENCODER_BUF_SIZE         17
 #define I2CPE_MIN_UPD_TIME_MS    4     // (ms) Minimum time between encoder checks.
+#define Threshold_Speed          { 6000.1111, 1406.5625, 6005.7857, 999.9999, 297.2353}
+
 #define POSITION_ECHO
 #if ENABLED(POSITION_ECHO)
    #define POSITION_ECHO_UPD_TIME_MS 200  // (ms) Minimum time between position echo.

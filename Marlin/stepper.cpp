@@ -1624,11 +1624,8 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #if ENABLED(I2C_POSITION_ENCODERS) 
         static uint8_t point_need_correction = 0, correction_delay = 0, correction_times = 0;
         int32_t Current_steps[Joint_All], Fix_steps[Joint_All];
-        //if(Zaxis_move == true) {
             LOOP_NUM_JOINT(joint) {
               if(joint!=Joint4_AXIS) {
-                //sei();
-                //I2CPEM.update();
                 Current_steps[joint] = I2CPEM.position_joint_steps[joint];
                 if(init_correction){
                   Fix_steps[joint] = -Current_steps[joint];
@@ -1646,9 +1643,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
                (correction_times < 5) && (Zaxis_move == true))
           {
             float delta_joint_degree[Joint_All];
-            if(I2CPEM.ReadStatus == 0){  
+            if(I2CPEM.ReadStatus == 0) {  
               LOOP_NUM_JOINT(joint){
-                if(joint!=Joint4_AXIS){
+                if(joint!=Joint4_AXIS) {
                     const int32_t joint_diff = Fix_steps[joint];
                     if (joint_diff < 0) SBI(current_block->direction_bits_joint, joint);
                     else  CBI(current_block->direction_bits_joint, joint);
@@ -1817,7 +1814,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
 
 
-          
+
           //point_need_correction = 0;
           //correction_delay = 0;
           //need_correction = false;
