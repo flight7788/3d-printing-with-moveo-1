@@ -245,21 +245,35 @@ inline void Set_current_Joint_Curve(const float point)
   DEBUG_POS_Joint("(After)Set_current_Joint_Curve", current_position_Joint);
 }
 
+float Forward_Curve_Many(float point_FC, int number_mat, int Joint_num)
+{
+  float temp_return = pgm_read_float_near(&a_m2[number_mat * 5 + Joint_num]) * point_FC * point_FC +
+                      pgm_read_float_near(&b_m2[number_mat * 5 + Joint_num]) * point_FC +
+                      pgm_read_float_near(&c_m2[number_mat * 5 + Joint_num]); // + b_m[0][Joint_num]*point_FC + c_m[0][Joint_num];
+
+  return temp_return;
+}
+
 inline void Set_current_Joint_Curve_many(const int num_total, const float point)
 {
   SERIAL_ECHOLNPAIR(">>> Set_current_Joint_Curve_many \n      Num_total: ", num_total);
   DEBUG_POS_Joint("(Before)Set_current_Joint_Curve_many", current_position_Joint);
   float point1 = point * 100;
-  current_position_Joint[Joint1_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 0]) * point1 * point1 +
-                                        pgm_read_float_near(&b_m2[num_total * 5 + 0]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 0]);
-  current_position_Joint[Joint2_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 1]) * point1 * point1 +
-                                        pgm_read_float_near(&b_m2[num_total * 5 + 1]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 1]);
-  current_position_Joint[Joint3_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 2]) * point1 * point1 +
-                                        pgm_read_float_near(&b_m2[num_total * 5 + 2]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 2]);
-  current_position_Joint[Joint4_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 3]) * point1 * point1 +
-                                        pgm_read_float_near(&b_m2[num_total * 5 + 3]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 3]);
-  current_position_Joint[Joint5_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 4]) * point1 * point1 +
-                                        pgm_read_float_near(&b_m2[num_total * 5 + 4]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 4]);
+  current_position_Joint[Joint1_AXIS] = Forward_Curve_Many(point1, num_total, Joint1_AXIS);
+  current_position_Joint[Joint2_AXIS] = Forward_Curve_Many(point1, num_total, Joint2_AXIS);
+  current_position_Joint[Joint3_AXIS] = Forward_Curve_Many(point1, num_total, Joint3_AXIS);
+  current_position_Joint[Joint4_AXIS] = Forward_Curve_Many(point1, num_total, Joint4_AXIS);
+  current_position_Joint[Joint5_AXIS] = Forward_Curve_Many(point1, num_total, Joint5_AXIS);
+  // current_position_Joint[Joint1_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 0]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 0]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 0]);
+  // current_position_Joint[Joint2_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 1]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 1]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 1]);
+  // current_position_Joint[Joint3_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 2]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 2]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 2]);
+  // current_position_Joint[Joint4_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 3]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 3]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 3]);
+  // current_position_Joint[Joint5_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 4]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 4]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 4]);
 
   // SERIAL_ECHOLNPAIR(" point:", point);
 
