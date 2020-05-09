@@ -3421,7 +3421,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
   //SERIAL_ECHOPAIR("maxjoint : ",maxjoint);
   //SERIAL_ECHOPAIR_F(", axis_steps_per_degree_joint : ",axis_steps_per_degree_joint[maxjoint]);
   //SERIAL_ECHOLNPAIR_F(", max_step_ratio : ",max_step_ratio);
-  fr_mm_s = fr_mm_s * fr_mms_ratio * 10;
+  fr_mm_s = fr_mm_s * fr_mms_ratio * 5;
   //SERIAL_ECHOPAIR_F("fr_mm_s_ratio : ",fr_mms_ratio);
   //SERIAL_ECHOLNPAIR_F(", fr_mm_s : ",fr_mm_s);
 
@@ -4051,7 +4051,79 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
 
 
 
+void Planner::recalculate_block(block_t * const current_block, const int32_t (&joint_steps)[Joint_All], float fr_mm_s) {
 
+  float delta_joint_degree[Joint_All];
+  LOOP_NUM_JOINT(joint){
+    const int32_t joint_diff = joint_steps[joint];
+    if (joint_diff < 0) SBI(current_block->direction_bits_joint, joint);
+    else  CBI(current_block->direction_bits_joint, joint);
+    current_block->step_Joint[joint] = ABS(joint_steps[joint]);     
+    delta_joint_degree[joint] = (float) current_block->step_Joint[joint] * steps_to_degree_joint[joint] * 10; 
+  }
+
+  uint8_t maxjoint, maxjoint_ratio;
+  float max_step_ratio = 0;
+  LOOP_NUM_JOINT(j) {
+    if( MAX5(current_block->step_Joint[Joint1_AXIS], current_block->step_Joint[Joint2_AXIS], current_block->step_Joint[Joint3_AXIS],
+        current_block->step_Joint[Joint4_AXIS], current_block->step_Joint[Joint5_AXIS]) == current_block->step_Joint[j] ){
+      maxjoint = j;
+    }
+    if(axis_steps_per_degree_joint[j] > max_step_ratio){
+      max_step_ratio = axis_steps_per_degree_joint[j];
+    }
+  }
+  float fr_mms_ratio = (float)axis_steps_per_degree_joint[maxjoint] / max_step_ratio;
+  fr_mm_s = fr_mm_s * fr_mms_ratio * 10;
+              
+  current_block->steps[E_AXIS] = 0;
+  current_block->step_event_count = MAX6(current_block->step_Joint[Joint1_AXIS], current_block->step_Joint[Joint2_AXIS], current_block->step_Joint[Joint3_AXIS],
+                                         current_block->step_Joint[Joint4_AXIS], current_block->step_Joint[Joint5_AXIS], 0);   
+  uint32_t millimeters = SQRT( sq(delta_joint_degree[Joint1_AXIS]) + sq(delta_joint_degree[Joint2_AXIS]) + sq(delta_joint_degree[Joint3_AXIS])
+                               + sq(delta_joint_degree[Joint4_AXIS]) + sq(delta_joint_degree[Joint5_AXIS]));
+  
+  current_block->millimeters = millimeters;
+  float inverse_secs = fr_mm_s / millimeters;
+  const float steps_per_mm = (float)current_block->step_event_count / current_block->millimeters;
+  uint32_t accel;
+  if (!current_block->step_Joint[Joint1_AXIS] && !current_block->step_Joint[Joint2_AXIS] && !current_block->step_Joint[Joint3_AXIS]
+        && !current_block->step_Joint[Joint4_AXIS] && !current_block->step_Joint[Joint5_AXIS]) {
+    // convert to: acceleration steps/sec^2
+    accel = CEIL(planner.retract_acceleration * steps_per_mm);
+  }
+  else {
+    #define LIMIT_ACCEL_LONG_JOINT(AXIS,INDX) do{ \
+      if (current_block->step_Joint[AXIS] && planner.max_acceleration_steps_per_s2_joint[AXIS+INDX] < accel) { \
+        const uint32_t comp = planner.max_acceleration_steps_per_s2_joint[AXIS+INDX] * current_block->step_event_count; \
+        if (accel * current_block->step_Joint[AXIS] > comp) accel = comp / current_block->step_Joint[AXIS]; \
+      } \
+    }while(0)
+    #define LIMIT_ACCEL_FLOAT_JOINT(AXIS,INDX) do{ \
+      if (current_block->step_Joint[AXIS] && planner.max_acceleration_steps_per_s2_joint[AXIS+INDX] < accel) { \
+        const float comp = (float)planner.max_acceleration_steps_per_s2_joint[AXIS+INDX] * (float)current_block->step_event_count; \
+        if ((float)accel * (float)current_block->step_Joint[AXIS] > comp) accel = comp / (float)current_block->step_Joint[AXIS]; \
+      } \
+    }while(0)
+
+      // Start with print or travel acceleration
+      accel = CEIL((float)(current_block->steps[E_AXIS] ? planner.acceleration : planner.travel_acceleration) * steps_per_mm);
+      // Limit acceleration per axis
+      LIMIT_ACCEL_LONG_JOINT(Joint1_AXIS, 0);
+      LIMIT_ACCEL_LONG_JOINT(Joint2_AXIS, 0);
+      LIMIT_ACCEL_LONG_JOINT(Joint3_AXIS, 0);
+      LIMIT_ACCEL_LONG_JOINT(Joint4_AXIS, 0);
+      LIMIT_ACCEL_LONG_JOINT(Joint5_AXIS, 0);
+    }
+    current_block->acceleration_steps_per_s2 = accel;
+    current_block->acceleration_rate = (uint32_t)(accel * (4096.0f * 4096.0f / (STEPPER_TIMER_RATE)));
+    current_block->nominal_rate = CEIL((float)current_block->step_event_count * inverse_secs); // (step/sec) Always > 0
+    current_block->nominal_speed_sqr = sq((float)current_block->millimeters * inverse_secs);   // (mm/sec)^2 Always > 0
+    current_block->initial_rate = 0;
+    current_block->final_rate = CEIL((double) current_block->nominal_rate * 0.05 / SQRT(current_block->nominal_speed_sqr));
+    current_block->accelerate_until = CEIL(estimate_acceleration_distance(current_block->initial_rate, current_block->nominal_rate, accel)),
+    current_block->decelerate_after = current_block->step_event_count - FLOOR(estimate_acceleration_distance(current_block->nominal_rate, current_block->final_rate, -accel));
+
+}
 
 
 

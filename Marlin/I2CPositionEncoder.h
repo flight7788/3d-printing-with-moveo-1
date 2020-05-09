@@ -50,6 +50,7 @@ class I2CPositionEncodersMgr {
     float position_joint[Joint_All], Current_joint[Joint_All], Current_speed[Joint_All];;
     int32_t position_joint_steps[Joint_All], Current_joint_steps[Joint_All], Current_deltadistance[Joint_All];
     millis_t DeltaTime;
+    //int32_t Record_Command_joint_steps[30][Joint_All], Record_Current_joint_steps[30][Joint_All];
 
     void init(void);
 
@@ -87,6 +88,7 @@ class I2CPositionEncodersMgr {
     static void M868();
     static void M869();
     */
+    //void M861();
     void M860();
     void M866();
   };

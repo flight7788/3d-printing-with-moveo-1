@@ -107,11 +107,12 @@ Stepper stepper; // Singleton
 #if HAS_MOTOR_CURRENT_PWM
   uint32_t Stepper::motor_current_setting[3]; // Initialized by settings.load()
 #endif
-bool Stepper::finishmov_flag = true;
-bool Stepper::Zaxis_move = true;
-bool Stepper::need_correction = true;
-bool Stepper::need_correction_manual = true;
-bool Stepper::init_correction = true;
+static bool Stepper::finishmov_flag = true;
+static bool Stepper::Zaxis_move = true;
+static bool Stepper::need_correction = true;
+static bool Stepper::need_correction_manual = true;
+static bool Stepper::init_correction = true;
+static bool Stepper::need_wait = true;
 // private:
 
 block_t* Stepper::current_block = NULL; // A pointer to the block currently being traced
@@ -1623,88 +1624,68 @@ uint32_t Stepper::stepper_block_phase_isr() {
       finishmov_flag = true;
       #if ENABLED(I2C_POSITION_ENCODERS) 
         static uint8_t point_need_correction = 0, correction_delay = 0, correction_times = 0;
+        static int32_t Old_Current_steps[Joint_All];
         int32_t Current_steps[Joint_All], Fix_steps[Joint_All];
-            LOOP_NUM_JOINT(joint) {
-              if(joint!=Joint4_AXIS) {
-                Current_steps[joint] = I2CPEM.position_joint_steps[joint];
-                if(init_correction){
-                  Fix_steps[joint] = -Current_steps[joint];
-                  init_correction = false;
-                }
-                else {
-                  Fix_steps[joint] = current_block->new_position_joint[joint] - Current_steps[joint]; 
-                }               
+
+        if(need_correction){
+          point_need_correction = 0;
+          need_correction = false;
+          need_wait = true;
+        }
+        //Zaxis_move = false;
+        
+        if((need_wait == true) && (Zaxis_move == true)){
+          current_block->steps[E_AXIS] = 0;
+          current_block->step_Joint[Joint1_AXIS] = 0;
+          current_block->step_Joint[Joint2_AXIS] = 0;
+          current_block->step_Joint[Joint3_AXIS] = 0;
+          current_block->step_Joint[Joint4_AXIS] = 0;
+          current_block->step_Joint[Joint5_AXIS] = 0;
+          current_block->step_event_count = 0;
+          current_block->accelerate_until = 0;
+          current_block->decelerate_after = 0;
+          current_block->initial_rate = 0;
+          current_block->nominal_rate = 0;
+          current_block->final_rate = 0;
+          step_event_count = 0;
+          interval = (STEPPER_TIMER_RATE);
+          need_wait = false;
+        }
+        else {
+
+          LOOP_NUM_JOINT(joint) {
+            if(joint!=Joint4_AXIS) {
+              Current_steps[joint] = I2CPEM.position_joint_steps[joint];
+              if(init_correction){
+                Fix_steps[joint] = -Current_steps[joint];
+                init_correction = false;
               }
+              else {
+                Fix_steps[joint] = current_block->new_position_joint[joint] - Current_steps[joint]; 
+              }    
+              if(Zaxis_move == true && correction_times == 0){
+                Old_Current_steps[joint] = Current_steps[joint];
+              }           
             }
+          }
           if (((((double)ABS(Fix_steps[Joint1_AXIS]) / planner.axis_steps_per_degree_joint[Joint1_AXIS]) > 0.1) || 
                (((double)ABS(Fix_steps[Joint2_AXIS]) / planner.axis_steps_per_degree_joint[Joint2_AXIS]) > 0.1) || 
                (((double)ABS(Fix_steps[Joint3_AXIS]) / planner.axis_steps_per_degree_joint[Joint3_AXIS]) > 0.1) ||
                (((double)ABS(Fix_steps[Joint5_AXIS]) / planner.axis_steps_per_degree_joint[Joint5_AXIS]) > 0.1)) &&
                (correction_times < 5) && (Zaxis_move == true))
           {
-            float delta_joint_degree[Joint_All];
-            if(I2CPEM.ReadStatus == 0) {  
+           
+            if(I2CPEM.ReadStatus == 0) {
+ 
               LOOP_NUM_JOINT(joint){
-                if(joint!=Joint4_AXIS) {
-                    const int32_t joint_diff = Fix_steps[joint];
-                    if (joint_diff < 0) SBI(current_block->direction_bits_joint, joint);
-                    else  CBI(current_block->direction_bits_joint, joint);
-                    current_block->step_Joint[joint] = ABS(joint_diff) * 0.7;     
-                    delta_joint_degree[joint] = (float) current_block->step_Joint[joint]  * planner.steps_to_degree_joint[joint] * 10; 
+                if(joint!=Joint4_AXIS) {     
+                  Fix_steps[joint] *= 0.7;     
+                }
+                else{
+                  Fix_steps[joint] = 0;
                 }
               }
-
-              #if ENABLED(POSITION_ECHO)
-                if(I2CPEM.ErrorSteps_f == true) {
-                  SERIAL_ECHOLNPAIR("Update from encoder !! , Correction_times : ", correction_times);
-
-                  SERIAL_ECHOPAIR("Current steps  J : ", (int32_t)Current_steps[Joint1_AXIS]);
-                  SERIAL_ECHOPAIR(              " A : ", (int32_t)Current_steps[Joint2_AXIS]);
-                  SERIAL_ECHOPAIR(              " B : ", (int32_t)Current_steps[Joint3_AXIS]);
-                  SERIAL_ECHOLNPAIR(            " D : ", (int32_t)Current_steps[Joint5_AXIS]);
-
-                  SERIAL_ECHOPAIR("Fix steps  J : ", (int32_t)Fix_steps[Joint1_AXIS]);
-                  SERIAL_ECHOPAIR(          " A : ", (int32_t)Fix_steps[Joint2_AXIS]);
-                  SERIAL_ECHOPAIR(          " B : ", (int32_t)Fix_steps[Joint3_AXIS]);
-                  SERIAL_ECHOLNPAIR(        " D : ", (int32_t)Fix_steps[Joint5_AXIS]);
-
-                  SERIAL_ECHOPAIR("Error steps J : ", (int32_t)current_block->new_position_joint[Joint1_AXIS] - I2CPEM.position_joint_steps[Joint1_AXIS]);
-                  SERIAL_ECHOPAIR(           " A : ", (int32_t)current_block->new_position_joint[Joint2_AXIS] - I2CPEM.position_joint_steps[Joint2_AXIS]);
-                  SERIAL_ECHOPAIR(           " B : ", (int32_t)current_block->new_position_joint[Joint3_AXIS] - I2CPEM.position_joint_steps[Joint3_AXIS]);
-                  SERIAL_ECHOLNPAIR(         " D : ", (int32_t)current_block->new_position_joint[Joint5_AXIS] - I2CPEM.position_joint_steps[Joint5_AXIS]);
-                  SERIAL_ECHOLN("===========================================================");
-                }
-              #endif
-
-              current_block->steps[E_AXIS] = 0;
-              current_block->step_Joint[Joint4_AXIS] = 0;
-              current_block->step_event_count = MAX6(current_block->step_Joint[Joint1_AXIS], current_block->step_Joint[Joint2_AXIS], current_block->step_Joint[Joint3_AXIS],
-                                                       current_block->step_Joint[Joint4_AXIS], current_block->step_Joint[Joint5_AXIS], 0);   
-              uint32_t millimeters = SQRT( sq(delta_joint_degree[Joint1_AXIS]) + sq(delta_joint_degree[Joint2_AXIS]) + sq(delta_joint_degree[Joint3_AXIS])
-                                          + sq(delta_joint_degree[Joint5_AXIS]));
-              float inverse_secs = 25 / millimeters;
-
-              current_block->accelerate_until = current_block->step_event_count * 0.4;
-              current_block->decelerate_after = current_block->step_event_count - (current_block->step_event_count * 0.4);
-              current_block->initial_rate = CEIL(((current_block->step_event_count * float(MINIMUM_PLANNER_SPEED)) / millimeters) * 0.5);
-              current_block->nominal_rate = CEIL(current_block->step_event_count * inverse_secs);
-              current_block->final_rate = CEIL(((current_block->step_event_count * float(MINIMUM_PLANNER_SPEED)) / millimeters) * 0.5);
-
-              uint8_t maxjoint, maxjoint_ratio;
-              float max_step_ratio = 0;
-              LOOP_NUM_JOINT(j){
-                if( MAX5(current_block->step_Joint[Joint1_AXIS], current_block->step_Joint[Joint2_AXIS], current_block->step_Joint[Joint3_AXIS],
-                    current_block->step_Joint[Joint4_AXIS], current_block->step_Joint[Joint5_AXIS]) == current_block->step_Joint[j] ){
-                  maxjoint = j;
-                }
-                if(planner.axis_steps_per_degree_joint[j] > max_step_ratio){
-                  max_step_ratio = planner.axis_steps_per_degree_joint[j];
-                }
-              }
-              float fr_mms_ratio = (float)planner.axis_steps_per_degree_joint[maxjoint] / max_step_ratio;
-              current_block->initial_rate *= fr_mms_ratio;
-              current_block->nominal_rate *= (fr_mms_ratio * 10);
-              current_block->final_rate *= fr_mms_ratio;
+              planner.recalculate_block(current_block, Fix_steps, 1500.0/60);
 
               #if ENABLED(S_CURVE_ACCELERATION)
                 current_block->cruise_rate = 1459;
@@ -1729,7 +1710,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
               uint8_t oversampling = 0;                         // Assume we won't use it
               // Based on the oversampling factor, do the calculations
               step_event_count = current_block->step_event_count << oversampling;
-              delta_error_Joint[Joint1_AXIS]=delta_error_Joint[Joint2_AXIS]=delta_error_Joint[Joint3_AXIS]=delta_error_Joint[Joint4_AXIS]=delta_error_Joint[Joint5_AXIS] = -int32_t(step_event_count);
+              delta_error_Joint[Joint1_AXIS] = delta_error_Joint[Joint2_AXIS]=delta_error_Joint[Joint3_AXIS]=delta_error_Joint[Joint4_AXIS]=delta_error_Joint[Joint5_AXIS] = -int32_t(step_event_count);
 
               advance_dividend_Joint[Joint1_AXIS] = current_block->step_Joint[Joint1_AXIS] << 1;
               advance_dividend_Joint[Joint2_AXIS] = current_block->step_Joint[Joint2_AXIS] << 1;
@@ -1755,6 +1736,29 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
               // Calculate the initial timer interval
               interval = calc_timer_interval(current_block->initial_rate, oversampling_factor, &steps_per_isr);
+
+              #if ENABLED(POSITION_ECHO)
+                //if(I2CPEM.ErrorSteps_f == true) {
+                  SERIAL_ECHOLN("=======================================================================");
+                  SERIAL_ECHOLNPAIR("Update from encoder !! , Correction_times : ", correction_times);
+
+                  SERIAL_ECHOPAIR("Current steps  J : ", (int32_t)Current_steps[Joint1_AXIS]);
+                  SERIAL_ECHOPAIR(              " A : ", (int32_t)Current_steps[Joint2_AXIS]);
+                  SERIAL_ECHOPAIR(              " B : ", (int32_t)Current_steps[Joint3_AXIS]);
+                  SERIAL_ECHOLNPAIR(            " D : ", (int32_t)Current_steps[Joint5_AXIS]);
+
+                  SERIAL_ECHOPAIR("Fix steps  J : ", (int32_t)Fix_steps[Joint1_AXIS]);
+                  SERIAL_ECHOPAIR(          " A : ", (int32_t)Fix_steps[Joint2_AXIS]);
+                  SERIAL_ECHOPAIR(          " B : ", (int32_t)Fix_steps[Joint3_AXIS]);
+                  SERIAL_ECHOLNPAIR(        " D : ", (int32_t)Fix_steps[Joint5_AXIS]);
+
+                  SERIAL_ECHOPAIR("Error steps J : ", (int32_t)current_block->new_position_joint[Joint1_AXIS] - I2CPEM.position_joint_steps[Joint1_AXIS]);
+                  SERIAL_ECHOPAIR(           " A : ", (int32_t)current_block->new_position_joint[Joint2_AXIS] - I2CPEM.position_joint_steps[Joint2_AXIS]);
+                  SERIAL_ECHOPAIR(           " B : ", (int32_t)current_block->new_position_joint[Joint3_AXIS] - I2CPEM.position_joint_steps[Joint3_AXIS]);
+                  SERIAL_ECHOLNPAIR(         " D : ", (int32_t)current_block->new_position_joint[Joint5_AXIS] - I2CPEM.position_joint_steps[Joint5_AXIS]);
+                  SERIAL_ECHOLN("=======================================================================");
+                //}
+              #endif
             }
             else {
               #if ENABLED(POSITION_ECHO)
@@ -1763,6 +1767,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
                     SERIAL_ECHOLNPGM("did not Update !!");
                 }
               #endif
+              SERIAL_ECHOLNPGM("Update Fail !!");
               current_block->steps[E_AXIS] = 0;
               current_block->step_Joint[Joint1_AXIS] = 0;
               current_block->step_Joint[Joint2_AXIS] = 0;
@@ -1776,8 +1781,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
               current_block->nominal_rate = 0;
               current_block->final_rate = 0;
               step_event_count = 0;
+              interval = (STEPPER_TIMER_RATE);
             }
             correction_times++;
+            need_wait = true;
           }
           else {
             #if ENABLED(POSITION_ECHO)
@@ -1800,13 +1807,40 @@ uint32_t Stepper::stepper_block_phase_isr() {
                 SERIAL_ECHOLN("--------------------------------------------------------------------");
               }
             #endif
+            //LOOP_NUM_JOINT(j) {
+            //  I2CPEM.Record_Command_joint_steps[point_need_correction][j] = current_block->new_position_joint[j];
+            //  I2CPEM.Record_Current_joint_steps[point_need_correction][j] = I2CPEM.position_joint_steps[j];
+            //}
+            if(Zaxis_move) {
+              SERIAL_ECHOLNPGM("---------------------------------------------------------------------");
+              SERIAL_ECHOLNPAIR("Correction point : ", point_need_correction );
+              SERIAL_ECHOPAIR("Commamd  J : ", (int32_t)current_block->new_position_joint[Joint1_AXIS]);    
+              SERIAL_ECHOPAIR(        " A : ", (int32_t)current_block->new_position_joint[Joint2_AXIS]);    
+              SERIAL_ECHOPAIR(        " B : ", (int32_t)current_block->new_position_joint[Joint3_AXIS]);    
+              SERIAL_ECHOLNPAIR(      " D : ", (int32_t)current_block->new_position_joint[Joint5_AXIS]);     
+
+              SERIAL_ECHOPAIR("Fix before  J : ", (int32_t)Old_Current_steps[Joint1_AXIS]);
+              SERIAL_ECHOPAIR(           " A : ", (int32_t)Old_Current_steps[Joint2_AXIS]);
+              SERIAL_ECHOPAIR(           " B : ", (int32_t)Old_Current_steps[Joint3_AXIS]);
+              SERIAL_ECHOLNPAIR(         " D : ", (int32_t)Old_Current_steps[Joint5_AXIS]);
+
+              SERIAL_ECHOPAIR("Fix after  J : ", (int32_t)I2CPEM.position_joint_steps[Joint1_AXIS]);
+              SERIAL_ECHOPAIR(          " A : ", (int32_t)I2CPEM.position_joint_steps[Joint2_AXIS]);
+              SERIAL_ECHOPAIR(          " B : ", (int32_t)I2CPEM.position_joint_steps[Joint3_AXIS]);
+              SERIAL_ECHOLNPAIR(        " D : ", (int32_t)I2CPEM.position_joint_steps[Joint5_AXIS]);
+
+              SERIAL_ECHOLNPGM("---------------------------------------------------------------------");
+              point_need_correction++;
+            }
+            
             Zaxis_move = false;
+            need_wait = false;
             correction_times = 0;
             current_block = NULL;
             planner.discard_current_block();
           }
 
-
+        }
 
 
 
@@ -2066,40 +2100,13 @@ uint32_t Stepper::stepper_block_phase_isr() {
         if(need_correction == true){
           int32_t new_target[Joint_All];
 
-          if(need_correction_manual == true){
-            LOOP_NUM_JOINT(joint){
-              if(joint != Joint4_AXIS){
-                Current_steps[joint] = I2CPEM.position_joint_steps[joint];
-              }
-            }
-            #if ENABLED(POSITION_ECHO)
-              if(I2CPEM.ErrorSteps_f){
-                SERIAL_ECHOLNPGM("Update from encoder !!");
-                SERIAL_ECHOLNPGM(" ");
-                SERIAL_ECHOPAIR("Current steps  J : ", (int32_t)Current_steps[Joint1_AXIS]);
-                SERIAL_ECHOPAIR(              " A : ", (int32_t)Current_steps[Joint2_AXIS]);
-                SERIAL_ECHOPAIR(              " B : ", (int32_t)Current_steps[Joint3_AXIS]);
-                SERIAL_ECHOLNPAIR(            " D : ", (int32_t)Current_steps[Joint5_AXIS]);
-                SERIAL_ECHOLNPGM(" ");
-              }
-            #endif
-            need_correction_manual = false;
-            LOOP_NUM_JOINT(joint){
-              if(joint != Joint4_AXIS){
-                Fix_steps[joint] = -Current_steps[joint];
-                new_target[joint] = current_block->new_position_joint[joint] + Fix_steps[joint];
-                current_block->old_position_joint[joint] = 0;
-              }
+          LOOP_NUM_JOINT(joint){
+            if(joint != Joint4_AXIS){
+              Fix_steps[joint] = current_block->old_position_joint[joint] - Current_steps[joint];
+              new_target[joint] = current_block->new_position_joint[joint] + ( (double)Fix_steps[joint] * 0 );
             }
           }
-          else{
-            LOOP_NUM_JOINT(joint){
-              if(joint != Joint4_AXIS){
-                Fix_steps[joint] = current_block->old_position_joint[joint] - Current_steps[joint];
-                new_target[joint] = current_block->new_position_joint[joint] + ( (double)Fix_steps[joint] * 0 );
-              }
-            }
-          }
+          
 
           const int32_t d0 = new_target[Joint1_AXIS] - current_block->old_position_joint[Joint1_AXIS],
                         d1 = new_target[Joint2_AXIS] - current_block->old_position_joint[Joint2_AXIS],
@@ -2299,7 +2306,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
       //if (X_MOVE_TEST) SBI(axis_bits, A_AXIS);
       //if (Y_MOVE_TEST) SBI(axis_bits, B_AXIS);
       //if (Z_MOVE_TEST) SBI(axis_bits, C_AXIS);
-      if(Z_MOVE_TEST) Zaxis_move = true;
+      if(Z_MOVE_TEST) {
+        Zaxis_move = true;
+        need_wait = true;
+      }
       //SERIAL_ECHOLNPAIR("axis_bits:",axis_bits);
       if(Joint1_MOVE_TEST)  SBI(axis_bits_Joint, Joint1_AXIS);
       if(Joint2_MOVE_TEST)  SBI(axis_bits_Joint, Joint2_AXIS);
@@ -3068,16 +3078,16 @@ void Stepper::report_positions() {
   #endif
   SERIAL_PROTOCOL(zpos);
 
-  SERIAL_PROTOCOLPGM(" J1:");
-  SERIAL_PROTOCOL(Joint1pos);
-  SERIAL_PROTOCOLPGM(" J2:");
-  SERIAL_PROTOCOL(Joint2pos);
-  SERIAL_PROTOCOLPGM(" J3:");
-  SERIAL_PROTOCOL(Joint3pos);
-  SERIAL_PROTOCOLPGM(" J4:");
-  SERIAL_PROTOCOL(Joint4pos);
-  SERIAL_PROTOCOLPGM(" J5:");
-  SERIAL_PROTOCOL(Joint5pos);
+  //SERIAL_PROTOCOLPGM(" J1:");
+  //SERIAL_PROTOCOL(Joint1pos);
+  //SERIAL_PROTOCOLPGM(" J2:");
+  //SERIAL_PROTOCOL(Joint2pos);
+  //SERIAL_PROTOCOLPGM(" J3:");
+  //SERIAL_PROTOCOL(Joint3pos);
+  //SERIAL_PROTOCOLPGM(" J4:");
+  //SERIAL_PROTOCOL(Joint4pos);
+  //SERIAL_PROTOCOLPGM(" J5:");
+  //SERIAL_PROTOCOL(Joint5pos);
 
 
   #if ENABLED(HANGPRINTER)

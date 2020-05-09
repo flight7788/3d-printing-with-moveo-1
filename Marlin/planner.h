@@ -966,6 +966,8 @@ class Planner {
       }
     #endif
 
+    void recalculate_block(block_t * const current_block, const int32_t (&joint_steps)[Joint_All], float fr_mm_s);
+
   private:
 
     /**

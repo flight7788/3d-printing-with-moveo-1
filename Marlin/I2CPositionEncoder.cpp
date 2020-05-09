@@ -57,28 +57,28 @@
   }
 
   void I2CPositionEncodersMgr::update() {
-    const millis_t positionTime = millis(), deltaTime = ABS(positionTime - lastPositionTime);
-    lastPositionTime = positionTime;
+    //const millis_t positionTime = millis(), deltaTime = ABS(positionTime - lastPositionTime);
+    //lastPositionTime = positionTime;
     ReadStatus = get_raw_count(Current_joint);
     get_joint_steps(Current_joint, Current_joint_steps);
 
     LOOP_NUM_JOINT(joint) {
       if(joint != Joint4_AXIS){
-        const double distance = ABS(Current_joint_steps[joint] - lastposition_joint_steps[joint]), 
-                     speed = (double)distance / deltaTime / 1000;
-        if(speed <= Threshold_Speed_per_steps[joint]) {
+        //const double distance = ABS(Current_joint_steps[joint] - lastposition_joint_steps[joint]), 
+        //             speed = (double)distance / deltaTime / 1000;
+        //if(speed <= Threshold_Speed_per_steps[joint]) {
           position_joint[joint] = Current_joint[joint];
           position_joint_steps[joint] = Current_joint_steps[joint];
-        }
-        lastposition_joint[joint] = position_joint[joint];
-        Current_speed[joint] = speed;
-        Current_deltadistance[joint] = distance;
+        //}
+        //lastposition_joint[joint] = position_joint[joint];
+        //Current_speed[joint] = speed;
+        //Current_deltadistance[joint] = distance;
       }
     }
-    DeltaTime = deltaTime;
+    //DeltaTime = deltaTime;
 
 
-    get_joint_steps(lastposition_joint, lastposition_joint_steps);
+    //get_joint_steps(lastposition_joint, lastposition_joint_steps);
 
     if(PrintStatue_f == true){
       switch(ReadStatus){
@@ -202,8 +202,36 @@
       }
     }
   }
+  /*
+  void I2CPositionEncodersMgr::M861() {
+    if(parser.seen('C')){
+      for(int i=0;i<30;i++){
+        LOOP_NUM_JOINT(j){
+          Record_Command_joint_steps[i][j];
+          Record_Current_joint_steps[i][j];
+        }
+      }
+      stepper.need_correction = true;
+      SERIAL_ECHOLNPGM("Clear is done !!");    
+    }
+    else if(parser.seen('P')){
+      for(int i=0;i<30;i++){    
+        SERIAL_ECHOLNPAIR("Z axis move : ", i );
+        SERIAL_ECHOPAIR("Commamd  J : ", (int32_t)Record_Command_joint_steps[i][Joint1_AXIS]);    
+        SERIAL_ECHOPAIR(        " A : ", (int32_t)Record_Command_joint_steps[i][Joint2_AXIS]);    
+        SERIAL_ECHOPAIR(        " B : ", (int32_t)Record_Command_joint_steps[i][Joint3_AXIS]);    
+        SERIAL_ECHOLNPAIR(      " D : ", (int32_t)Record_Command_joint_steps[i][Joint5_AXIS]);    
 
+        SERIAL_ECHOPAIR("Current  J : ", (int32_t)Record_Current_joint_steps[i][Joint1_AXIS]);
+        SERIAL_ECHOPAIR(        " A : ", (int32_t)Record_Current_joint_steps[i][Joint2_AXIS]);
+        SERIAL_ECHOPAIR(        " B : ", (int32_t)Record_Current_joint_steps[i][Joint3_AXIS]);
+        SERIAL_ECHOLNPAIR(      " D : ", (int32_t)Record_Current_joint_steps[i][Joint5_AXIS]);
 
+        SERIAL_ECHOLNPGM("---------------------------------------------------------------------");
+      }
+    }
+  }
+  */
 /*
   void I2CPositionEncodersMgr::report_position(const int8_t idx, const bool units, const bool noOffset) {
     CHECK_IDX();
