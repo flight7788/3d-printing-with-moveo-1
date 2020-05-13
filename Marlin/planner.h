@@ -284,7 +284,9 @@ class Planner {
       static bool abort_on_endstop_hit;
     #endif
 
+
     static bool accel_f, init_position; 
+
 
   private:
 

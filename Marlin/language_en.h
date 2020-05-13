@@ -88,6 +88,9 @@
 #ifndef MSG_AUTO_G29
   #define MSG_AUTO_G29                        _UxGT("G29 P10 T")
 #endif
+#ifndef MSG_AUTO_G30
+  #define MSG_AUTO_G30                        _UxGT("G30")
+#endif
 #ifndef MSG_AUTO_HOME_X
   #define MSG_AUTO_HOME_X                     _UxGT("Home X")
 #endif
@@ -502,9 +505,11 @@
 #ifndef MSG_SET_D
   #define MSG_SET_D                          _UxGT("Set D")
 #endif
+
 #ifndef MSG_SET_ALL
   #define MSG_SET_ALL                        _UxGT("Set ALL")
 #endif
+
 
 #ifndef MSG_HOME_J
   #define MSG_HOME_J                          _UxGT("HOME J")
