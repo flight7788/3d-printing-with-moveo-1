@@ -1668,10 +1668,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
               }           
             }
           }
-          if (((((double)ABS(Fix_steps[Joint1_AXIS]) / planner.axis_steps_per_degree_joint[Joint1_AXIS]) > 0.1) || 
-               (((double)ABS(Fix_steps[Joint2_AXIS]) / planner.axis_steps_per_degree_joint[Joint2_AXIS]) > 0.1) || 
-               (((double)ABS(Fix_steps[Joint3_AXIS]) / planner.axis_steps_per_degree_joint[Joint3_AXIS]) > 0.1) ||
-               (((double)ABS(Fix_steps[Joint5_AXIS]) / planner.axis_steps_per_degree_joint[Joint5_AXIS]) > 0.1)) &&
+          if (((((double)ABS(Fix_steps[Joint1_AXIS]) / planner.axis_steps_per_degree_joint[Joint1_AXIS]) > 0.05) || 
+               (((double)ABS(Fix_steps[Joint2_AXIS]) / planner.axis_steps_per_degree_joint[Joint2_AXIS]) > 0.05) || 
+               (((double)ABS(Fix_steps[Joint3_AXIS]) / planner.axis_steps_per_degree_joint[Joint3_AXIS]) > 0.05) ||
+               (((double)ABS(Fix_steps[Joint5_AXIS]) / planner.axis_steps_per_degree_joint[Joint5_AXIS]) > 0.05)) &&
                (correction_times < 5) && (Zaxis_move == true))
           {
            
@@ -1685,7 +1685,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
                   Fix_steps[joint] = 0;
                 }
               }
-              planner.recalculate_block(current_block, Fix_steps, 1500.0/60);
+              planner.recalculate_block(current_block, Fix_steps, 900.0/60);
 
               #if ENABLED(S_CURVE_ACCELERATION)
                 current_block->cruise_rate = 1459;
