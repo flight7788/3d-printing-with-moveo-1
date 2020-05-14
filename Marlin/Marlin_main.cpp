@@ -7579,11 +7579,21 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_EOL();
 
           card.closefile();
-          for(int j=0;j<5;j++)
+          for(int j=0;j<10;j++)
           {
-            for(int i=0;i<5;i++)
+            for(int i=0;i<10;i++)
             {
-              SERIAL_ECHOPAIR(" ", eqnBVector[j*5+i]);
+              if(In_Rectangle(pgm_read_float_near(&Probe_position[(j*10+i)*3+0]) - (X_BED_SIZE/2),pgm_read_float_near(&Probe_position[(j*10+i)*3+1])- (Y_BED_SIZE/2)))
+                SERIAL_ECHOPAIR(" ", eqnBVector[j*10+i]);
+            }
+            SERIAL_PROTOCOLLNPGM();
+          }
+          SERIAL_ECHOLNPGM("");
+          for(int j=0;j<10;j++)
+          {
+            for(int i=0;i<10;i++)
+            {
+              SERIAL_ECHOPAIR(" ", eqnBVector[j*10+i]);
             }
             SERIAL_PROTOCOLLNPGM();
           }

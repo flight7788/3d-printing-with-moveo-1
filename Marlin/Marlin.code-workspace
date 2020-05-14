@@ -9,7 +9,8 @@
 	],
 	"settings": {
 		"files.associations": {
-			"*.txt": "cpp"
+			"*.txt": "cpp",
+			"cmath": "cpp"
 		}
 	}
 }
