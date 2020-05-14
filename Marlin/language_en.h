@@ -506,6 +506,11 @@
   #define MSG_SET_D                          _UxGT("Set D")
 #endif
 
+#ifndef MSG_SET_ALL
+  #define MSG_SET_ALL                        _UxGT("Set ALL")
+#endif
+
+
 #ifndef MSG_HOME_J
   #define MSG_HOME_J                          _UxGT("HOME J")
 #endif

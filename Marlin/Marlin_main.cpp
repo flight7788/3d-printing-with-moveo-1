@@ -340,6 +340,7 @@
 
 #if ENABLED(I2C_POSITION_ENCODERS)
   #include "I2CPositionEncoder.h"
+  extern Stepper stepper;
 #endif
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
@@ -385,7 +386,7 @@ uint8_t marlin_debug_flags = DEBUG_NONE;
  *   Used by 'SYNC_PLAN_POSITION_KINEMATIC' to update 'planner.position'.
  */
 float current_position[XYZE] = { 0 };
-int32_t current_position_Joint[Joint_All] = { 0 };
+int32_t current_position_Joint[Joint_All] = { 0, 0, 0, 0, 0};
 
 /**
  * Cartesian Destination
@@ -394,8 +395,10 @@ int32_t current_position_Joint[Joint_All] = { 0 };
  *   Set with 'gcode_get_destination' or 'set_destination_from_current'.
  */
 float destination[XYZE] = { 0 };
-int32_t destination_Joint[Joint_All] = { 0 };
+int32_t destination_Joint[Joint_All] = { 0, 0, 0, 0, 0};
 bool Accel_SW = true;
+bool finish_update = false;
+
 uint8_t set_home_joint = 0;
 /**
  * axis_homed
@@ -1670,9 +1673,6 @@ static void set_axis_is_at_home(const AxisEnum axis) {
     }
   #endif
 
-  #if ENABLED(I2C_POSITION_ENCODERS)
-    I2CPEM.homed(axis);
-  #endif
 }
 
 static void set_Joint_is_at_home(const JointEnum axis) {
@@ -1783,9 +1783,6 @@ static void set_Joint_is_at_home(const JointEnum axis) {
     }
   #endif
 
-  #if ENABLED(I2C_POSITION_ENCODERS)
-    I2CPEM.homed(axis);
-  #endif
 }
 
 /**
@@ -16427,6 +16424,12 @@ void prepare_move_to_destination() {
   ) return;
 
   set_current_from_destination();
+  #if ENABLED(I2C_POSITION_ENCODERS)
+    //current_position_Joint[Joint1_AXIS] = I2CPEM.position_joint[Joint1_AXIS] * planner.axis_steps_per_degree_joint[Joint1_AXIS];
+    //current_position_Joint[Joint2_AXIS] = I2CPEM.position_joint[Joint2_AXIS] * planner.axis_steps_per_degree_joint[Joint2_AXIS];
+    //current_position_Joint[Joint3_AXIS] = I2CPEM.position_joint[Joint3_AXIS] * planner.axis_steps_per_degree_joint[Joint3_AXIS];
+    //current_position_Joint[Joint5_AXIS] = I2CPEM.position_joint[Joint5_AXIS] * planner.axis_steps_per_degree_joint[Joint5_AXIS];
+  #endif
 }
 
 #if ENABLED(ARC_SUPPORT)
@@ -17095,12 +17098,23 @@ void idle(
   lcd_update();
   //*
   if(set_home_joint!=0){
-    destination_Joint[set_home_joint-1] = current_position_Joint[set_home_joint-1]=0;
-    sync_plan_position();
-    SBI(Joint_homed, set_home_joint-1);
+    if(set_home_joint == 6){
+      LOOP_NUM_JOINT(joint){
+        destination_Joint[joint] = 0;
+        current_position_Joint[joint] = 0;
+         SBI(Joint_homed, joint);
+      }
+      sync_plan_position();
+    }
+    else{
+      destination_Joint[set_home_joint-1] = current_position_Joint[set_home_joint-1]=0;
+      sync_plan_position();
+      SBI(Joint_homed, set_home_joint-1);
+    }
+    
     if(Joint_homed==31){
-      axis_homed=7;
-      axis_known_position=7;
+      axis_homed = 7;
+      axis_known_position = 7;
     }
     set_home_joint = 0;
   }
@@ -17124,11 +17138,62 @@ void idle(
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
-    static millis_t i2cpem_next_update_ms;
-    if (planner.has_blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
+    static millis_t i2cpem_next_update_ms = 0;
+    if (ELAPSED(millis(), i2cpem_next_update_ms)) {
       I2CPEM.update();
+      if(stepper.finishmov_flag == true){
+        finish_update = true;
+        stepper.finishmov_flag = false;
+      }
       i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
     }
+    //static millis_t finishdelay_ms = 0;
+    //if(stepper.finishmov_flag == true){
+    //  if(ELAPSED(millis(), finishdelay_ms)){
+    //    finish_update = true;
+    //    finishdelay_ms = millis() + 5;
+    //    stepper.finishmov_flag = false;
+    //  }
+    //}
+    #if ENABLED(POSITION_ECHO)
+      if(I2CPEM.ConstECHO_f == true){
+        static millis_t encoder_position_moniter_ms = 0;
+        if (ELAPSED(millis(), encoder_position_moniter_ms)) {
+          if(I2CPEM.ConstUpdate_f == true){ I2CPEM.update(); }
+          SERIAL_ECHOPAIR_F("Current J : ", I2CPEM.Current_joint[Joint1_AXIS]);
+          SERIAL_ECHOPAIR_F(      "  A : ", I2CPEM.Current_joint[Joint2_AXIS]);
+          SERIAL_ECHOPAIR_F(      "  B : ", I2CPEM.Current_joint[Joint3_AXIS]);
+          SERIAL_ECHOLNPAIR_F(    "  D : ", I2CPEM.Current_joint[Joint5_AXIS]);
+
+          SERIAL_ECHOPAIR("Steps   J : ", (int32_t)I2CPEM.Current_joint_steps[Joint1_AXIS]);
+          SERIAL_ECHOPAIR(       " A : ", (int32_t)I2CPEM.Current_joint_steps[Joint2_AXIS]);
+          SERIAL_ECHOPAIR(       " B : ", (int32_t)I2CPEM.Current_joint_steps[Joint3_AXIS]);
+          SERIAL_ECHOLNPAIR(     " D : ", (int32_t)I2CPEM.Current_joint_steps[Joint5_AXIS]);
+
+          if(I2CPEM.Speed_f) {
+            SERIAL_ECHOPAIR("distance J : ", (int32_t)I2CPEM.Current_deltadistance[Joint1_AXIS]);
+            SERIAL_ECHOPAIR(        " A : ", (int32_t)I2CPEM.Current_deltadistance[Joint2_AXIS]);
+            SERIAL_ECHOPAIR(        " B : ", (int32_t)I2CPEM.Current_deltadistance[Joint3_AXIS]);
+            SERIAL_ECHOLNPAIR(      " D : ", (int32_t)I2CPEM.Current_deltadistance[Joint5_AXIS]);
+
+            SERIAL_ECHOPAIR("deltaTime : ", I2CPEM.DeltaTime);
+            SERIAL_ECHOLNPGM(" (ms)");
+
+            SERIAL_ECHOPAIR_F("Speed J : ", I2CPEM.Current_speed[Joint1_AXIS]);
+            SERIAL_ECHOPAIR_F(     " A : ", I2CPEM.Current_speed[Joint2_AXIS]);
+            SERIAL_ECHOPAIR_F(     " B : ", I2CPEM.Current_speed[Joint3_AXIS]);
+            SERIAL_ECHOLNPAIR_F(   " D : ", I2CPEM.Current_speed[Joint5_AXIS]);
+
+            SERIAL_ECHOPAIR("Saft Steps J : ", (int32_t)I2CPEM.position_joint_steps[Joint1_AXIS]);
+            SERIAL_ECHOPAIR(          " A : ", (int32_t)I2CPEM.position_joint_steps[Joint2_AXIS]);
+            SERIAL_ECHOPAIR(          " B : ", (int32_t)I2CPEM.position_joint_steps[Joint3_AXIS]);
+            SERIAL_ECHOLNPAIR(        " D : ", (int32_t)I2CPEM.position_joint_steps[Joint5_AXIS]);
+          }
+          SERIAL_ECHOLN("----------------------------------------------------");
+          encoder_position_moniter_ms = millis() + POSITION_ECHO_UPD_TIME_MS;
+        }
+      }
+    #endif
   #endif
 
   #if HAS_AUTO_REPORTING
@@ -17491,6 +17556,7 @@ void setup() {
  */
 void loop() {
 
+
   #if ENABLED(SDSUPPORT)
 
     card.checkautostart();
@@ -17512,9 +17578,14 @@ void loop() {
       #if ENABLED(POWER_LOSS_RECOVERY)
         card.removeJobRecoveryFile();
       #endif
+
+      #if ENABLED(I2C_POSITION_ENCODERS)
+        I2CPEM.update();
+      #endif
       HOME_position[E_AXIS] = current_position[E_AXIS]-3;
       buffer_line_to_destination_Constant(HOME_position, HOME_position_Joint, homing_feedrate_Joint(0));
-      
+      current_position[E_AXIS] = destination[E_AXIS] = 0;
+
       float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
       float max_feedrate_mm_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
       float axis_steps_per_degree_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_DEGEE;
@@ -17527,18 +17598,15 @@ void loop() {
       set_home_joint = 0;
       planner.accel_f = true;
       Accel_SW = true;
+      #if ENABLED(I2C_POSITION_ENCODERS)
+        I2CPEM.reset();
+        I2CPEM.update();
+        planner.init_position = true;
+      #endif
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop
       print_job_timer.init();   // Initial setup of print job timer
-      // float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
-      // float max_feedrate_mm_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
-      // float axis_steps_per_degree_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_DEGEE;
 
-      // LOOP_NUM_JOINT(i){
-      //   planner.max_acceleration_degree_per_s2_joint[i] = max_acceleration_joint_init[i];
-      //   planner.max_feedrate_mm_s_joint[i] = max_feedrate_mm_joint_init[i];
-      //   planner.axis_steps_per_degree_joint[i] = axis_steps_per_degree_joint_init[i];
-      // }
     }
 
   #endif // SDSUPPORT

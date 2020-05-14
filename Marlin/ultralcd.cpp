@@ -36,6 +36,8 @@
 #include "parser.h"
 #include <avr/wdt.h>
 
+extern Stepper stepper;
+
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
 #endif
@@ -1220,6 +1222,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
     planner.max_feedrate_mm_s_joint[Joint1_AXIS] = 50;
     planner.buffer_line_kinematic(current_position, current_position_Joint, MMM_TO_MMS(manual_feedrate_mm_m_joint[0]), 0);
     planner.max_feedrate_mm_s_joint[Joint1_AXIS] = max_feedrate_joint_init[Joint1_AXIS];
+    stepper.Zaxis_move = true;
+    planner.init_position = true;
   }
 
   #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY)
@@ -3048,7 +3052,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
                                       , manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
         //SERIAL_ECHOLNPAIR("E_AXIS",current_position[E_AXIS]);
         //SERIAL_ECHOLNPAIR("current_position",current_position);
-        //SERIAL_ECHOLNPAIR("current_position_Joint : ",current_position_Joint);
+        //SERIAL_ECHOLNPAIR("current_position_Joint : ",manual_move_joint);
         old_E0_position = current_position[E_AXIS];
         manual_move_axis = (int8_t)NO_AXIS;
         manual_move_joint = (int8_t)NO_AXIS;
@@ -3078,6 +3082,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   inline void manual_move_to_current_Joint(JointEnum axis) {
     manual_move_start_time = millis() + (move_menu_scale < 1000 ? 0UL : 250UL); // delay for bigger moves
     manual_move_joint = (int8_t)axis;
+    //SERIAL_ECHOLNPAIR("LCD Move Joint = ", axis);
   }
 
   /**
@@ -3173,8 +3178,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition && !processing_manual_move) {      
       // Start with no limits to movement
-      float min = current_position[axis] - 100,
-            max = current_position[axis] + 100;
+      float min = current_position_Joint[axis] - 100,
+            max = current_position_Joint[axis] + 100;
 
       // Limit to software endstops, if enabled
       #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
@@ -3238,11 +3243,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
     encoderPosition = 0;
     if (lcdDrawUpdate) {
-      const float pos = NATIVE_TO_LOGICAL(processing_manual_move ? destination_Joint[axis] : current_position_Joint[axis]
-        #if IS_KINEMATIC
-          + manual_move_offset
-        #endif
-      , axis);
+      const float pos = processing_manual_move ? destination_Joint[axis] : current_position_Joint[axis];
       lcd_implementation_drawedit(name, ftostr6sign(pos));
     }
   }
@@ -3317,11 +3318,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
     encoderPosition = 0;
     if (lcdDrawUpdate) {
-      const float pos = NATIVE_TO_LOGICAL(processing_manual_move ? destination_Joint[axis] : current_position_Joint[axis]
-        #if IS_KINEMATIC
-          + manual_move_offset
-        #endif
-      , axis) * planner.steps_to_degree_joint[axis];
+      const float pos = (processing_manual_move ? destination_Joint[axis] : current_position_Joint[axis]) * planner.steps_to_degree_joint[axis];
       lcd_implementation_drawedit(name, ftostr42sign(pos));
     }
   }
@@ -3541,6 +3538,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
   void lcd_Set_Home_B()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint3_AXIS + 1; }
   void lcd_Set_Home_C()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint4_AXIS + 1; }
   void lcd_Set_Home_D()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint5_AXIS + 1; }
+  void lcd_Set_Home_ALL()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = 6; }
+
 
   #if E_MANUAL > 1
     void lcd_move_get_e0_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }
@@ -3704,6 +3703,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     MENU_ITEM(function, MSG_SET_B, lcd_Set_Home_B);
     MENU_ITEM(function, MSG_SET_C, lcd_Set_Home_C);
     MENU_ITEM(function, MSG_SET_D, lcd_Set_Home_D);
+    MENU_ITEM(function, MSG_SET_ALL, lcd_Set_Home_ALL);
     
     END_MENU();
   }

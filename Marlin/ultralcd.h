@@ -40,7 +40,7 @@
 #if ENABLED(ULTRA_LCD)
 
   #include "Marlin.h"
-
+  
   int16_t utf8_strlen(const char* s);
   int16_t utf8_strlen_P(const char* s);
   bool lcd_hasstatus();

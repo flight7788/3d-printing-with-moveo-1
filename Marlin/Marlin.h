@@ -45,6 +45,7 @@
 #include "utility.h"
 #include "serial.h"
 
+
 void idle(
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     bool no_stepper_sleep = false  // pass true to keep steppers from disabling on timeout
@@ -328,6 +329,7 @@ extern volatile bool wait_for_heatup;
 extern float   current_position[XYZE], destination[XYZE];
 extern int32_t current_position_Joint[Joint_All], destination_Joint[Joint_All];
 extern bool Accel_SW;
+extern bool finish_update;
 extern uint8_t set_home_joint;
 // extern float   ZERO_position[XYZE], HOME_position[XYZE];
 // extern int32_t ZERO_position_Joint[Joint_All], HOME_position_Joint[Joint_All];
@@ -616,6 +618,10 @@ extern uint8_t active_extruder;
 inline void set_current_from_destination() { 
   COPY(current_position, destination); 
   COPY(current_position_Joint, destination_Joint);
+  //current_position_Joint[Joint1_AXIS] = I2CPEM.position_joint[Joint1_AXIS] * planner.axis_steps_per_degree_joint[Joint1_AXIS];
+  //current_position_Joint[Joint2_AXIS] = I2CPEM.position_joint[Joint2_AXIS] * planner.axis_steps_per_degree_joint[Joint2_AXIS];
+  //current_position_Joint[Joint3_AXIS] = I2CPEM.position_joint[Joint3_AXIS] * planner.axis_steps_per_degree_joint[Joint3_AXIS];
+  //current_position_Joint[Joint5_AXIS] = I2CPEM.position_joint[Joint5_AXIS] * planner.axis_steps_per_degree_joint[Joint5_AXIS];
 }
 inline void set_destination_from_current() { 
   COPY(destination, current_position); 

@@ -75,7 +75,9 @@ enum BlockFlag : char {
 typedef struct {
 
   volatile uint8_t flag;                    // Block flags (See BlockFlag enum above) - Modified by ISR and main thread!
-
+  volatile int32_t new_position_joint[Joint_All];
+  volatile int32_t old_position_joint[Joint_All];
+  
   #if ENABLED(UNREGISTERED_MOVE_SUPPORT)
     bool count_it;
   #endif
@@ -100,6 +102,7 @@ typedef struct {
       int32_t position_Joint[Joint_All];
     };
   };
+  
   uint32_t step_event_count;                // The number of step events required to complete this block
 
   uint8_t active_extruder;                  // The extruder to move (if E move)
@@ -281,7 +284,10 @@ class Planner {
       static bool abort_on_endstop_hit;
     #endif
 
-    static bool accel_f; 
+
+    static bool accel_f, init_position; 
+
+
   private:
 
     /**
@@ -687,6 +693,7 @@ class Planner {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(rx, ry, rz);
       #endif
+      
       return buffer_segment_joint(rx, ry, rz, j1, j2, j3, j4, j5,
         #if ENABLED(HANGPRINTER)
           re1,
@@ -960,6 +967,8 @@ class Planner {
         #endif
       }
     #endif
+
+    void recalculate_block(block_t * const current_block, const int32_t (&joint_steps)[Joint_All], float fr_mm_s);
 
   private:
 

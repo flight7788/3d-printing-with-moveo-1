@@ -223,17 +223,18 @@ class Stepper
 {
 
 public:
-#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
-  static bool homing_dual_axis;
-#endif
+  #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+    static bool homing_dual_axis;
+  #endif
 
-#if HAS_MOTOR_CURRENT_PWM
-#ifndef PWM_MOTOR_CURRENT
-#define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
-#endif
-  static uint32_t motor_current_setting[3];
-#endif
-
+  #if HAS_MOTOR_CURRENT_PWM
+  #ifndef PWM_MOTOR_CURRENT
+  #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
+  #endif
+    static uint32_t motor_current_setting[3];
+  #endif
+  static bool finishmov_flag, Zaxis_move, need_correction, need_correction_manual, init_correction, need_wait;
+  
 private:
   static block_t *current_block; // A pointer to the block currently being traced
 
@@ -513,24 +514,24 @@ private:
     step_rate <<= scale;
 
     uint8_t multistep = 1;
-#if DISABLED(DISABLE_MULTI_STEPPING)
-
-    // The stepping frequency limits for each multistepping rate
-    static const uint32_t limit[] PROGMEM = {(MAX_STEP_ISR_FREQUENCY_1X),       (MAX_STEP_ISR_FREQUENCY_2X >> 1),  (MAX_STEP_ISR_FREQUENCY_4X >> 2),
-                                             (MAX_STEP_ISR_FREQUENCY_8X >> 3),  (MAX_STEP_ISR_FREQUENCY_16X >> 4), (MAX_STEP_ISR_FREQUENCY_32X >> 5),
-                                             (MAX_STEP_ISR_FREQUENCY_64X >> 6), (MAX_STEP_ISR_FREQUENCY_128X >> 7)};
-
-    // Select the proper multistepping
-    uint8_t idx = 0;
-    while (idx < 7 && step_rate > (uint32_t)pgm_read_dword(&limit[idx]))
-    {
-      step_rate >>= 1;
-      multistep <<= 1;
-      ++idx;
-    };
-#else
-    NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
-#endif
+    #if DISABLED(DISABLE_MULTI_STEPPING)
+    
+        // The stepping frequency limits for each multistepping rate
+        static const uint32_t limit[] PROGMEM = {(MAX_STEP_ISR_FREQUENCY_1X),       (MAX_STEP_ISR_FREQUENCY_2X >> 1),  (MAX_STEP_ISR_FREQUENCY_4X >> 2),
+                                                 (MAX_STEP_ISR_FREQUENCY_8X >> 3),  (MAX_STEP_ISR_FREQUENCY_16X >> 4), (MAX_STEP_ISR_FREQUENCY_32X >> 5),
+                                                 (MAX_STEP_ISR_FREQUENCY_64X >> 6), (MAX_STEP_ISR_FREQUENCY_128X >> 7)};
+    
+        // Select the proper multistepping
+        uint8_t idx = 0;
+        while (idx < 7 && step_rate > (uint32_t)pgm_read_dword(&limit[idx]))
+        {
+          step_rate >>= 1;
+          multistep <<= 1;
+          ++idx;
+        };
+    #else
+        NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
+    #endif
     *loops = multistep;
 
     constexpr uint32_t min_step_rate = F_CPU / 500000U;
