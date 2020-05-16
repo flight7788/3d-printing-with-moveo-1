@@ -3391,11 +3391,11 @@ bool set_probe_deployed_ones(const bool deploy) {
     set_current_from_steppers_for_axis(Z_AXIS);    
 
     //*
-    current_position_Joint[Joint1_AXIS] = planner.get_joint_position_mm(Joint1_AXIS);
-    current_position_Joint[Joint2_AXIS] = planner.get_joint_position_mm(Joint2_AXIS);
-    current_position_Joint[Joint3_AXIS] = planner.get_joint_position_mm(Joint3_AXIS);
+    current_position_Joint[Joint1_AXIS] = I2CPEM.position_joint_steps[Joint1_AXIS];//planner.get_joint_position_mm(Joint1_AXIS);
+    current_position_Joint[Joint2_AXIS] = I2CPEM.position_joint_steps[Joint2_AXIS];//planner.get_joint_position_mm(Joint2_AXIS);
+    current_position_Joint[Joint3_AXIS] = I2CPEM.position_joint_steps[Joint3_AXIS];//planner.get_joint_position_mm(Joint3_AXIS);
     current_position_Joint[Joint4_AXIS] = planner.get_joint_position_mm(Joint4_AXIS);
-    current_position_Joint[Joint5_AXIS] = planner.get_joint_position_mm(Joint5_AXIS);   
+    current_position_Joint[Joint5_AXIS] = I2CPEM.position_joint_steps[Joint5_AXIS];//planner.get_joint_position_mm(Joint5_AXIS);   
     //*/
 
     //current_position[Z_AXIS] = Reverse_Curve(current_position_Joint[Joint2_AXIS], Joint2_AXIS)/100;
@@ -3481,11 +3481,11 @@ bool set_probe_deployed_ones(const bool deploy) {
     set_current_from_steppers_for_axis(Z_AXIS);    
 
     //*
-    current_position_Joint[Joint1_AXIS] = planner.get_joint_position_mm(Joint1_AXIS);
-    current_position_Joint[Joint2_AXIS] = planner.get_joint_position_mm(Joint2_AXIS);
-    current_position_Joint[Joint3_AXIS] = planner.get_joint_position_mm(Joint3_AXIS);
+    current_position_Joint[Joint1_AXIS] = I2CPEM.position_joint_steps[Joint1_AXIS];//planner.get_joint_position_mm(Joint1_AXIS);
+    current_position_Joint[Joint2_AXIS] = I2CPEM.position_joint_steps[Joint2_AXIS];//planner.get_joint_position_mm(Joint2_AXIS);
+    current_position_Joint[Joint3_AXIS] = I2CPEM.position_joint_steps[Joint3_AXIS];//planner.get_joint_position_mm(Joint3_AXIS);
     current_position_Joint[Joint4_AXIS] = planner.get_joint_position_mm(Joint4_AXIS);
-    current_position_Joint[Joint5_AXIS] = planner.get_joint_position_mm(Joint5_AXIS);   
+    current_position_Joint[Joint5_AXIS] = I2CPEM.position_joint_steps[Joint5_AXIS];//planner.get_joint_position_mm(Joint5_AXIS);   
     //*/
 
     //current_position[Z_AXIS] = Reverse_Curve(current_position_Joint[Joint2_AXIS], Joint2_AXIS)/100;

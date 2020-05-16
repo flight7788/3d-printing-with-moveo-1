@@ -61,18 +61,19 @@
     //lastPositionTime = positionTime;
     ReadStatus = get_raw_count(Current_joint);
     get_joint_steps(Current_joint, Current_joint_steps);
-
-    LOOP_NUM_JOINT(joint) {
-      if(joint != Joint4_AXIS){
-        //const double distance = ABS(Current_joint_steps[joint] - lastposition_joint_steps[joint]), 
-        //             speed = (double)distance / deltaTime / 1000;
-        //if(speed <= Threshold_Speed_per_steps[joint]) {
-          position_joint[joint] = Current_joint[joint];
-          position_joint_steps[joint] = Current_joint_steps[joint];
-        //}
-        //lastposition_joint[joint] = position_joint[joint];
-        //Current_speed[joint] = speed;
-        //Current_deltadistance[joint] = distance;
+    if(ReadStatus) {
+      LOOP_NUM_JOINT(joint) {
+        if(joint != Joint4_AXIS){
+          //const double distance = ABS(Current_joint_steps[joint] - lastposition_joint_steps[joint]), 
+          //             speed = (double)distance / deltaTime / 1000;
+          //if(speed <= Threshold_Speed_per_steps[joint]) {
+            position_joint[joint] = Current_joint[joint];
+            position_joint_steps[joint] = Current_joint_steps[joint];
+          //}
+          //lastposition_joint[joint] = position_joint[joint];
+          //Current_speed[joint] = speed;
+          //Current_deltadistance[joint] = distance;
+        }
       }
     }
     //DeltaTime = deltaTime;
@@ -98,7 +99,17 @@
   }
 
   uint8_t I2CPositionEncodersMgr::get_raw_count(float (&joint)[Joint_All]) {
+    I2c.begin();
     uint8_t status = I2c.read(addr,cmd,ENCODER_BUF_SIZE,buffer);
+    I2c.end();
+    //I2c.begin();
+    //I2c.read(addr,cmd,1,&buffer[0]);
+    //I2c.end();
+    //for(int i=1;i<ENCODER_BUF_SIZE;i++){
+    //  I2c.begin();
+    //  I2c.read(addr,1,&buffer[i]);
+    //  I2c.end();
+    //}
     union stringtofloat {
      uint8_t strbyte[4];
      float fval;

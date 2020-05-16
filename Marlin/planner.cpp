@@ -725,6 +725,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
 
   uint32_t initial_rate = CEIL(block->nominal_rate * entry_factor),
            final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
+           
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
   NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));

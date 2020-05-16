@@ -1648,7 +1648,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
           current_block->nominal_rate = 0;
           current_block->final_rate = 0;
           step_event_count = 0;
-          interval = (STEPPER_TIMER_RATE);
+          interval = (STEPPER_TIMER_RATE / 10);
           need_wait = false;
         }
         else {
@@ -1675,7 +1675,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
                (correction_times < 5) && (Zaxis_move == true))
           {
            
-            if(I2CPEM.ReadStatus == 0) {
+            //if(I2CPEM.ReadStatus == 0) {
  
               LOOP_NUM_JOINT(joint){
                 if(joint!=Joint4_AXIS) {     
@@ -1759,7 +1759,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
                   SERIAL_ECHOLN("=======================================================================");
                 //}
               #endif
-            }
+            /*}
             else {
               #if ENABLED(POSITION_ECHO)
                 if(I2CPEM.ErrorSteps_f == true){
@@ -1781,8 +1781,8 @@ uint32_t Stepper::stepper_block_phase_isr() {
               current_block->nominal_rate = 0;
               current_block->final_rate = 0;
               step_event_count = 0;
-              interval = (STEPPER_TIMER_RATE);
-            }
+              interval = (STEPPER_TIMER_RATE / 10);
+            }*/
             correction_times++;
             need_wait = true;
           }
