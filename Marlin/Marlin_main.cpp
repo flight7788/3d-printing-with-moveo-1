@@ -388,8 +388,6 @@ uint8_t marlin_debug_flags = DEBUG_NONE;
 float current_position[XYZE] = { 0 };
 int32_t current_position_Joint[Joint_All] = { 0, 0, 0, 0, 0};
 
-#include "My_Lib.h"
-
 /**
  * Cartesian Destination
  *   The destination for a move, filled in by G-code movement commands,
@@ -400,6 +398,7 @@ float destination[XYZE] = { 0 };
 int32_t destination_Joint[Joint_All] = { 0, 0, 0, 0, 0};
 bool Accel_SW = true;
 bool finish_update = false;
+
 uint8_t set_home_joint = 0;
 /**
  * axis_homed
@@ -476,11 +475,14 @@ FORCE_INLINE float homing_feedrate_Joint(const JointEnum a) { return pgm_read_fl
 
 float feedrate_mm_s = MMM_TO_MMS(3000.0f);
 const float manual_feedrate_mm_m_joint[] = MANUAL_FEEDRATE_JOINT_G28;
+const float manual_feedrate_mm_m_joint1[] = MANUAL_FEEDRATE_JOINT_LCD;
 static float saved_feedrate_mm_s;
 int16_t feedrate_percentage = 100, saved_feedrate_percentage;
 
 // Initialized by settings.load()
 bool axis_relative_modes[XYZE] = AXIS_RELATIVE_MODES;
+
+#include "My_Lib.h"
 
 #if HAS_WORKSPACE_OFFSET
   #if HAS_POSITION_SHIFT
@@ -4070,6 +4072,8 @@ bool set_probe_deployed_ones(const bool deploy) {
       else if (raise_after == PROBE_PT_STOW)
         if (STOW_PROBE_ones()) measured_z = NAN;
     }
+
+    Go_to_Joint_Zero_Marlin();
 
     if (verbose_level > 2) {
       SERIAL_PROTOCOLPGM("Bed X: ");
@@ -7721,8 +7725,11 @@ void home_all_axes() { gcode_G28(true); }
    *   E   Engage the probe for each probe (default 1)
    */
   inline void gcode_G30() {  
-    const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
-                ypos = parser.linearval('Y', current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
+    // const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
+    //             ypos = parser.linearval('Y', current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
+    const float xpos = 440 - (X_BED_SIZE/2),
+                ypos = 715 - (Y_BED_SIZE/2);
+
     /*
     Set_current_Joint(HOME_position_Z20_Joint);
     Set_current_XYZE(HOME_position_Z20);
@@ -7766,7 +7773,8 @@ void home_all_axes() { gcode_G28(true); }
     report_current_position();
 
     char str_G30[80];
-    dtostrf(measured_z - zprobe_zoffset - Z_PROBE_OFFSET_FROM_EXTRUDER, 5, 2, str_G30);
+    // dtostrf(measured_z - zprobe_zoffset - Z_PROBE_OFFSET_FROM_EXTRUDER, 5, 2, str_G30);
+    dtostrf(measured_z, 5, 2, str_G30);    
     SERIAL_ECHOPAIR("Measured_z: ",str_G30);
     SERIAL_ECHOLNPAIR(" zprobe_zoffset: ",zprobe_zoffset);
     // char loc[8]="Mesh.txt";write_new_file
@@ -17570,12 +17578,14 @@ void loop() {
       #if ENABLED(POWER_LOSS_RECOVERY)
         card.removeJobRecoveryFile();
       #endif
+
       #if ENABLED(I2C_POSITION_ENCODERS)
         I2CPEM.update();
       #endif
       HOME_position[E_AXIS] = current_position[E_AXIS]-3;
       buffer_line_to_destination_Constant(HOME_position, HOME_position_Joint, homing_feedrate_Joint(0));
       current_position[E_AXIS] = destination[E_AXIS] = 0;
+
       float max_acceleration_joint_init[Joint_All] = DEFAULT_MAX_ACCELERATION_joint;
       float max_feedrate_mm_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
       float axis_steps_per_degree_joint_init[Joint_All] = DEFAULT_JOINT_STEPS_PER_DEGEE;
@@ -17596,6 +17606,7 @@ void loop() {
       stepper.init();           // Init stepper. This enables interrupts!
       thermalManager.init();    // Initialize temperature loop
       print_job_timer.init();   // Initial setup of print job timer
+
     }
 
   #endif // SDSUPPORT

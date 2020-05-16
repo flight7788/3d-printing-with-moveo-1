@@ -2747,6 +2747,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
    // G29 P5 T
    //
     MENU_ITEM(gcode, MSG_AUTO_G29, PSTR("G29 P10 T"));
+    MENU_ITEM(gcode, MSG_AUTO_G30, PSTR("G30"));
     MENU_ITEM(gcode, MSG_M280_S0, PSTR("M280 P0 S0"));
     MENU_ITEM(gcode, MSG_M280_S90, PSTR("M280 P0 S90"));
     //
@@ -3538,6 +3539,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   void lcd_Set_Home_C()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint4_AXIS + 1; }
   void lcd_Set_Home_D()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = Joint5_AXIS + 1; }
   void lcd_Set_Home_ALL()    { lcd_buzz(100, 659);  lcd_buzz(100, 698); set_home_joint = 6; }
+
 
   #if E_MANUAL > 1
     void lcd_move_get_e0_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }

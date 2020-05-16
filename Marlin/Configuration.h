@@ -706,27 +706,33 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 
+
 #define DEFAULT_AXIS_STEPS_PER_UNIT {100.23, 99.86, 7999.52, 418.5}
 #define DEFAULT_JOINT_STEPS_PER_DEGEE {361.44 , 396.66, 959.33, 477.35, 149.42}
+
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
+
 #define DEFAULT_MAX_FEEDRATE {300, 300, 3, 700}
 #define DEFAULT_MAX_FEEDRATE_JOINT {700, 700, 700, 700, 700}
+
 /**
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
+
 #define DEFAULT_MAX_ACCELERATION {100, 100, 30, 10000}
 #define DEFAULT_MAX_ACCELERATION_joint {50, 70, 70, 70, 70}
 #define ACCELERATION_SW_Limit_Degree {15, 15, 15, 15, 15}
 /**
  * 
+
  * Default Acceleration (change/s) change = mm/s
  * Override with M204
  *
@@ -887,8 +893,8 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER 28    // 28.243 // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -7    // -7.45  // Y offset: -front +behind [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 0     // 28    // 28.243 // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER 0     //-7    // -7.45  // Y offset: -front +behind [the nozzle]
 #define Z_PROBE_OFFSET_FROM_EXTRUDER 11.75 // 12.7   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
@@ -1029,6 +1035,7 @@
 #define X_MIN_POS -440
 #define Y_MIN_POS -440
 #define Z_MIN_POS -10
+
 #define X_MAX_POS X_MIN_POS + X_BED_SIZE//X_BED_SIZE/2
 #define Y_MAX_POS Y_MIN_POS + Y_BED_SIZE//Y_BED_SIZE/2
 #define Z_MAX_POS 500
@@ -1038,6 +1045,7 @@
 #define B_MIN_POS_step -86050
 #define C_MIN_POS_step -37990
 #define D_MIN_POS_step -13665
+
 
 #define J_MAX_POS_step 35491
 #define A_MAX_POS_step 42000
@@ -1058,6 +1066,7 @@
 #define Joint3_MAX_POS  B_MAX_POS_step//110000
 #define Joint4_MAX_POS  C_MAX_POS_step//118110
 #define Joint5_MAX_POS  D_MAX_POS_step//20500
+
 
 /**
  * Software Endstops

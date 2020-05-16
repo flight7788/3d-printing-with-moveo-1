@@ -2306,10 +2306,12 @@ uint32_t Stepper::stepper_block_phase_isr() {
       //if (X_MOVE_TEST) SBI(axis_bits, A_AXIS);
       //if (Y_MOVE_TEST) SBI(axis_bits, B_AXIS);
       //if (Z_MOVE_TEST) SBI(axis_bits, C_AXIS);
+
       if(Z_MOVE_TEST) {
         Zaxis_move = true;
         need_wait = true;
       }
+
       //SERIAL_ECHOLNPAIR("axis_bits:",axis_bits);
       if(Joint1_MOVE_TEST)  SBI(axis_bits_Joint, Joint1_AXIS);
       if(Joint2_MOVE_TEST)  SBI(axis_bits_Joint, Joint2_AXIS);

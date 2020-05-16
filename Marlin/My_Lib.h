@@ -102,9 +102,9 @@ float   HOME_position_ZNeg10[XYZE]={0, 0, -10, 0};
 float   HOME_position_Slope[Joint_All]={0,	0.1175,	-0.347,	0,  -0.0275};
 //*/
 
-float a[5] = {0.0000000000, 0.0000017500, -0.0000560000, 0.0000000000, 0.0000111250};
-float b[5] = {0.0000000000, -1.0184999704, 0.9434999824, 0.0000000000, 0.3357500136};
-float c[5] = {128.0000000000, 20845.0000000000, 104799.0000000000, -23.0000000000, 3630.0000000000};
+float a[5] = {0.0000000000, 0.0000060000, -0.0000640000, 0.0000000000, -0.0000080000};
+float b[5] = {0.0000000000, -0.9470000000, 1.7100000000, 0.0000000000, -0.0900000000};
+float c[5] = {896.0000000000, 30426.0000000000, 74070.0000000000, 85923.0000000000, -3897.0000000000};
 // float a_m[25][5];
 // float b_m[25][5];
 // float c_m[25][5];
@@ -189,6 +189,9 @@ const PROGMEM float c_m1[125] = {
 #include "Joint_curveb.cpp" //Introduce b array
 #include "Joint_curvec.cpp" //Introduce c array
 
+extern const float manual_feedrate_mm_m_joint[];
+extern const float manual_feedrate_mm_m_joint1[];
+
 /**
  * Move the planner to the position stored in the destination array, which is
  * used by G0/G1/G2/G3/G5 and many other functions to set a destination.
@@ -242,21 +245,35 @@ inline void Set_current_Joint_Curve(const float point)
   DEBUG_POS_Joint("(After)Set_current_Joint_Curve", current_position_Joint);
 }
 
+float Forward_Curve_Many(float point_FC, int number_mat, int Joint_num)
+{
+  float temp_return = pgm_read_float_near(&a_m2[number_mat * 5 + Joint_num]) * point_FC * point_FC +
+                      pgm_read_float_near(&b_m2[number_mat * 5 + Joint_num]) * point_FC +
+                      pgm_read_float_near(&c_m2[number_mat * 5 + Joint_num]); // + b_m[0][Joint_num]*point_FC + c_m[0][Joint_num];
+
+  return temp_return;
+}
+
 inline void Set_current_Joint_Curve_many(const int num_total, const float point)
 {
   SERIAL_ECHOLNPAIR(">>> Set_current_Joint_Curve_many \n      Num_total: ", num_total);
   DEBUG_POS_Joint("(Before)Set_current_Joint_Curve_many", current_position_Joint);
   float point1 = point * 100;
-  current_position_Joint[Joint1_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 0]) * point1 * point1 +
-                                        pgm_read_float_near(&b_m2[num_total * 5 + 0]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 0]);
-  current_position_Joint[Joint2_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 1]) * point1 * point1 +
-                                        pgm_read_float_near(&b_m2[num_total * 5 + 1]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 1]);
-  current_position_Joint[Joint3_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 2]) * point1 * point1 +
-                                        pgm_read_float_near(&b_m2[num_total * 5 + 2]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 2]);
-  current_position_Joint[Joint4_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 3]) * point1 * point1 +
-                                        pgm_read_float_near(&b_m2[num_total * 5 + 3]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 3]);
-  current_position_Joint[Joint5_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 4]) * point1 * point1 +
-                                        pgm_read_float_near(&b_m2[num_total * 5 + 4]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 4]);
+  current_position_Joint[Joint1_AXIS] = Forward_Curve_Many(point1, num_total, Joint1_AXIS);
+  current_position_Joint[Joint2_AXIS] = Forward_Curve_Many(point1, num_total, Joint2_AXIS);
+  current_position_Joint[Joint3_AXIS] = Forward_Curve_Many(point1, num_total, Joint3_AXIS);
+  current_position_Joint[Joint4_AXIS] = Forward_Curve_Many(point1, num_total, Joint4_AXIS);
+  current_position_Joint[Joint5_AXIS] = Forward_Curve_Many(point1, num_total, Joint5_AXIS);
+  // current_position_Joint[Joint1_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 0]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 0]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 0]);
+  // current_position_Joint[Joint2_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 1]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 1]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 1]);
+  // current_position_Joint[Joint3_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 2]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 2]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 2]);
+  // current_position_Joint[Joint4_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 3]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 3]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 3]);
+  // current_position_Joint[Joint5_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 4]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 4]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 4]);
 
   // SERIAL_ECHOLNPAIR(" point:", point);
 
@@ -458,10 +475,6 @@ int Use_XY_to_Matrix_Index(float UXYMIX, float UXYMIY)
   int temp_UXYMIX = (int)UXYMIX;
   int temp_UXYMIY = (int)UXYMIY;
 
-  if (UXYMIX == 209.837014) temp_UXYMIX = 209;
-  else if (UXYMIX == 670.16299)
-    temp_UXYMIX = 670;
-
   SERIAL_ECHOPAIR("temp_UXYMIX: ", temp_UXYMIX);
   SERIAL_ECHOLNPAIR(" temp_UXYMIY: ", temp_UXYMIY);
 
@@ -600,4 +613,21 @@ static float Reverse_Curve_Many(const int num_total, const int32_t temp_pos, Joi
 #endif
 
   return temp_return;
+}
+
+void Go_to_Joint_Zero_Marlin()
+{
+  current_position_Joint[Joint1_AXIS] = 0;
+  current_position_Joint[Joint2_AXIS] = 0;
+  current_position_Joint[Joint3_AXIS] = 0;
+  current_position_Joint[Joint4_AXIS] = 0;
+  current_position_Joint[Joint5_AXIS] = 0;
+
+  current_position[X_AXIS] = 0.00;
+  current_position[Y_AXIS] = 0.00;
+  current_position[Z_AXIS] = 779.94;
+  float max_feedrate_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
+  // planner.max_feedrate_mm_s_joint[Joint1_AXIS] = 700;
+  planner.buffer_line_kinematic(current_position, current_position_Joint, MMM_TO_MMS(manual_feedrate_mm_m_joint1[0]), 0);
+  // planner.max_feedrate_mm_s_joint[Joint1_AXIS] = max_feedrate_joint_init[Joint1_AXIS];
 }
