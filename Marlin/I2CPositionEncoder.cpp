@@ -61,7 +61,7 @@
     //lastPositionTime = positionTime;
     ReadStatus = get_raw_count(Current_joint);
     get_joint_steps(Current_joint, Current_joint_steps);
-    if(ReadStatus) {
+    if(ReadStatus==0) {
       LOOP_NUM_JOINT(joint) {
         if(joint != Joint4_AXIS){
           //const double distance = ABS(Current_joint_steps[joint] - lastposition_joint_steps[joint]), 

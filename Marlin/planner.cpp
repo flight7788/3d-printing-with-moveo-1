@@ -3351,7 +3351,7 @@ bool Planner::_populate_block_joint_self(block_t * const block, bool split_move,
 
   const int32_t da = 0,//target[A_AXIS] - position[A_AXIS],
                 db = 0,//target[B_AXIS] - position[B_AXIS],
-                dc = 0 //target[C_AXIS] - position[C_AXIS]
+                dc = target[C_AXIS] - position[C_AXIS]
                 #if ENABLED(HANGPRINTER)
                   , dd = target[D_AXIS] - position[D_AXIS]
                 #endif
