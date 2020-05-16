@@ -18,6 +18,7 @@
 #endif
 
 #define Rectangle_Probe
+#define No_print
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
 void print_xyz(const char *prefix, const char *suffix, const float x, const float y, const float z)
@@ -249,31 +250,56 @@ float Forward_Curve_Many(float point_FC, int number_mat, int Joint_num)
 {
   float temp_return = pgm_read_float_near(&a_m2[number_mat * 5 + Joint_num]) * point_FC * point_FC +
                       pgm_read_float_near(&b_m2[number_mat * 5 + Joint_num]) * point_FC +
-                      pgm_read_float_near(&c_m2[number_mat * 5 + Joint_num]); // + b_m[0][Joint_num]*point_FC + c_m[0][Joint_num];
-
+                      pgm_read_float_near(&c_m2[number_mat * 5 + Joint_num]); // + b_m[0][Joint_num]*point_FC +
+                                                                              // c_m[0][Joint_num];
+  SERIAL_ECHOPAIR("Z_pos(0.01mm): ", point_FC);
+  SERIAL_ECHOPAIR(" Number_mat: ", number_mat);
+  SERIAL_ECHOLNPAIR(" Temp_return: ", temp_return);
   return temp_return;
 }
 
 inline void Set_current_Joint_Curve_many(const int num_total, const float point)
 {
   SERIAL_ECHOLNPAIR(">>> Set_current_Joint_Curve_many \n      Num_total: ", num_total);
+  SERIAL_ECHOLNPAIR("      Z_pos(mm): ", point);
   DEBUG_POS_Joint("(Before)Set_current_Joint_Curve_many", current_position_Joint);
   float point1 = point * 100;
+
   current_position_Joint[Joint1_AXIS] = Forward_Curve_Many(point1, num_total, Joint1_AXIS);
   current_position_Joint[Joint2_AXIS] = Forward_Curve_Many(point1, num_total, Joint2_AXIS);
   current_position_Joint[Joint3_AXIS] = Forward_Curve_Many(point1, num_total, Joint3_AXIS);
   current_position_Joint[Joint4_AXIS] = Forward_Curve_Many(point1, num_total, Joint4_AXIS);
   current_position_Joint[Joint5_AXIS] = Forward_Curve_Many(point1, num_total, Joint5_AXIS);
-  // current_position_Joint[Joint1_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 0]) * point1 * point1 +
-  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 0]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 0]);
-  // current_position_Joint[Joint2_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 1]) * point1 * point1 +
-  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 1]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 1]);
-  // current_position_Joint[Joint3_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 2]) * point1 * point1 +
-  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 2]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 2]);
-  // current_position_Joint[Joint4_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 3]) * point1 * point1 +
-  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 3]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 3]);
-  // current_position_Joint[Joint5_AXIS] = pgm_read_float_near(&a_m2[num_total * 5 + 4]) * point1 * point1 +
-  //                                       pgm_read_float_near(&b_m2[num_total * 5 + 4]) * point1 + pgm_read_float_near(&c_m2[num_total * 5 + 4]);
+  // current_position_Joint[Joint1_AXIS] = pgm_read_float_near(&a_m2[num_total *
+  // 5 + 0]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total *
+  //                                       5 + 0]) * point1 +
+  //                                       pgm_read_float_near(&c_m2[num_total *
+  //                                       5 + 0]);
+  // current_position_Joint[Joint2_AXIS] = pgm_read_float_near(&a_m2[num_total *
+  // 5 + 1]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total *
+  //                                       5 + 1]) * point1 +
+  //                                       pgm_read_float_near(&c_m2[num_total *
+  //                                       5 + 1]);
+  // current_position_Joint[Joint3_AXIS] = pgm_read_float_near(&a_m2[num_total *
+  // 5 + 2]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total *
+  //                                       5 + 2]) * point1 +
+  //                                       pgm_read_float_near(&c_m2[num_total *
+  //                                       5 + 2]);
+  // current_position_Joint[Joint4_AXIS] = pgm_read_float_near(&a_m2[num_total *
+  // 5 + 3]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total *
+  //                                       5 + 3]) * point1 +
+  //                                       pgm_read_float_near(&c_m2[num_total *
+  //                                       5 + 3]);
+  // current_position_Joint[Joint5_AXIS] = pgm_read_float_near(&a_m2[num_total *
+  // 5 + 4]) * point1 * point1 +
+  //                                       pgm_read_float_near(&b_m2[num_total *
+  //                                       5 + 4]) * point1 +
+  //                                       pgm_read_float_near(&c_m2[num_total *
+  //                                       5 + 4]);
 
   // SERIAL_ECHOLNPAIR(" point:", point);
 
@@ -326,7 +352,8 @@ float Forward_Curve(float point_FC, int number_mat, int Joint_num)
   // float temp_return = c_m[number_mat][Joint_num];
   float temp_return = pgm_read_float_near(&a_m1[number_mat * 5 + Joint_num]) * point_FC * point_FC +
                       pgm_read_float_near(&b_m1[number_mat * 5 + Joint_num]) * point_FC +
-                      pgm_read_float_near(&c_m1[number_mat * 5 + Joint_num]); // + b_m[0][Joint_num]*point_FC + c_m[0][Joint_num];
+                      pgm_read_float_near(&c_m1[number_mat * 5 + Joint_num]); // + b_m[0][Joint_num]*point_FC +
+                                                                              // c_m[0][Joint_num];
   // SERIAL_ECHOPAIR(" return data:", temp_return);
   // SERIAL_ECHOLNPAIR(" c_m[0][0]:", c_m[0][Joint_num]);
 
@@ -339,7 +366,8 @@ void Set_current_Joint_Curve_More(float numberx, float numbery, float numberz)
   // int number = 0;
   // SERIAL_ECHOLNPAIR("number:", number);
 
-  // DEBUG_POS_Joint("(Before)Set_current_Joint_Curve_More", current_position_Joint);
+  // DEBUG_POS_Joint("(Before)Set_current_Joint_Curve_More",
+  // current_position_Joint);
   float point1 = numberz * 100;
 
   // SERIAL_ECHOLNPAIR("Forward_Curve(2000,0,0)", Forward_Curve(2000,0,0));
@@ -354,7 +382,8 @@ void Set_current_Joint_Curve_More(float numberx, float numbery, float numberz)
   // SERIAL_ECHOPAIR(" x:", numberx);
   // SERIAL_ECHOPAIR("-y:", numbery);
 
-  // DEBUG_POS_Joint("(After)Set_current_Joint_Curve_More", current_position_Joint);
+  // DEBUG_POS_Joint("(After)Set_current_Joint_Curve_More",
+  // current_position_Joint);
 }
 
 inline void Set_current_Joint_Slope(const int32_t (&Set_current_Joint_data)[Joint_All], const float (&Set_current_Joint_slope)[Joint_All],
@@ -412,12 +441,12 @@ inline void buffer_line_to_destination_Constant(const float (&Set_Position)[XYZE
 
 inline void buffer_line_to_destination(const int32_t &fr_mm_s)
 {
-  #if ENABLED(HANGPRINTER)
-    UNUSED(fr_mm_s);
-  #else
-    planner.buffer_line_joint(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination_Joint[Joint1_AXIS],
-                              destination_Joint[Joint2_AXIS], destination_Joint[Joint3_AXIS], destination_Joint[Joint4_AXIS],
-                              destination_Joint[Joint5_AXIS], destination[E_CART], fr_mm_s, active_extruder);
+#if ENABLED(HANGPRINTER)
+  UNUSED(fr_mm_s);
+#else
+  planner.buffer_line_joint(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination_Joint[Joint1_AXIS],
+                            destination_Joint[Joint2_AXIS], destination_Joint[Joint3_AXIS], destination_Joint[Joint4_AXIS],
+                            destination_Joint[Joint5_AXIS], destination[E_CART], fr_mm_s, active_extruder);
   // SERIAL_ECHOLNPAIR("feedrate_mm_s:",fr_mm_s);
 #endif
 }
@@ -452,17 +481,24 @@ bool find_region_in_out_d(float x_fr, float y_fr)
 
 bool In_Rectangle(float IR_X, float IR_Y)
 {
+#if !defined(No_print)
   SERIAL_ECHOPAIR("In_Rectangle X:", IR_X);
   SERIAL_ECHOPAIR(" Y:", IR_Y);
+#endif
+
   if ((IR_X >= 209 - (X_BED_SIZE / 2) - 1 && IR_X <= 670 - (X_BED_SIZE / 2) + 1) &&
       (IR_Y >= 615 - (Y_BED_SIZE / 2) - 1 && IR_Y <= 815 - (Y_BED_SIZE / 2) + 1))
   {
+#if !defined(No_print)
     SERIAL_ECHOLNPGM(" Within a rectangular measuring point");
+#endif
     return 1;
   }
   else
   {
+#if !defined(No_print)
     SERIAL_ECHOLNPGM(" Not within a rectangular measuring point");
+#endif
     return 0;
   }
 }
@@ -566,7 +602,8 @@ static float Reverse_Curve(const int32_t temp_pos, JointEnum Joint)
 
   temp_return = (float)(-sqrt(temp1 + temp2) - ba2);
   if (temp_return <= -3000) temp_return = (float)(+sqrt(temp1 + temp2) - ba2);
-  // temp_return=sqrt((temp_pos-c[Joint])/a[Joint]+ pow((b[Joint]/a[Joint])/2,2))-(b[Joint]/a[Joint])/2;
+  // temp_return=sqrt((temp_pos-c[Joint])/a[Joint]+
+  // pow((b[Joint]/a[Joint])/2,2))-(b[Joint]/a[Joint])/2;
   SERIAL_ECHOLNPAIR("  temp_return: ", temp_return);
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -594,7 +631,7 @@ static float Reverse_Curve_Many(const int num_total, const int32_t temp_pos, Joi
   temp3[1] = temp2 / 100000;
   temp3[0] = (int32_t)(temp2) % 100000;
 
-  SERIAL_ECHOLNPAIR("  a: ", pgm_read_float_near(&a_m2[num_total * 5 + Joint]));
+  SERIAL_ECHOLNPAIR("  a*1000000: ", pgm_read_float_near(&a_m2[num_total * 5 + Joint]) * 1000000);
   SERIAL_ECHOLNPAIR("  b: ", pgm_read_float_near(&b_m2[num_total * 5 + Joint]));
   SERIAL_ECHOLNPAIR("  c: ", pgm_read_float_near(&c_m2[num_total * 5 + Joint]));
   SERIAL_ECHOLNPAIR("  b/a/2: ", ba2);
@@ -604,8 +641,9 @@ static float Reverse_Curve_Many(const int num_total, const int32_t temp_pos, Joi
   // SERIAL_ECHOLNPAIR("  [(b/a)/2]^2(*10^0): ", temp3[0]);
 
   temp_return = (float)(-sqrt(temp1 + temp2) - ba2);
-  if (temp_return <= -3000) temp_return = (float)(+sqrt(temp1 + temp2) - ba2);
-  // temp_return=sqrt((temp_pos-c[Joint])/a[Joint]+ pow((b[Joint]/a[Joint])/2,2))-(b[Joint]/a[Joint])/2;
+  if (temp_return <= -10000) temp_return = (float)(+sqrt(temp1 + temp2) - ba2);
+  // temp_return=sqrt((temp_pos-c[Joint])/a[Joint]+
+  // pow((b[Joint]/a[Joint])/2,2))-(b[Joint]/a[Joint])/2;
   SERIAL_ECHOLNPAIR("  temp_return: ", temp_return);
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -629,5 +667,6 @@ void Go_to_Joint_Zero_Marlin()
   float max_feedrate_joint_init[Joint_All] = DEFAULT_MAX_FEEDRATE_JOINT;
   // planner.max_feedrate_mm_s_joint[Joint1_AXIS] = 700;
   planner.buffer_line_kinematic(current_position, current_position_Joint, MMM_TO_MMS(manual_feedrate_mm_m_joint1[0]), 0);
-  // planner.max_feedrate_mm_s_joint[Joint1_AXIS] = max_feedrate_joint_init[Joint1_AXIS];
+  // planner.max_feedrate_mm_s_joint[Joint1_AXIS] =
+  // max_feedrate_joint_init[Joint1_AXIS];
 }

@@ -3617,7 +3617,7 @@ bool set_probe_deployed_ones(const bool deploy) {
 
     // Stop the probe before it goes too low to prevent damage.
     // If Z isn't known then probe to -10mm.
-    const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
+    const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -15.0;
 
     // Double-probing does a fast probe followed by a slow probe
     #if MULTIPLE_PROBING == 2
@@ -3739,7 +3739,7 @@ bool set_probe_deployed_ones(const bool deploy) {
 
     // Stop the probe before it goes too low to prevent damage.
     // If Z isn't known then probe to -10mm.
-    const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
+    const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -15.0;
 
     // Double-probing does a fast probe followed by a slow probe
     #if MULTIPLE_PROBING == 2
@@ -7579,11 +7579,21 @@ void home_all_axes() { gcode_G28(true); }
           SERIAL_EOL();
 
           card.closefile();
-          for(int j=0;j<5;j++)
+          for(int j=0;j<10;j++)
           {
-            for(int i=0;i<5;i++)
+            for(int i=0;i<10;i++)
             {
-              SERIAL_ECHOPAIR(" ", eqnBVector[j*5+i]);
+              if(In_Rectangle(pgm_read_float_near(&Probe_position[(j*10+i)*3+0]) - (X_BED_SIZE/2),pgm_read_float_near(&Probe_position[(j*10+i)*3+1])- (Y_BED_SIZE/2)))
+                SERIAL_ECHOPAIR(" \t", eqnBVector[j*10+i]);
+            }
+            SERIAL_PROTOCOLLNPGM();
+          }
+          SERIAL_ECHOLNPGM("");
+          for(int j=0;j<10;j++)
+          {
+            for(int i=0;i<10;i++)
+            {
+              SERIAL_ECHOPAIR(" \t", eqnBVector[j*10+i]);
             }
             SERIAL_PROTOCOLLNPGM();
           }
